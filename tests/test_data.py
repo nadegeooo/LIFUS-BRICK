@@ -127,3 +127,41 @@ def test_fc_invariants(filepath, loaded_mats):
 
         assert (fc_matrix >= -1.0001).all() and (fc_matrix <= 1.0001).all(), \
             f"{fname} ({condition}) FC matrix contains values outside [-1, 1]."
+        
+
+
+# ================================================================================
+# 4. TREATMENT GROUP TESTS (to test added group field made in preprocessing)
+# ================================================================================
+VALID_GROUPS = {'VIM_first', 'ZI_first'}
+
+@pytest.mark.parametrize("filepath", ALL_FILES)
+def test_group_field_exists(filepath, loaded_mats):
+    """Confirm group field is present in every preprocessed file."""
+    fname = os.path.basename(filepath)
+    mat = loaded_mats[filepath]
+    assert 'group' in mat, f"{fname} is missing 'group' field"
+
+@pytest.mark.parametrize("filepath", ALL_FILES)
+def test_group_field_valid(filepath, loaded_mats):
+    """Confirm group value is either VIM_first or ZI_first."""
+    fname = os.path.basename(filepath)
+    mat = loaded_mats[filepath]
+    group = str(mat['group'].flat[0]).strip("[]'\"")
+    assert group in VALID_GROUPS, f"{fname} has invalid group value: '{group}'"
+
+# A subject isn't VIM_first in one file and ZI_first in another
+@pytest.mark.parametrize("subject", EXPECTED_SUBJECTS)
+def test_group_consistent_across_targets(subject):
+    """Confirm VIM and ZI files for the same subject have the same group label."""
+    vim_match = glob.glob(str(PREPROCESSED_DIR / f"{subject}_*_roi-vim_meants.mat"))
+    zi_match  = glob.glob(str(PREPROCESSED_DIR / f"{subject}_*_roi-zi_meants.mat"))
+
+    if not vim_match or not zi_match:
+        pytest.skip(f"Missing VIM or ZI file for {subject}")
+
+    vim_group = str(scipy.io.loadmat(vim_match[0])['group'].flat[0]).strip("[]'\"")
+    zi_group  = str(scipy.io.loadmat(zi_match[0])['group'].flat[0]).strip("[]'\"")
+
+    assert vim_group == zi_group, \
+        f"{subject} has mismatched groups: VIM file='{vim_group}', ZI file='{zi_group}'"
