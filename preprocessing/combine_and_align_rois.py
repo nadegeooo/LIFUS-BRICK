@@ -4,11 +4,11 @@ Neuroimaging BOLD Signal Preprocessing Script: ROI Combination and Alignment
 ================================================================================
 
 Description:
-    This script streamlines the preprocessing of self-contained subject fMRI 
-    BOLD time-series data stored in MATLAB (.mat) format. Each raw file contains 
-    23 ROIs along with an isolated 24th sonication region stored under a separate key. 
-    This function integrates the 25th region into the main data matrix and aligns
-    features to a standardized 24-ROI configuration, preserving the original data layout.
+    This script preprocesses subject fMRI BOLD time-series data stored in MATLAB 
+    (.mat) format. Each raw file contains 23 ROIs along with an isolated 24th 
+    sonication region stored under a separate key. This function aligns features 
+    to a standardized 24-ROI configuration, preserving the original data layout.
+    It also maps patient identities to VIM_first or ZI_first groups.          
 
 Core Processing Steps:
     1. Scan the raw data directory for standard MATLAB (*.mat) files.
@@ -41,14 +41,19 @@ Execution:
 import os
 import glob
 import numpy as np
+import pandas as pd                                         
 from scipy.io import loadmat, savemat
 
 # --- PATHS ---
-RAW_DIR = os.path.join("data", "raw_data")
-OUTPUT_DIR = os.path.join("data", "preprocessed_data")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(SCRIPT_DIR)
+
+RAW_DIR    = os.path.join(ROOT_DIR, "data", "raw_data")
+OUTPUT_DIR = os.path.join(ROOT_DIR, "data", "preprocessed_data")
+MAPPING_PATH = os.path.join(ROOT_DIR, "data", "patient_treatment_mapping.xlsx")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# ---  TARGET 24 ROIs IN ORDER ---
+# --- TARGET 24 ROIs IN ORDER ---
 TARGET_ROIS = [
     'lh_Ca', 'lh_GPe', 'lh_GPi', 'lh_Pu', 'lh_STH', 'lh_cerebellum_dentate',
     'lh_cerebellum_motor', 'lh_paracentral_smooth3mm', 'lh_postcentral_smooth3mm',
@@ -58,8 +63,12 @@ TARGET_ROIS = [
     'rh_precentral_smooth3mm', 'rh_superiorfrontal_smooth3mm'
 ]
 
+# CHANGED: added treatment group mapping
+mapping = pd.read_excel(MAPPING_PATH)
+mapping['subject_id'] = mapping['Subject ID'].str.replace('sub-', '')
+group_map = dict(zip(mapping['subject_id'], mapping['Group']))
+
 def preprocess_subject_data():
-    # Find all main subject files
     mat_files = glob.glob(os.path.join(RAW_DIR, "*.mat"))
     
     if not mat_files:
@@ -82,6 +91,12 @@ def preprocess_subject_data():
         else:
             print(f"⚠️ Skipping {filename}: Name doesn't contain 'roi-zi' or 'roi-vim'.")
             continue
+
+        # Look up treatment group from mapping
+        subject_id = filename.split('_')[0].replace('sub-', '')
+        group = group_map.get(subject_id, 'unknown')
+        if group == 'unknown':
+            print(f"⚠️ No group mapping found for {subject_id}")
             
         # 2. Load the data fields
         mat_data = loadmat(filepath)
@@ -117,18 +132,18 @@ def preprocess_subject_data():
         fn_aligned = np.array(TARGET_ROIS, dtype=object)
         
         # 7. Construct the new .mat dictionary containing ONLY the cleaned keys
-        # Format is identical to input: shapes remain (240, 24)
         output_mat_data = {
-            'mpre': mpre_aligned,
+            'mpre':  mpre_aligned,
             'mpost': mpost_aligned,
-            'fn': fn_aligned
+            'fn':    fn_aligned,
+            'group': np.array([group], dtype=object)      # Added group field
         }
         
         # Save out as a standard .mat file
         output_filepath = os.path.join(OUTPUT_DIR, filename)
         savemat(output_filepath, output_mat_data)
         
-        print(f"   Success! Saved {filename} with mpre/mpost shape: {mpre_aligned.shape}")
+        print(f"   ✅ Saved {filename} | shape: {mpre_aligned.shape} | group: {group}")
         
     print("\nProcessing complete! Cleaned .mat files are stored in data/preprocessed_data/")
 
