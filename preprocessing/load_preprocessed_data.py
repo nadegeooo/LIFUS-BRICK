@@ -22,7 +22,7 @@ def get_all_files():
 def load_subject(filepath):
     """
     Load a single preprocessed .mat file.
-    Returns dict with keys: mpre, mpost, roi_names, subject_id, target
+    Returns dict with keys: mpre, mpost, roi_names, subject_id, target, group
     """
     path = Path(filepath)
     mat = scipy.io.loadmat(filepath)
@@ -34,6 +34,7 @@ def load_subject(filepath):
         'roi_names':  TARGET_ROIS,
         'subject_id': parts[0].replace('sub-', ''),
         'target':     parts[2].replace('roi-', ''),
+        'group': str(mat['group'].flat[0]).strip("[]'\""),
         'filepath':   str(path)
     }
 
