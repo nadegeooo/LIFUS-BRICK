@@ -51,10 +51,9 @@ def init_koopman_params(M: int, r_min: float = R_MIN, r_max: float = R_MAX):
     eigenvalues via the stable exponential form, and P (complex matrix)
     which defines the eigenvector directions.
 
-    Eigenvalue magnitudes are log-uniformly sampled in [r_min, r_max] to give
-    a spread of memory timescales, biased toward long memory (values near 1).
-    Phases are uniformly sampled in [0, 2*pi] to cover all oscillation
-    frequencies.
+    Eigenvalue magnitudes are ring-uniformly sampled (uniform in |Lambda|^2) in
+    [r_min, r_max], biased toward long memory (values near r_max). This matches
+    the initialization method from Orvieto et al. 2023 (LRU paper).
 
     Args:
         M (int): Latent dimension (N_ROIS x H)
@@ -65,22 +64,20 @@ def init_koopman_params(M: int, r_min: float = R_MIN, r_max: float = R_MAX):
         P         (torch.Tensor): Complex matrix of shape (M, M), eigenvectors
     """
 
-    # We want samples of r in [r_min, r_max] with log-uniform distribution.
-    # To get this, we sample uniformly from [0,1)
-    # ]
+    # Ring-uniform: sample |Lambda|^2 uniformly in [r_min^2, r_max^2],
+    # then take the square root to get r. This biases magnitudes toward r_max
+    # (long memory), matching the LRU paper initialization.
 
     # Sample log-uniform magnitudes in [r_min, r_max]
     # log(-log(r)) inverts the stable exponential: exp(-exp(nu)) = r
     u1 = torch.rand(M)
-    log_r = u1 * (math.log(r_max) - math.log(r_min)) + math.log(r_min)
-    # nu_log = log(-log_r) so that exp(-exp(nu_log)) = r
-    nu_log = torch.log(-log_r)
+    nu_log = torch.log(-0.5 * torch.log(u1 * (r_max ** 2 - r_min ** 2) + r_min ** 2))
 
-    # Sample uniform phases in [0, 2*pi]
-    # theta_log = log(theta) so that exp(theta_log) = theta
-    u2 = torch.rand(M).clamp(min=1e-8) #set a minimum so we are not taking log(0)
-    theta = 2 * math.pi * u2
-    theta_log = torch.log(theta)
+    # --- Phase: uniform in [0, 2*pi] ---
+    # theta_log = log(theta) so that exp(theta_log) = theta.
+    # Clamp away from 0 so log(theta) is finite.
+    u2 = torch.rand(M).clamp(min=1e-8)
+    theta_log = torch.log(2 * math.pi * u2)
 
     # Random complex eigenvector matrix P (needs to be invertible; test checks this)
     P = torch.complex(torch.randn(M, M), torch.randn(M, M))
@@ -155,53 +152,33 @@ def sequential_scan(
 def parallel_scan(
     Lambda: torch.Tensor,
     g0: torch.Tensor,
-    n_steps: int
+    n_steps: int,
 ) -> torch.Tensor:
     """
-    Propagate latent state g0 forward n_steps using an associative parallel scan.
-
-    Since Lambda is diagonal, g_t = Lambda^t * g0 (elementwise). This means
-    we can precompute Lambda^1, Lambda^2, Lambda^4, ... via repeated elementwise
-    squaring (O(log T) steps), then assemble the full trajectory in parallel by
-    binary decomposition of each timestep index.
-
-    This is O(T log T) elementwise operations vs O(T) for sequential, but
-    all T timesteps can be computed in parallel on GPU in O(log T) passes.
-
+    Propagate latent state g0 forward n_steps in the eigenspace.
+ 
+    Since Lambda is diagonal, g_t = Lambda^t * g0 (elementwise). The powers
+    Lambda^1, ..., Lambda^T are obtained with a single cumulative product
+    (a parallel-scan primitive: O(T) work and O(log T) depth on GPU), which
+    avoids the previous per-timestep / per-bit Python loop.
+ 
+    Returns row t-1 = Lambda^t * g0, matching sequential_scan.
+ 
+    Note: for this *autonomous* recurrence the powers are a closed form, so a
+    scan is not strictly required (Lambda ** t would also work). The cumprod
+    formulation is kept because it is the natural building block once the
+    control term C @ u_t is folded in (the associative scan over (a, b) pairs).
+ 
     Args:
         Lambda  (torch.Tensor): Complex eigenvalue vector, shape (M,)
         g0      (torch.Tensor): Initial latent state, shape (M,), complex
         n_steps (int):          Number of timesteps T
-
+ 
     Returns:
         torch.Tensor: Complex latent trajectory of shape (T, M),
                       where entry [t] = Lambda^(t+1) * g0
     """
-    if n_steps == 1:
-        return (Lambda * g0).unsqueeze(0)  # (1, M)
-
-    # Precompute Lambda^1, Lambda^2, Lambda^4, ..., Lambda^(2^ceil(log2(T)))
-    # Each is just elementwise squaring — cheap since Lambda is a vector
-    max_power = math.ceil(math.log2(n_steps))
-    powers = [Lambda]
-    current = Lambda
-    for _ in range(max_power):
-        current = current * current  # Lambda^(2^k) elementwise
-        powers.append(current)
-
-    # Build trajectory: g_t = Lambda^t * g0 for t = 1, ..., n_steps
-    # Decompose each t in binary and combine precomputed powers elementwise
-    trajectory = []
-    for t in range(1, n_steps + 1):
-        # Compute Lambda^t via binary decomposition
-        Lambda_t = torch.ones_like(Lambda)
-        bit = 0
-        temp = t
-        while temp > 0:
-            if temp & 1:
-                Lambda_t = powers[bit] * Lambda_t  # elementwise
-            temp >>= 1
-            bit += 1
-        trajectory.append(Lambda_t * g0)
-
-    return torch.stack(trajectory, dim=0)  # (T, M)
+    # (1, M) -> (T, M) view, then cumulative product down the time axis.
+    Lambda_rows = Lambda.unsqueeze(0).expand(n_steps, -1)   # (T, M)
+    Lambda_powers = torch.cumprod(Lambda_rows, dim=0)       # (T, M): row t-1 = Lambda^t
+    return Lambda_powers * g0                               # broadcast (T, M) * (M,)
