@@ -182,3 +182,27 @@ def parallel_scan(
     Lambda_rows = Lambda.unsqueeze(0).expand(n_steps, -1)   # (T, M)
     Lambda_powers = torch.cumprod(Lambda_rows, dim=0)       # (T, M): row t-1 = Lambda^t
     return Lambda_powers * g0                               # broadcast (T, M) * (M,)
+
+
+# ================================================================================
+# PEARSON CORRELATION
+# ================================================================================
+
+def compute_pearson(x: torch.Tensor) -> torch.Tensor:
+    """
+    Compute Pearson correlation matrix from timeseries.
+    
+    Args:
+        x (torch.Tensor): shape (T, N) — timepoints x ROIs
+    
+    Returns:
+        torch.Tensor: shape (N, N) — FC matrix
+    """
+    # Centre each ROI (subtract mean)
+    x = x - x.mean(dim=0, keepdim=True)
+    # Normalise each ROI by its std
+    std = x.std(dim=0, keepdim=True).clamp(min=1e-8)
+    x = x / std
+    # Correlation = (X^T X) / (T - 1)
+    fc = (x.T @ x) / (x.shape[0] - 1)
+    return fc
