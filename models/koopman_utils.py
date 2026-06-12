@@ -199,10 +199,10 @@ def compute_pearson(x: torch.Tensor) -> torch.Tensor:
         torch.Tensor: shape (N, N) — FC matrix
     """
     # Centre each ROI (subtract mean)
-    x = x - x.mean(dim=0, keepdim=True)
+    x = x - x.mean(dim=-2, keepdim=True)
     # Normalise each ROI by its std
-    std = x.std(dim=0, keepdim=True).clamp(min=1e-8)
+    std = x.std(dim=-2, keepdim=True).clamp(min=1e-8)
     x = x / std
     # Correlation = (X^T X) / (T - 1)
-    fc = (x.T @ x) / (x.shape[0] - 1)
+    fc = (x.mT @ x) / (x.shape[-2] - 1)      # works for both (T,N) and (B,T,N)
     return fc
