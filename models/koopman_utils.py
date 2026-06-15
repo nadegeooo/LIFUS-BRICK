@@ -70,7 +70,7 @@ def init_koopman_params(M: int, r_min: float = R_MIN, r_max: float = R_MAX):
 
     # Sample log-uniform magnitudes in [r_min, r_max]
     # log(-log(r)) inverts the stable exponential: exp(-exp(nu)) = r
-    u1 = torch.rand(M)
+    u1 = torch.rand(M)  #[0,1), uniform for ring-uniform sampling
     nu_log = torch.log(-0.5 * torch.log(u1 * (r_max ** 2 - r_min ** 2) + r_min ** 2))
 
     # --- Phase: uniform in [0, 2*pi] ---
@@ -80,7 +80,7 @@ def init_koopman_params(M: int, r_min: float = R_MIN, r_max: float = R_MAX):
     theta_log = torch.log(2 * math.pi * u2)
 
     # Random complex eigenvector matrix P (needs to be invertible; test checks this)
-    P = torch.complex(torch.randn(M, M), torch.randn(M, M))
+    P = torch.complex(torch.randn(M, M), torch.randn(M, M))         # Creates 2 MxM matrices and merges them so the first is real the second is imaginary.
 
     return nu_log, theta_log, P
 
@@ -108,7 +108,7 @@ def compute_lambda(nu_log: torch.Tensor, theta_log: torch.Tensor) -> torch.Tenso
     """
     log_magnitude = -torch.exp(nu_log)      # always negative -> magnitude in (0,1)
     phase         =  torch.exp(theta_log)   # always positive
-    return torch.exp(torch.complex(log_magnitude, phase))
+    return torch.exp(torch.complex(log_magnitude, phase)) #lambda
 
 
 # ================================================================================
@@ -204,5 +204,5 @@ def compute_pearson(x: torch.Tensor) -> torch.Tensor:
     std = x.std(dim=-2, keepdim=True).clamp(min=1e-8)
     x = x / std
     # Correlation = (X^T X) / (T - 1)
-    fc = (x.mT @ x) / (x.shape[-2] - 1)      # works for both (T,N) and (B,T,N)
+    fc = (x.mT @ x) / (x.shape[-2] - 1)      # works for both (T,N) and (B,T,N): makes it batch aware
     return fc
