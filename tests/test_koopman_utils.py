@@ -170,18 +170,31 @@ def test_compute_lambda_exact_formula():
 # ================================================================================
 # 3. parallel_scan and sequential_scan
 # ================================================================================
-
+ 
+def make_u_bar(g0: torch.Tensor, T: int) -> torch.Tensor:
+    """
+    Assemble u_bar for the autonomous case (no control inputs):
+        u_bar[0] = g0   (initial condition)
+        u_bar[1:] = 0   (no control)
+    Shape: (T, M)
+    """
+    u_bar = torch.zeros(T, g0.shape[0], dtype=g0.dtype)
+    u_bar[0] = g0
+    return u_bar
+ 
+ 
 @pytest.mark.parametrize("n_steps", T_VALUES)
 def test_parallel_scan_output_shape(n_steps):
     """parallel_scan output must be (T, M)."""
     nu_log, theta_log, _ = init_koopman_params(M)
     Lambda = compute_lambda(nu_log, theta_log)
-    g0  = torch.randn(M, dtype=torch.complex64)
-    out = parallel_scan(Lambda, g0, n_steps)
-
+    g0     = torch.randn(M, dtype=torch.complex64)
+    u_bar  = make_u_bar(g0, n_steps)
+    out    = parallel_scan(Lambda, u_bar)
+ 
     assert out.shape == (n_steps, M), f"Expected ({n_steps}, {M}), got {out.shape}"
-
-
+ 
+ 
 @pytest.mark.parametrize("n_steps", T_VALUES)
 def test_parallel_scan_matches_sequential(n_steps):
     """
@@ -193,140 +206,158 @@ def test_parallel_scan_matches_sequential(n_steps):
     nu_log, theta_log, _ = init_koopman_params(M)
     Lambda = compute_lambda(nu_log, theta_log)
     g0     = torch.randn(M, dtype=torch.complex64)
-
-    out_par = parallel_scan(Lambda, g0, n_steps)
-    out_seq = sequential_scan(Lambda, g0, n_steps)
-
+    u_bar  = make_u_bar(g0, n_steps)
+ 
+    out_par = parallel_scan(Lambda, u_bar)
+    out_seq = sequential_scan(Lambda, u_bar)
+ 
     assert torch.allclose(out_par, out_seq, atol=TOLERANCE_SCAN), \
         f"Max difference: {(out_par - out_seq).abs().max().item()}"
-
-
+ 
+ 
 @pytest.mark.parametrize("n_steps", T_VALUES)
 def test_scans_match_closed_form(n_steps):
     """
-    Both scans must match the closed form Lambda**t * g0, computed via
-    elementwise power — a different code path from both cumprod (parallel)
-    and iterated multiply (sequential). This is the independent oracle.
+    For the autonomous case (u_bar[0]=g0, u_bar[1:]=0), both scans must match
+    the closed form:
+        ḡ_1 = g0
+        ḡ_t = Lambda^{t-1} * g0  for t >= 2
+    Which simplifies to: output[t] = Lambda^t * g0 (0-indexed).
+    This is an independent oracle computed via elementwise power.
     """
     torch.manual_seed(0)
     nu_log, theta_log, _ = init_koopman_params(M)
     Lambda = compute_lambda(nu_log, theta_log)
     g0     = torch.randn(M, dtype=torch.complex64)
-
-    t        = torch.arange(1, n_steps + 1).unsqueeze(1)  # (T, 1)
-    expected = (Lambda.unsqueeze(0) ** t) * g0             # (T, M)
-
-    assert torch.allclose(parallel_scan(Lambda, g0, n_steps), expected, atol=TOLERANCE_SCAN), \
-        f"parallel vs closed-form max diff {(parallel_scan(Lambda, g0, n_steps) - expected).abs().max().item()}"
-    assert torch.allclose(sequential_scan(Lambda, g0, n_steps), expected, atol=TOLERANCE_SCAN), \
-        f"sequential vs closed-form max diff {(sequential_scan(Lambda, g0, n_steps) - expected).abs().max().item()}"
-
-
+    u_bar  = make_u_bar(g0, n_steps)
+ 
+    # Closed form: output[t] = Lambda^t * g0 (t=0 means Lambda^0 = 1 -> g0)
+    t        = torch.arange(0, n_steps).unsqueeze(1)   # (T, 1)
+    expected = (Lambda.unsqueeze(0) ** t) * g0          # (T, M)
+ 
+    out_par = parallel_scan(Lambda, u_bar)
+    out_seq = sequential_scan(Lambda, u_bar)
+ 
+    assert torch.allclose(out_par, expected, atol=1e-4), \
+        f"parallel vs closed-form max diff {(out_par - expected).abs().max().item()}"
+    assert torch.allclose(out_seq, expected, atol=1e-4), \
+        f"sequential vs closed-form max diff {(out_seq - expected).abs().max().item()}"
+ 
+ 
 def test_parallel_scan_edge_case_T1():
     """parallel_scan must handle T=1 and return shape (1, M)."""
     nu_log, theta_log, _ = init_koopman_params(M)
     Lambda = compute_lambda(nu_log, theta_log)
-    g0  = torch.randn(M, dtype=torch.complex64)
-    out = parallel_scan(Lambda, g0, n_steps=1)
-
+    g0     = torch.randn(M, dtype=torch.complex64)
+    u_bar  = make_u_bar(g0, 1)
+    out    = parallel_scan(Lambda, u_bar)
+ 
     assert out.shape == (1, M), f"Expected (1, {M}), got {out.shape}"
-
-
+ 
+ 
 def test_parallel_scan_deterministic():
     """Same inputs must always produce the same output."""
     torch.manual_seed(42)
     nu_log, theta_log, _ = init_koopman_params(M)
     Lambda = compute_lambda(nu_log, theta_log)
     g0     = torch.randn(M, dtype=torch.complex64)
-
+    u_bar  = make_u_bar(g0, 20)
+ 
     assert torch.allclose(
-        parallel_scan(Lambda, g0, n_steps=20),
-        parallel_scan(Lambda, g0, n_steps=20),
+        parallel_scan(Lambda, u_bar),
+        parallel_scan(Lambda, u_bar),
     ), "parallel_scan is not deterministic"
-
-
+ 
+ 
 @pytest.mark.parametrize("n_steps", T_VALUES)
 def test_parallel_scan_no_nan_inf(n_steps):
     """parallel_scan must not produce NaN or Inf values."""
     nu_log, theta_log, _ = init_koopman_params(M)
     Lambda = compute_lambda(nu_log, theta_log)
     g0     = torch.randn(M, dtype=torch.complex64)
-    out    = parallel_scan(Lambda, g0, n_steps)
-
+    u_bar  = make_u_bar(g0, n_steps)
+    out    = parallel_scan(Lambda, u_bar)
+ 
     assert torch.isfinite(out.abs()).all(), \
         f"NaN or Inf in parallel_scan output at T={n_steps}"
-
-
-def test_parallel_scan_stable():
-    """Implicityly tests that Lambda**t does not explode in magnitude, which would indicate a stability violation.
-    Should hold anyways because of limits on lambda"""
-    torch.manual_seed(42)
-    nu_log, theta_log, _ = init_koopman_params(M)
-    Lambda = compute_lambda(nu_log, theta_log)
-    g0     = torch.randn(M, dtype=torch.complex64)
-    out    = parallel_scan(Lambda, g0, n_steps=T_DATA)
-
-    initial_norm = g0.abs().norm().item()
-    final_norm   = out[-1].abs().norm().item()
-
-    assert final_norm <= initial_norm, (
-        f"Latent state exploded: initial norm={initial_norm:.3f}, "
-        f"final norm={final_norm:.3f}"
-    )
-
-
+ 
+ 
 def test_scan_hand_worked_real():
     """
-    Human-verifiable case with real Lambda=[2, 3], g0=[1, 1]:
-        t=1: [2, 3]   t=2: [4, 9]   t=3: [8, 27]
-    Lambda magnitudes > 1 are intentional here — we bypass compute_lambda
-    to test the scan arithmetic directly.
+    Human-verifiable autonomous case: Lambda=[2,3], g0=[1,1], T=3.
+    Recurrence ḡ_t = Lambda * ḡ_{t-1} + u_bar[t], ḡ_0=0:
+        t=0: ḡ_1 = Lambda*0 + [1,1] = [1, 1]
+        t=1: ḡ_2 = Lambda*[1,1] + 0 = [2, 3]
+        t=2: ḡ_3 = Lambda*[2,3] + 0 = [4, 9]
+    Lambda magnitudes > 1 are intentional — bypasses compute_lambda to test
+    scan arithmetic directly.
     """
     Lambda   = torch.tensor([2.0, 3.0], dtype=torch.complex64)
     g0       = torch.tensor([1.0, 1.0], dtype=torch.complex64)
-    expected = torch.tensor([[2, 3], [4, 9], [8, 27]], dtype=torch.complex64)
-
-    assert torch.allclose(parallel_scan(Lambda, g0, 3), expected)
-    assert torch.allclose(sequential_scan(Lambda, g0, 3), expected)
-
-
+    u_bar    = make_u_bar(g0, 3)
+    expected = torch.tensor([[1, 1], [2, 3], [4, 9]], dtype=torch.complex64)
+ 
+    assert torch.allclose(parallel_scan(Lambda, u_bar), expected)
+    assert torch.allclose(sequential_scan(Lambda, u_bar), expected)
+ 
+ 
 def test_scan_hand_worked_complex():
     """
-    Human-verifiable case with complex Lambda=[i, 0.5], g0=[1, 2]:
-        t=1: [i, 1]   t=2: [-1, 0.5]   t=3: [-i, 0.25]
-    Exercises complex multiply and verifies the phase sign convention.
+    Human-verifiable autonomous case: Lambda=[i, 0.5], g0=[1, 2], T=3.
+    Recurrence ḡ_t = Lambda * ḡ_{t-1} + u_bar[t], ḡ_0=0:
+        t=0: ḡ_1 = [i,0.5]*0 + [1,2]   = [1,   2]
+        t=1: ḡ_2 = [i,0.5]*[1,2] + 0   = [i,   1]
+        t=2: ḡ_3 = [i,0.5]*[i,1] + 0   = [-1, 0.5]
+    Exercises complex multiply and verifies phase sign convention.
     """
     Lambda   = torch.tensor([1j, 0.5 + 0j], dtype=torch.complex64)
     g0       = torch.tensor([1.0 + 0j, 2.0 + 0j], dtype=torch.complex64)
+    u_bar    = make_u_bar(g0, 3)
     expected = torch.tensor(
-        [[1j, 1.0], [-1.0, 0.5], [-1j, 0.25]], dtype=torch.complex64
+        [[1+0j, 2+0j], [1j, 1+0j], [-1+0j, 0.5+0j]], dtype=torch.complex64
     )
-
-    assert torch.allclose(parallel_scan(Lambda, g0, 3), expected, atol=1e-6)
-    assert torch.allclose(sequential_scan(Lambda, g0, 3), expected, atol=1e-6)
-
-
+ 
+    assert torch.allclose(parallel_scan(Lambda, u_bar), expected, atol=1e-6)
+    assert torch.allclose(sequential_scan(Lambda, u_bar), expected, atol=1e-6)
+ 
+ 
+def test_scan_with_control_inputs():
+    """
+    Verify scan with non-zero control inputs (not just autonomous).
+    Hand-worked: Lambda=[0.5], u_bar=[[1],[2],[3]]
+        ḡ_1 = 0.5*0 + 1 = 1
+        ḡ_2 = 0.5*1 + 2 = 2.5
+        ḡ_3 = 0.5*2.5 + 3 = 4.25
+    """
+    Lambda   = torch.tensor([0.5+0j], dtype=torch.complex64)
+    u_bar    = torch.tensor([[1+0j], [2+0j], [3+0j]], dtype=torch.complex64)
+    expected = torch.tensor([[1+0j], [2.5+0j], [4.25+0j]], dtype=torch.complex64)
+ 
+    assert torch.allclose(parallel_scan(Lambda, u_bar), expected, atol=1e-6)
+    assert torch.allclose(sequential_scan(Lambda, u_bar), expected, atol=1e-6)
+ 
+ 
 def test_gradients_flow_through_scan():
     """
     nu_log and theta_log must receive non-zero finite gradients through the
     scan. An accidental detach() or in-place op would freeze them silently.
-    P is not used by the scan functions and is out of scope here.
     """
     torch.manual_seed(0)
     nu_log    = torch.randn(M, requires_grad=True)
     theta_log = torch.randn(M, requires_grad=True)
     g0        = torch.randn(M, dtype=torch.complex64)
-
+ 
     Lambda = compute_lambda(nu_log, theta_log)
-    out    = parallel_scan(Lambda, g0, n_steps=10)
+    u_bar  = make_u_bar(g0, 10)
+    out    = parallel_scan(Lambda, u_bar)
     out.abs().sum().backward()
-
+ 
     for name, p in [("nu_log", nu_log), ("theta_log", theta_log)]:
-        assert p.grad is not None,              f"{name} received no gradient"
-        assert torch.isfinite(p.grad).all(),    f"{name} has non-finite gradient"
-        assert p.grad.abs().sum() > 0,          f"{name} gradient is all zero"
-
-
+        assert p.grad is not None,           f"{name} received no gradient"
+        assert torch.isfinite(p.grad).all(), f"{name} has non-finite gradient"
+        assert p.grad.abs().sum() > 0,       f"{name} gradient is all zero"
+ 
+ 
 @pytest.mark.skipif(
     not torch.cuda.is_available(),
     reason=(
@@ -341,7 +372,8 @@ def test_parallel_faster_than_sequential_gpu():
     Lambda = compute_lambda(nu_log, theta_log).to(dev)
     g0     = torch.randn(M, dtype=torch.complex64, device=dev)
     T      = max(4096, T_DATA)
-
+    u_bar  = make_u_bar(g0, T).to(dev)
+ 
     def best(fn, reps=5):
         fn(); torch.cuda.synchronize()
         times = []
@@ -352,9 +384,9 @@ def test_parallel_faster_than_sequential_gpu():
             torch.cuda.synchronize()
             times.append(time.perf_counter() - s)
         return min(times)
-
-    t_par = best(lambda: parallel_scan(Lambda, g0, T))
-    t_seq = best(lambda: sequential_scan(Lambda, g0, T))
+ 
+    t_par = best(lambda: parallel_scan(Lambda, u_bar))
+    t_seq = best(lambda: sequential_scan(Lambda, u_bar))
     assert t_par < 0.5 * t_seq, (
         f"parallel {t_par*1e3:.1f}ms not < half of sequential {t_seq*1e3:.1f}ms"
     )

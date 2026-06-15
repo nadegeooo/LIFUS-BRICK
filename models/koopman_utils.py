@@ -117,32 +117,28 @@ def compute_lambda(nu_log: torch.Tensor, theta_log: torch.Tensor) -> torch.Tenso
 
 def sequential_scan(
     Lambda: torch.Tensor,
-    g0: torch.Tensor,
-    n_steps: int
+    u_bar: torch.Tensor,
 ) -> torch.Tensor:
     """
-    Propagate latent state g0 forward n_steps using a sequential for-loop.
-
-    Since Lambda is diagonal, the recurrence is elementwise:
-        g_t = Lambda^t * g0  (elementwise complex multiply)
-
-    Used only to verify parallel_scan correctness in tests.
-    Do NOT use in the model — O(T) sequential steps.
-
+    Compute linear recurrence sequentially (test utility only — do not use in model):
+        ḡ_t = Λ ⊙ ḡ_{t-1} + ū_t,  ḡ_0 = 0
+ 
     Args:
-        Lambda  (torch.Tensor): Complex eigenvalue vector, shape (M,)
-        g0      (torch.Tensor): Initial latent state, shape (M,), complex
-        n_steps (int):          Number of timesteps T
-
+        Lambda (torch.Tensor): Complex eigenvalues, shape (M,)
+        u_bar  (torch.Tensor): Transformed input sequence, shape (T, M), complex
+                               u_bar[0]  = P_inv @ g_0      (initial condition)
+                               u_bar[1:] = P_inv @ C @ u_t  (control inputs)
+ 
     Returns:
-        torch.Tensor: Complex latent trajectory of shape (T, M)
+        torch.Tensor: Latent trajectory in eigenspace, shape (T, M), complex
     """
     trajectory = []
-    g = g0.clone()
-    for _ in range(n_steps):
-        g = Lambda * g
-        trajectory.append(g)
+    g_bar = torch.zeros_like(u_bar[0])
+    for t in range(u_bar.shape[0]):
+        g_bar = Lambda * g_bar + u_bar[t]
+        trajectory.append(g_bar)
     return torch.stack(trajectory, dim=0)  # (T, M)
+
 
 
 # ================================================================================
@@ -151,37 +147,57 @@ def sequential_scan(
 
 def parallel_scan(
     Lambda: torch.Tensor,
-    g0: torch.Tensor,
-    n_steps: int,
+    u_bar: torch.Tensor,
 ) -> torch.Tensor:
     """
-    Propagate latent state g0 forward n_steps in the eigenspace.
+    Compute linear recurrence using associative parallel scan:
+        ḡ_t = Λ ⊙ ḡ_{t-1} + ū_t,  ḡ_0 = 0
  
-    Since Lambda is diagonal, g_t = Lambda^t * g0 (elementwise). The powers
-    Lambda^1, ..., Lambda^T are obtained with a single cumulative product
-    (a parallel-scan primitive: O(T) work and O(log T) depth on GPU), which
-    avoids the previous per-timestep / per-bit Python loop.
+    Uses the binary operator from Orvieto et al. 2023 (LRU paper):
+        (a_i, b_i) ⊕ (a_j, b_j) = (a_j * a_i, a_j * b_i + b_j)
  
-    Returns row t-1 = Lambda^t * g0, matching sequential_scan.
- 
-    Note: for this *autonomous* recurrence the powers are a closed form, so a
-    scan is not strictly required (Lambda ** t would also work). The cumprod
-    formulation is kept because it is the natural building block once the
-    control term C @ u_t is folded in (the associative scan over (a, b) pairs).
+    Implemented via recursive doubling: O(T log T) work, O(log T) depth.
  
     Args:
-        Lambda  (torch.Tensor): Complex eigenvalue vector, shape (M,)
-        g0      (torch.Tensor): Initial latent state, shape (M,), complex
-        n_steps (int):          Number of timesteps T
+        Lambda (torch.Tensor): Complex eigenvalues, shape (M,)
+        u_bar  (torch.Tensor): Transformed input sequence, shape (T, M), complex
+                               u_bar[0]  = P_inv @ g_0      (initial condition)
+                               u_bar[1:] = P_inv @ C @ u_t  (control inputs)
  
     Returns:
-        torch.Tensor: Complex latent trajectory of shape (T, M),
-                      where entry [t] = Lambda^(t+1) * g0
+        torch.Tensor: Latent trajectory in eigenspace, shape (T, M), complex
     """
-    # (1, M) -> (T, M) view, then cumulative product down the time axis.
-    Lambda_rows = Lambda.unsqueeze(0).expand(n_steps, -1)   # (T, M)
-    Lambda_powers = torch.cumprod(Lambda_rows, dim=0)       # (T, M): row t-1 = Lambda^t
-    return Lambda_powers * g0                               # broadcast (T, M) * (M,)
+    T, M = u_bar.shape
+ 
+    # Expand Lambda to (T, M) — same eigenvalues broadcast at every timestep
+    a = Lambda.unsqueeze(0).expand(T, -1).clone()  # (T, M)
+    b = u_bar.clone()                               # (T, M)
+ 
+    # Pad to next power of 2 for clean recursive doubling
+    next_pow2 = 1
+    while next_pow2 < T:
+        next_pow2 *= 2
+ 
+    pad = next_pow2 - T
+    if pad > 0:
+        a = torch.cat([a, torch.ones(pad, M, dtype=a.dtype, device=a.device)],  dim=0)
+        b = torch.cat([b, torch.zeros(pad, M, dtype=b.dtype, device=b.device)], dim=0)
+ 
+    # Inclusive prefix scan via recursive doubling
+    # After each step, element i contains combined result of [i - step .. i]
+    step = 1
+    while step < next_pow2:
+        i = torch.arange(step, next_pow2, device=u_bar.device)
+        j = i - step
+        a_new = a[i] * a[j]
+        b_new = a[i] * b[j] + b[i]
+        a = a.clone()
+        b = b.clone()
+        a[i] = a_new
+        b[i] = b_new
+        step *= 2
+ 
+    return b[:T]  # (T, M) — remove padding
 
 
 # ================================================================================
