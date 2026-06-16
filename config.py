@@ -14,7 +14,12 @@ R_MIN = 0.9
 R_MAX = 0.999
 
 
-# Hyperparams for encoder row-wise MLP
+# Hyperparams for Control Module encoder (row-wise MLP)
 MLP_HIDDEN = 64
 NHEAD = 4
 NUM_LAYERS = 2
+
+#Brick implementation
+BETA = 0.5        # loss balance: β * L_cls + (1-β) * L_ELBO
+NUM_CLASSES = 2   # number of task states for classifier (pre- vs post- sonication)
+EPSILON = 0.1     # prior variance for g_0 ~ N(0, εI)

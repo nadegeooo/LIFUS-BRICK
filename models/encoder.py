@@ -16,7 +16,9 @@ class Encoder(nn.Module):
         self.logvar_clamp = logvar_clamp
 
         self.row_mlp = nn.Sequential(
-            nn.Linear(n_rois, mlp_hidden), nn.ReLU(), nn.Linear(mlp_hidden, h),
+            nn.Linear(n_rois, mlp_hidden), 
+            nn.ReLU(), 
+            nn.Linear(mlp_hidden, h),
         )
 
         def make_head():
@@ -56,6 +58,16 @@ class Encoder(nn.Module):
         if not batched:
             mu, logvar = mu.squeeze(0), logvar.squeeze(0)
         return mu, logvar
+
+    def encode_and_sample(self, x):
+        # Single pass: compute the posterior stats once, sample from those same stats.
+        mu, logvar = self.encode_distribution(x)
+        if self.training:
+            eps = torch.randn_like(mu)
+            g_0 = mu + eps * torch.exp(0.5 * logvar)
+        else:
+            g_0 = mu
+        return g_0, mu, logvar
 
     def forward(self, x):
         mu, logvar = self.encode_distribution(x)

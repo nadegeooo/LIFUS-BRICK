@@ -324,3 +324,67 @@ def test_logvar_is_clamped():
     enc = Encoder(logvar_clamp=(-4.0, 4.0))
     _, logvar = enc.encode_distribution(torch.randn(T_DATA, N_ROIS))
     assert logvar.min() >= -4.0 - 1e-5 and logvar.max() <= 4.0 + 1e-5
+
+
+
+# ================================================================================
+# encode_and_sample TESTS
+# ================================================================================
+def test_encode_and_sample_returns_three_values():
+    """encode_and_sample must return g_0, mu, logvar."""
+    enc = Encoder()
+    x = torch.randn(T_DATA, N_ROIS)
+    result = enc.encode_and_sample(x)
+    assert len(result) == 3, f"Expected 3 return values, got {len(result)}"
+
+
+def test_encode_and_sample_shapes():
+    """g_0, mu, logvar must all be shape (M,)."""
+    enc = Encoder()
+    x = torch.randn(T_DATA, N_ROIS)
+    g_0, mu, logvar = enc.encode_and_sample(x)
+    assert g_0.shape    == (M,), f"g_0 shape {g_0.shape}, expected ({M},)"
+    assert mu.shape     == (M,), f"mu shape {mu.shape}, expected ({M},)"
+    assert logvar.shape == (M,), f"logvar shape {logvar.shape}, expected ({M},)"
+
+
+def test_encode_and_sample_no_nan_inf():
+    """No NaN or Inf in any output."""
+    enc = Encoder()
+    x = torch.randn(T_DATA, N_ROIS)
+    g_0, mu, logvar = enc.encode_and_sample(x)
+    assert torch.isfinite(g_0).all(),    "g_0 contains NaN or Inf"
+    assert torch.isfinite(mu).all(),     "mu contains NaN or Inf"
+    assert torch.isfinite(logvar).all(), "logvar contains NaN or Inf"
+
+
+def test_encode_and_sample_stochastic_in_train():
+    """Two calls in train mode must produce different g_0 but same mu and logvar."""
+    enc = Encoder()
+    enc.train()
+    x = torch.randn(T_DATA, N_ROIS)
+    g0_1, mu_1, logvar_1 = enc.encode_and_sample(x)
+    g0_2, mu_2, logvar_2 = enc.encode_and_sample(x)
+    assert not torch.allclose(g0_1, g0_2), "g_0 should differ between train calls"
+    assert torch.allclose(mu_1, mu_2),     "mu should be identical between calls"
+    assert torch.allclose(logvar_1, logvar_2), "logvar should be identical between calls"
+
+
+def test_encode_and_sample_deterministic_in_eval():
+    """In eval mode, g_0 must equal mu."""
+    enc = Encoder()
+    enc.eval()
+    x = torch.randn(T_DATA, N_ROIS)
+    g_0, mu, _ = enc.encode_and_sample(x)
+    assert torch.allclose(g_0, mu), "g_0 must equal mu in eval mode"
+
+
+def test_encode_and_sample_consistent_with_encode_distribution():
+    """mu and logvar must match encode_distribution output."""
+    enc = Encoder()
+    enc.eval()
+    x = torch.randn(T_DATA, N_ROIS)
+    _, mu_sample, logvar_sample = enc.encode_and_sample(x)
+    mu_dist, logvar_dist = enc.encode_distribution(x)
+    assert torch.allclose(mu_sample, mu_dist),         "mu mismatch with encode_distribution"
+    assert torch.allclose(logvar_sample, logvar_dist), "logvar mismatch with encode_distribution"
