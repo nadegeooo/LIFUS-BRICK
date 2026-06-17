@@ -80,9 +80,9 @@ def init_koopman_params(M: int, r_min: float = R_MIN, r_max: float = R_MAX):
     theta_log = torch.log(2 * math.pi * u2)
 
     # Random complex eigenvector matrix P (needs to be invertible; test checks this)
-    P = torch.complex(torch.randn(M, M), torch.randn(M, M))         # Creates 2 MxM matrices and merges them so the first is real the second is imaginary.
+    P_inv = torch.complex(torch.randn(M, M), torch.randn(M, M))         # Creates 2 MxM matrices and merges them so the first is real the second is imaginary.
 
-    return nu_log, theta_log, P
+    return nu_log, theta_log, P_inv
 
 
 # ================================================================================

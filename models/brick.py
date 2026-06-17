@@ -95,15 +95,15 @@ class BRICK(nn.Module):
         self.use_ic      = use_ic
 
         # --- Koopman operator parameters (shared across subjects) ---
-        nu_log, theta_log, P = init_koopman_params(m)
+        nu_log, theta_log, P_inv = init_koopman_params(m)
         self.nu_log    = nn.Parameter(nu_log)
         self.theta_log = nn.Parameter(theta_log)
-        self.P         = nn.Parameter(P)
+        self.P_inv     = nn.Parameter(P_inv)
 
         # --- Reconstruction projection W_x: g → x ---
-        # W̄_x = W_x @ P is used directly in reconstruction
-        self.W_x = nn.Parameter(
-            torch.randn(n_rois, m, dtype=torch.float32) / (m ** 0.5)
+        # Output projection W̄_x = W_x P, learned directly as complex (N, M)
+        self.W_bar_x = nn.Parameter(
+            torch.complex(torch.randn(n_rois, m), torch.randn(n_rois, m)) / (m ** 0.5)
         )
 
         # --- Encoder: x → g_0, mu_g0, logvar_g0 ---
@@ -120,9 +120,8 @@ class BRICK(nn.Module):
 
     def _get_koopman(self):
         """Compute Lambda and P_inv from current parameters."""
-        Lambda = compute_lambda(self.nu_log, self.theta_log)  # (M,) complex
-        P_inv  = torch.linalg.inv(self.P)                     # (M, M) complex
-        return Lambda, P_inv
+        Lambda = compute_lambda(self.nu_log, self.theta_log)  # (M,) complex                 
+        return Lambda, self.P_inv
 
     def _assemble_u_bar(
         self,
@@ -207,22 +206,14 @@ class BRICK(nn.Module):
         # 3. Assemble u_bar and run parallel scan in eigenspace
         # ------------------------------------------------------------------ #
         u_bar  = self._assemble_u_bar(g_0, C, u, P_inv)  # (T+1, M) complex
-        g_bar  = parallel_scan(Lambda, u_bar)             # (T+1, M) complex
+        g_bar  = parallel_scan(Lambda, u_bar)              # (T+1, M) complex
+        g_bar  = g_bar[1:]                                 # drop slot 0 (g_0-only)
 
-        # Transform back: g = P @ g_bar, take real part
-        g_traj = (self.P @ g_bar.T).T.real                # (T+1, M) real
-
-        # Drop t=0 slot — output is g_1, ..., g_T
-        g_traj = g_traj[1:]                               # (T, M) real
+        # x̂ = real(W̄_x ḡ) — paper's reformulation, applied directly in eigenspace
+        x_recon = (self.W_bar_x @ g_bar.T).T.real          # (T, N) real
 
         # ------------------------------------------------------------------ #
-        # 4. Reconstruct BOLD signal
-        # x̂ = W_x @ g  (equivalent to W̄_x @ ḡ where W̄_x = W_x @ P)
-        # ------------------------------------------------------------------ #
-        x_recon = (self.W_x @ g_traj.T).T                # (T, N) real
-
-        # ------------------------------------------------------------------ #
-        # 5. Compute losses
+        # 4. Compute losses
         # ------------------------------------------------------------------ #
         losses = self._compute_losses(
             x=x,
@@ -237,7 +228,7 @@ class BRICK(nn.Module):
 
         return {
             "x_recon":      x_recon,
-            "g_trajectory": g_traj,
+            "g_trajectory": g_bar,
             "C":            C,
             "s_hat":        s_hat,
             "losses":       losses,
