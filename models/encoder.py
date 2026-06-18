@@ -1,18 +1,18 @@
 import torch
 import torch.nn as nn
 from models.koopman_utils import compute_pearson
-from config import N_ROIS, H, MLP_HIDDEN, NHEAD, NUM_LAYERS
+from config import N_ROIS, H, M, MLP_HIDDEN, NHEAD, NUM_LAYERS
 
 
 class Encoder(nn.Module):
-    def __init__(self, n_rois=N_ROIS, h=H, mlp_hidden=MLP_HIDDEN,
+    def __init__(self, n_rois=N_ROIS, h=H, m=M, mlp_hidden=MLP_HIDDEN,
                  nhead=NHEAD, num_layers=NUM_LAYERS, dropout=0.0, logvar_clamp=(-10.0, 10.0)):
         super().__init__()
         # FIX: guard the d_model % nhead == 0 requirement up front
         assert h % nhead == 0, f"H={h} must be divisible by NHEAD={nhead}"
         self.n_rois = n_rois
         self.h = h
-        self.m = n_rois * h
+        self.m = m
         self.logvar_clamp = logvar_clamp
 
         self.row_mlp = nn.Sequential(
@@ -59,19 +59,29 @@ class Encoder(nn.Module):
             mu, logvar = mu.squeeze(0), logvar.squeeze(0)
         return mu, logvar
 
-    def encode_and_sample(self, x):
-        # Single pass: compute the posterior stats once, sample from those same stats.
+    def forward(self, x: torch.Tensor):
+        """
+        Full encoder forward pass.
+
+        Returns g_0 sample, mu, and logvar from the approximate posterior.
+
+        In train mode: g_0 = mu + eps * exp(0.5 * logvar),  eps ~ N(0, I)
+        In eval mode:  g_0 = mu (deterministic)
+
+        Args:
+            x (torch.Tensor): BOLD timeseries, shape (T, N)
+
+        Returns:
+            g_0    (torch.Tensor): Sample, shape (M,)
+            mu     (torch.Tensor): Posterior mean, shape (M,)
+            logvar (torch.Tensor): Posterior log variance, shape (M,)
+        """
         mu, logvar = self.encode_distribution(x)
+
         if self.training:
             eps = torch.randn_like(mu)
             g_0 = mu + eps * torch.exp(0.5 * logvar)
         else:
             g_0 = mu
-        return g_0, mu, logvar
 
-    def forward(self, x):
-        mu, logvar = self.encode_distribution(x)
-        if self.training:
-            eps = torch.randn_like(mu)
-            return mu + eps * torch.exp(0.5 * logvar)
-        return mu
+        return g_0, mu, logvar

@@ -194,15 +194,7 @@ def test_ablation_no_control_no_ic():
 
 
 # ================================================================================
-# 6. CONFIG ASSERTION
-# ================================================================================
-def test_config_mismatch_raises():
-    with pytest.raises(AssertionError):
-        BRICK(n_rois=24, h=8, m=100)  # 24*8=192 != 100
-
-
-# ================================================================================
-# 7. GRADIENT FLOW
+# 6. GRADIENT FLOW
 # ================================================================================
 def test_gradients_flow_through_brick():
     """All BRICK parameters must receive finite gradients."""

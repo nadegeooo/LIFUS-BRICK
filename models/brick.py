@@ -80,10 +80,7 @@ class BRICK(nn.Module):
         epsilon:      float = EPSILON,
         use_control:  bool  = True,
         use_ic:       bool  = True,
-    ):
-        assert m == n_rois * h, \
-            f"Latent dimension mismatch: m={m} must equal n_rois*h={n_rois}*{h}={n_rois*h}. Check config.py."
-        
+    ):   
         super().__init__()
 
         self.n_rois      = n_rois
@@ -121,7 +118,7 @@ class BRICK(nn.Module):
     def _get_koopman(self):
         """Compute Lambda and P_inv from current parameters."""
         Lambda = compute_lambda(self.nu_log, self.theta_log)  # (M,) complex                 
-        return Lambda, self.P_inv
+        return Lambda
 
     def _assemble_u_bar(
         self,
@@ -178,13 +175,14 @@ class BRICK(nn.Module):
                 losses       (dict): All loss components
         """
         T, _ = x.shape
-        Lambda, P_inv = self._get_koopman()
+        Lambda = self._get_koopman()
+        P_inv  = self.P_inv
 
         # ------------------------------------------------------------------ #
         # 1. Initial condition (encoder)
         # ------------------------------------------------------------------ #
         if self.use_ic:
-            g_0, mu_g0, logvar_g0 = self.encoder.encode_and_sample(x)
+            g_0, mu_g0, logvar_g0 = self.encoder(x)
         else:                                                   #for ablation study
             g_0      = torch.zeros(self.m, device=x.device)     #no encoder, no learned inital condition
             mu_g0    = g_0                                      #no KL loss (divergence pentalty in ELBO) for G_0

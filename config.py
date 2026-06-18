@@ -1,9 +1,9 @@
 """Keep all configuration parameters in one place for easy access and modification."""
 
 N_ROIS = 24
-T = 240        # Number of timepoints
-H = 8          # MLP hidden multiplier
-M = N_ROIS * H # Koopman latent dimension (48)
+T = 240        # Number of timepoints. This is a dataset-level cocanstant and not a model param. T, _ = x.shape is used for the model
+H = 4          # Per-node feature dimension (hidden multiplier to "lift" to higher dimension for Koopman linearity) Note: keep H << N_ROIS to avoid overfitting. Original paper used H=2
+M = N_ROIS * H #T= = 240 Koopman latent dimension 
 
 # Koopman eigenvalue initialization -> R_MIN and R_MAX control the minimum and maximum magnitude of eigenvalues at initialization
 # Values close to 1.0 give slow dynamics, which is appropriate for fMRI data. Setting R_MAX < 1.0 ensures stability of the Koopman operator.
@@ -15,7 +15,7 @@ R_MAX = 0.999
 
 
 # Hyperparams for Control Module encoder (row-wise MLP)
-MLP_HIDDEN = 64
+MLP_HIDDEN = 64 #MLP hidden multiplier
 NHEAD = 4
 NUM_LAYERS = 2
 

@@ -48,7 +48,7 @@ def init_koopman_params(M: int, r_min: float = R_MIN, r_max: float = R_MAX):
     initialization.
 
     Returns nu_log and theta_log (real vectors) which parameterize the
-    eigenvalues via the stable exponential form, and P (complex matrix)
+    eigenvalues via the stable exponential form, and P_inv (complex matrix)
     which defines the eigenvector directions.
 
     Eigenvalue magnitudes are ring-uniformly sampled (uniform in |Lambda|^2) in
@@ -61,7 +61,7 @@ def init_koopman_params(M: int, r_min: float = R_MIN, r_max: float = R_MAX):
     Returns:
         nu_log    (torch.Tensor): Real vector of shape (M,), magnitude params
         theta_log (torch.Tensor): Real vector of shape (M,), phase params
-        P         (torch.Tensor): Complex matrix of shape (M, M), eigenvectors
+        P_inv         (torch.Tensor): Complex matrix of shape (M, M), eigenvectors
     """
 
     # Ring-uniform: sample |Lambda|^2 uniformly in [r_min^2, r_max^2],
@@ -79,7 +79,7 @@ def init_koopman_params(M: int, r_min: float = R_MIN, r_max: float = R_MAX):
     u2 = torch.rand(M).clamp(min=1e-8)
     theta_log = torch.log(2 * math.pi * u2)
 
-    # Random complex eigenvector matrix P (needs to be invertible; test checks this)
+    # Random complex eigenvector matrix P_inv (needs to be invertible; test checks this)
     P_inv = torch.complex(torch.randn(M, M), torch.randn(M, M))         # Creates 2 MxM matrices and merges them so the first is real the second is imaginary.
 
     return nu_log, theta_log, P_inv

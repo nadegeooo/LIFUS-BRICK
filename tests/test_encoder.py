@@ -169,7 +169,7 @@ def test_g0_shape():
 
     enc = Encoder()
     x = torch.randn(T_DATA, N_ROIS)
-    g0 = enc(x)
+    g0, _, _ = enc(x)
 
     assert g0.shape == (M,), f"Expected ({M},), got {g0.shape}"
 
@@ -180,7 +180,7 @@ def test_g0_is_real():
 
     enc = Encoder()
     x = torch.randn(T_DATA, N_ROIS)
-    g0 = enc(x)
+    g0, _, _ = enc(x)
 
     assert not g0.is_complex(), "g_0 must be real-valued"
 
@@ -191,7 +191,7 @@ def test_g0_no_nan_inf():
 
     enc = Encoder()
     x = torch.randn(T_DATA, N_ROIS)
-    g0 = enc(x)
+    g0, _, _ = enc(x)
 
     assert torch.isfinite(g0).all(), "g_0 contains NaN or Inf"
 
@@ -207,8 +207,8 @@ def test_g0_stochastic_in_train_mode():
     enc.train()
     x = torch.randn(T_DATA, N_ROIS)
 
-    g0_1 = enc(x)
-    g0_2 = enc(x)
+    g0_1, _, _ = enc(x)
+    g0_2, _, _ = enc(x)
 
     assert not torch.allclose(g0_1, g0_2), \
         "g_0 is identical across two train-mode calls — sampling may be broken"
@@ -223,9 +223,9 @@ def test_g0_deterministic_in_eval_mode():
     x = torch.randn(T_DATA, N_ROIS)
 
     torch.manual_seed(0)
-    g0_1 = enc(x)
+    g0_1, _, _ = enc(x)
     torch.manual_seed(0)
-    g0_2 = enc(x)
+    g0_2, _, _ = enc(x)
 
     assert torch.allclose(g0_1, g0_2), \
         "g_0 is not deterministic in eval mode with fixed seed"
@@ -262,7 +262,7 @@ def test_g0_prior_mean_near_zero():
     enc.train()
     x = torch.randn(T_DATA, N_ROIS)
 
-    samples = torch.stack([enc(x) for _ in range(100)])
+    samples = torch.stack([enc(x)[0] for _ in range(100)])
     mean = samples.mean(dim=0)
 
     assert mean.abs().mean().item() < 1.0, \
@@ -278,7 +278,7 @@ def test_gradients_flow_through_encoder():
 
     enc = Encoder()
     x = torch.randn(T_DATA, N_ROIS)
-    g0 = enc(x)
+    g0, _, _ = enc(x)
     g0.sum().backward()
 
     for name, param in enc.named_parameters():
@@ -293,7 +293,7 @@ def test_H_divisible_by_nhead():
 def test_latent_dim_consistency():
     enc = Encoder()
     assert enc.m == N_ROIS * H == M
-    assert enc(torch.randn(T_DATA, N_ROIS)).shape == (M,)
+    assert enc(torch.randn(T_DATA, N_ROIS))[0].shape == (M,)
 
 
 def test_reparam_matches_distribution():
@@ -302,7 +302,7 @@ def test_reparam_matches_distribution():
     enc = Encoder(); enc.train()
     x = torch.randn(T_DATA, N_ROIS)
     mu, logvar = enc.encode_distribution(x)
-    samples = torch.stack([enc(x) for _ in range(8000)])
+    samples = torch.stack([enc(x)[0] for _ in range(8000)])
     assert (samples.mean(0) - mu).abs().max() < 0.1
     assert (samples.std(0) - torch.exp(0.5 * logvar)).abs().max() < 0.1
  
@@ -311,12 +311,12 @@ def test_eval_returns_posterior_mean():
     enc = Encoder(); enc.eval()
     x = torch.randn(T_DATA, N_ROIS)
     mu, _ = enc.encode_distribution(x)
-    assert torch.allclose(enc(x), mu)
+    assert torch.allclose(enc(x)[0], mu)
  
  
 def test_batch_support():
     enc = Encoder()
-    g0 = enc(torch.randn(8, T_DATA, N_ROIS))
+    g0, _, _ = enc(torch.randn(8, T_DATA, N_ROIS))
     assert g0.shape == (8, M)
  
  
@@ -328,63 +328,63 @@ def test_logvar_is_clamped():
 
 
 # ================================================================================
-# encode_and_sample TESTS
+# forward TESTS
 # ================================================================================
-def test_encode_and_sample_returns_three_values():
-    """encode_and_sample must return g_0, mu, logvar."""
+def test_forward_returns_three_values():
+    """forward must return g_0, mu, logvar."""
     enc = Encoder()
     x = torch.randn(T_DATA, N_ROIS)
-    result = enc.encode_and_sample(x)
+    result = enc.forward(x)
     assert len(result) == 3, f"Expected 3 return values, got {len(result)}"
 
 
-def test_encode_and_sample_shapes():
+def test_forward_shapes():
     """g_0, mu, logvar must all be shape (M,)."""
     enc = Encoder()
     x = torch.randn(T_DATA, N_ROIS)
-    g_0, mu, logvar = enc.encode_and_sample(x)
+    g_0, mu, logvar = enc.forward(x)
     assert g_0.shape    == (M,), f"g_0 shape {g_0.shape}, expected ({M},)"
     assert mu.shape     == (M,), f"mu shape {mu.shape}, expected ({M},)"
     assert logvar.shape == (M,), f"logvar shape {logvar.shape}, expected ({M},)"
 
 
-def test_encode_and_sample_no_nan_inf():
+def test_forward_no_nan_inf():
     """No NaN or Inf in any output."""
     enc = Encoder()
     x = torch.randn(T_DATA, N_ROIS)
-    g_0, mu, logvar = enc.encode_and_sample(x)
+    g_0, mu, logvar = enc.forward(x)
     assert torch.isfinite(g_0).all(),    "g_0 contains NaN or Inf"
     assert torch.isfinite(mu).all(),     "mu contains NaN or Inf"
     assert torch.isfinite(logvar).all(), "logvar contains NaN or Inf"
 
 
-def test_encode_and_sample_stochastic_in_train():
+def test_forward_stochastic_in_train():
     """Two calls in train mode must produce different g_0 but same mu and logvar."""
     enc = Encoder()
     enc.train()
     x = torch.randn(T_DATA, N_ROIS)
-    g0_1, mu_1, logvar_1 = enc.encode_and_sample(x)
-    g0_2, mu_2, logvar_2 = enc.encode_and_sample(x)
+    g0_1, mu_1, logvar_1 = enc.forward(x)
+    g0_2, mu_2, logvar_2 = enc.forward(x)
     assert not torch.allclose(g0_1, g0_2), "g_0 should differ between train calls"
     assert torch.allclose(mu_1, mu_2),     "mu should be identical between calls"
     assert torch.allclose(logvar_1, logvar_2), "logvar should be identical between calls"
 
 
-def test_encode_and_sample_deterministic_in_eval():
+def test_forward_deterministic_in_eval():
     """In eval mode, g_0 must equal mu."""
     enc = Encoder()
     enc.eval()
     x = torch.randn(T_DATA, N_ROIS)
-    g_0, mu, _ = enc.encode_and_sample(x)
+    g_0, mu, _ = enc.forward(x)
     assert torch.allclose(g_0, mu), "g_0 must equal mu in eval mode"
 
 
-def test_encode_and_sample_consistent_with_encode_distribution():
+def test_forward_consistent_with_encode_distribution():
     """mu and logvar must match encode_distribution output."""
     enc = Encoder()
     enc.eval()
     x = torch.randn(T_DATA, N_ROIS)
-    _, mu_sample, logvar_sample = enc.encode_and_sample(x)
+    _, mu_sample, logvar_sample = enc.forward(x)
     mu_dist, logvar_dist = enc.encode_distribution(x)
     assert torch.allclose(mu_sample, mu_dist),         "mu mismatch with encode_distribution"
     assert torch.allclose(logvar_sample, logvar_dist), "logvar mismatch with encode_distribution"
