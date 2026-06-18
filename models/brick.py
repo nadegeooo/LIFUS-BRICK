@@ -115,11 +115,6 @@ class BRICK(nn.Module):
             num_classes=num_classes,
         )
 
-    def _get_koopman(self):
-        """Compute Lambda and P_inv from current parameters."""
-        Lambda = compute_lambda(self.nu_log, self.theta_log)  # (M,) complex                 
-        return Lambda
-
     def _assemble_u_bar(
         self,
         g_0:   torch.Tensor,
@@ -175,7 +170,7 @@ class BRICK(nn.Module):
                 losses       (dict): All loss components
         """
         T, _ = x.shape
-        Lambda = self._get_koopman()
+        Lambda = compute_lambda(self.nu_log, self.theta_log)
         P_inv  = self.P_inv
 
         # ------------------------------------------------------------------ #
