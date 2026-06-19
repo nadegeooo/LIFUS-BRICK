@@ -7,30 +7,33 @@ Description:
     Trains a single shared BRICK model on all subjects and sessions
     (pre and post sonication, VIM and ZI targets) simultaneously.
         - One shared BRICK instance (shared K, per-subject-per-session C)
-        - Train on all 38 sessions (19 subjects × 2 targets × pre+post)
+        - Train on all 76 items (19 subjects × 2 targets × pre + post)
         - Extract C_pre and C_post after training to compute ΔC
 
-    BRICK training protocol (Zhou et al. 2025):
-        - Optimizer: AdamW, lr=1e-3, weight_decay=1e-5
-        - Scheduler: CosineAnnealingLR over n_epochs
-        - Epochs: 1000
-        - Split: 7:1:2 (train/val/test) by subject
+    Training protocol (Zhou et al. 2025):
+        - Optimizer:  AdamW, lr=1e-3, weight_decay=1e-5
+        - Scheduler:  CosineAnnealingLR over n_epochs
+        - Early stop: patience=50 epochs on total validation loss
+        - Split:      7:1:2 by subject (no session leakage)
 
     Outputs saved to results/training/:
         - best_model.pt      — checkpoint with lowest validation loss
-        - final_model.pt     — checkpoint after last epoch
-        - training_log.csv   — per-epoch train and val losses
+        - final_model.pt     — checkpoint after last epoch / early stop
+        - loss_history.csv   — per-epoch logging of all loss components
         - split.json         — subject IDs for each split
 
 Usage:
     python training/train.py
+    python training/train.py --epochs 100   # pilot run
+    python training/train.py --no-control   # ablation: no control module
+    python training/train.py --no-ic        # ablation: no IC module
 """
 
 import sys
-import json
-import random
-import logging
 import csv
+import json
+import logging
+import argparse
 from pathlib import Path
 from datetime import datetime
 
@@ -41,114 +44,81 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from models.brick import BRICK
-from preprocessing.load_preprocessed_data import load_all
+from training.dataset import BRICKDataset, split_dataset
 from config import M, N_ROIS, H, T as T_DATA
 
 # ================================================================================
-# CONFIG
+# DEFAULTS
 # ================================================================================
-N_EPOCHS     = 1000
-LR           = 1e-3
-WEIGHT_DECAY = 1e-5
-TRAIN_RATIO  = 0.7
-VAL_RATIO    = 0.1
-SEED         = 42
-RESULTS_DIR  = ROOT_DIR / "results" / "training"
+N_EPOCHS        = 1000
+LR              = 1e-3
+WEIGHT_DECAY    = 1e-5
+PATIENCE        = 50
+SEED            = 42
+DATA_DIR        = ROOT_DIR / "data" / "preprocessed_data"
+RESULTS_DIR     = ROOT_DIR / "results" / "training"
+
+CSV_COLUMNS = [
+    "epoch",
+    "train_loss_total", "train_loss_recon", "train_loss_kl_g0",
+    "train_loss_kl_u",  "train_loss_cls",
+    "val_loss_total",   "val_loss_recon",   "val_loss_kl_g0",
+    "val_loss_kl_u",    "val_loss_cls",
+    "lr",
+]
+
 
 # ================================================================================
 # LOGGING
 # ================================================================================
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-log_path = RESULTS_DIR / f"train_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+def setup_logging(results_dir: Path, run_name: str) -> logging.Logger:
+    results_dir.mkdir(parents=True, exist_ok=True)
+    log_path = results_dir / f"{run_name}.log"
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(message)s",
-    handlers=[
-        logging.FileHandler(log_path),
-        logging.StreamHandler(sys.stdout),
-    ],
-)
-log = logging.getLogger(__name__)
+    logger = logging.getLogger(run_name)
+    logger.setLevel(logging.INFO)
+    logger.handlers.clear()
 
+    fh = logging.FileHandler(log_path)
+    sh = logging.StreamHandler(sys.stdout)
+    fmt = logging.Formatter("%(asctime)s | %(message)s")
+    fh.setFormatter(fmt); sh.setFormatter(fmt)
+    logger.addHandler(fh); logger.addHandler(sh)
 
-# ================================================================================
-# DATA SPLIT
-# ================================================================================
-def split_subjects(subjects, train_ratio=TRAIN_RATIO, val_ratio=VAL_RATIO, seed=SEED):
-    """
-    Split subjects into train/val/test by subject ID (not by session).
-    All sessions (VIM/ZI × pre/post) for a given subject stay together.
-
-    Returns three lists of subject dicts.
-    """
-    # Get unique subject IDs
-    unique_ids = sorted(set(s["subject_id"] for s in subjects))
-    random.seed(seed)
-    random.shuffle(unique_ids)
-
-    n = len(unique_ids)
-    n_train = int(n * train_ratio)
-    n_val   = int(n * val_ratio)
-
-    train_ids = set(unique_ids[:n_train])
-    val_ids   = set(unique_ids[n_train:n_train + n_val])
-    test_ids  = set(unique_ids[n_train + n_val:])
-
-    train = [s for s in subjects if s["subject_id"] in train_ids]
-    val   = [s for s in subjects if s["subject_id"] in val_ids]
-    test  = [s for s in subjects if s["subject_id"] in test_ids]
-
-    return train, val, test
-
-
-# ================================================================================
-# FORWARD PASS FOR ONE SUBJECT
-# ================================================================================
-def subject_loss(model, subject):
-    """
-    Run pre and post forward passes for one subject and return combined loss.
-
-    Args:
-        model   (BRICK): The model
-        subject (dict):  Subject dict from load_all()
-
-    Returns:
-        torch.Tensor: Combined loss (pre + post)
-    """
-    x_pre  = torch.tensor(subject["mpre"],  dtype=torch.float32)   # (T, N)
-    x_post = torch.tensor(subject["mpost"], dtype=torch.float32)    # (T, N)
-
-    label_pre  = torch.tensor(0)  # 0 = pre-sonication
-    label_post = torch.tensor(1)  # 1 = post-sonication
-
-    out_pre  = model(x_pre,  label_pre)
-    out_post = model(x_post, label_post)
-
-    return out_pre["losses"]["loss_total"] + out_post["losses"]["loss_total"]
+    return logger
 
 
 # ================================================================================
 # EPOCH
 # ================================================================================
-def run_epoch(model, subjects, optimizer=None, train=True):
+def run_epoch(model: BRICK, subset, train: bool, optimizer=None) -> dict:
     """
-    Run one epoch over a list of subjects.
+    Run one epoch over a dataset subset.
 
     Args:
-        model     (BRICK): The model
-        subjects  (list):  List of subject dicts
-        optimizer:         AdamW optimizer (None in eval mode)
-        train     (bool):  If True, update weights
+        model    (BRICK):  The model
+        subset:            torch.utils.data.Subset
+        train    (bool):   If True, update weights
+        optimizer:         AdamW (None in eval mode)
 
     Returns:
-        float: Mean loss over all subjects
+        dict of mean loss components over the epoch
     """
     model.train(train)
-    total_loss = 0.0
 
-    for subject in subjects:
-        loss = subject_loss(model, subject)
+    totals = {
+        "loss_total": 0.0, "loss_recon": 0.0,
+        "loss_kl_g0": 0.0, "loss_kl_u":  0.0, "loss_cls": 0.0,
+    }
+    n = len(subset)
+
+    for i in subset.indices:
+        item  = subset.dataset[i]
+        x     = item["x"]
+        label = item["lifus_condition"]
+
+        out  = model(x, label)
+        loss = out["losses"]["loss_total"]
 
         if train and optimizer is not None:
             optimizer.zero_grad()
@@ -156,108 +126,183 @@ def run_epoch(model, subjects, optimizer=None, train=True):
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
-        total_loss += loss.item()
+        for key in totals:
+            totals[key] += out["losses"][key].item()
 
-    return total_loss / len(subjects)
+    return {k: v / n for k, v in totals.items()}
 
 
 # ================================================================================
 # MAIN TRAINING LOOP
 # ================================================================================
-def train():
+def train(
+    n_epochs:    int   = N_EPOCHS,
+    use_control: bool  = True,
+    use_ic:      bool  = True,
+    run_name:    str   = "train",
+):
+    results_dir = RESULTS_DIR / run_name
+    log = setup_logging(results_dir, run_name)
+
     log.info("=" * 60)
-    log.info("BRICK Training")
+    log.info(f"BRICK Training — {run_name}")
     log.info(f"N_ROIS={N_ROIS}, M={M}, H={H}, T={T_DATA}")
-    log.info(f"Epochs={N_EPOCHS}, LR={LR}, WeightDecay={WEIGHT_DECAY}")
+    log.info(f"Epochs={n_epochs}, LR={LR}, WeightDecay={WEIGHT_DECAY}")
+    log.info(f"Patience={PATIENCE}, use_control={use_control}, use_ic={use_ic}")
     log.info("=" * 60)
 
-    # --- Load data ---
-    log.info("Loading preprocessed data...")
-    subjects = load_all()
-    log.info(f"Loaded {len(subjects)} sessions")
-
-    # --- Split ---
-    train_subjects, val_subjects, test_subjects = split_subjects(subjects)
-    log.info(f"Split: {len(train_subjects)} train | {len(val_subjects)} val | {len(test_subjects)} test sessions")
+    # --- Data ---
+    log.info("Loading dataset...")
+    ds = BRICKDataset(DATA_DIR)
+    train_ds, val_ds, test_ds = split_dataset(ds, seed=SEED)
+    log.info(
+        f"Split: {len(train_ds)} train | {len(val_ds)} val | "
+        f"{len(test_ds)} test items"
+    )
 
     # Save split for reproducibility
     split_info = {
-        "train": sorted(set(s["subject_id"] for s in train_subjects)),
-        "val":   sorted(set(s["subject_id"] for s in val_subjects)),
-        "test":  sorted(set(s["subject_id"] for s in test_subjects)),
+        "train": sorted(set(ds[i]["subject_id"] for i in train_ds.indices)),
+        "val":   sorted(set(ds[i]["subject_id"] for i in val_ds.indices)),
+        "test":  sorted(set(ds[i]["subject_id"] for i in test_ds.indices)),
         "seed":  SEED,
     }
-    with open(RESULTS_DIR / "split.json", "w") as f:
+    with open(results_dir / "split.json", "w") as f:
         json.dump(split_info, f, indent=2)
-    log.info(f"Split saved to {RESULTS_DIR / 'split.json'}")
 
     # --- Model ---
-    model = BRICK()
+    model = BRICK(use_control=use_control, use_ic=use_ic)
     n_params = sum(p.numel() for p in model.parameters())
     log.info(f"Model parameters: {n_params:,}")
 
     # --- Optimizer and scheduler ---
     optimizer = optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=N_EPOCHS, eta_min=1e-6)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=n_epochs, eta_min=1e-6
+    )
 
-    # --- Training log ---
-    csv_path = RESULTS_DIR / "training_log.csv"
+    # --- CSV ---
+    csv_path = results_dir / "loss_history.csv"
     with open(csv_path, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["epoch", "train_loss", "val_loss", "lr"])
+        writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
+        writer.writeheader()
 
     # --- Training loop ---
-    best_val_loss = float("inf")
+    best_val_loss  = float("inf")
+    epochs_no_improve = 0
     log.info("Starting training...")
 
-    for epoch in range(1, N_EPOCHS + 1):
+    for epoch in range(1, n_epochs + 1):
 
-        train_loss = run_epoch(model, train_subjects, optimizer, train=True)
+        # Train
+        train_losses = run_epoch(model, train_ds, train=True, optimizer=optimizer)
         scheduler.step()
 
+        # Validate
         with torch.no_grad():
-            val_loss = run_epoch(model, val_subjects, optimizer=None, train=False)
+            val_losses = run_epoch(model, val_ds, train=False, optimizer=None)
 
         current_lr = scheduler.get_last_lr()[0]
 
-        # Log to file
-        with open(csv_path, "a", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow([epoch, f"{train_loss:.6f}", f"{val_loss:.6f}", f"{current_lr:.2e}"])
+        # --- Log to CSV ---
+        row = {"epoch": epoch, "lr": f"{current_lr:.2e}"}
+        for k, v in train_losses.items():
+            row[f"train_{k}"] = f"{v:.6f}"
+        for k, v in val_losses.items():
+            row[f"val_{k}"] = f"{v:.6f}"
 
-        # Log to terminal every 10 epochs
+        with open(csv_path, "a", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
+            writer.writerow(row)
+
+        # --- Log to terminal every 10 epochs ---
         if epoch % 10 == 0 or epoch == 1:
             log.info(
-                f"Epoch {epoch:4d}/{N_EPOCHS} | "
-                f"train={train_loss:.4f} | "
-                f"val={val_loss:.4f} | "
+                f"Epoch {epoch:4d}/{n_epochs} | "
+                f"train={train_losses['loss_total']:.4f} "
+                f"(recon={train_losses['loss_recon']:.4f}, "
+                f"kl_g0={train_losses['loss_kl_g0']:.4f}, "
+                f"kl_u={train_losses['loss_kl_u']:.4f}, "
+                f"cls={train_losses['loss_cls']:.4f}) | "
+                f"val={val_losses['loss_total']:.4f} | "
                 f"lr={current_lr:.2e}"
             )
 
-        # Save best model
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+        # --- Save best checkpoint ---
+        val_total = val_losses["loss_total"]
+        if val_total < best_val_loss:
+            best_val_loss = val_total
+            epochs_no_improve = 0
             torch.save({
-                "epoch":      epoch,
-                "model_state_dict": model.state_dict(),
+                "epoch":                epoch,
+                "model_state_dict":     model.state_dict(),
                 "optimizer_state_dict": optimizer.state_dict(),
-                "val_loss":   val_loss,
-                "train_loss": train_loss,
-            }, RESULTS_DIR / "best_model.pt")
-            log.info(f"  → New best val loss: {val_loss:.4f} (saved best_model.pt)")
+                "val_loss_total":       val_total,
+                "train_loss_total":     train_losses["loss_total"],
+                "use_control":          use_control,
+                "use_ic":               use_ic,
+            }, results_dir / "best_model.pt")
+            log.info(f"  -> New best val loss: {val_total:.4f} (saved best_model.pt)")
+        else:
+            epochs_no_improve += 1
 
-    # Save final model
+        # --- Early stopping ---
+        if epochs_no_improve >= PATIENCE:
+            log.info(
+                f"Early stopping at epoch {epoch} — "
+                f"no improvement for {PATIENCE} epochs."
+            )
+            break
+
+    # --- Save final checkpoint ---
     torch.save({
-        "epoch":      N_EPOCHS,
-        "model_state_dict": model.state_dict(),
+        "epoch":                epoch,
+        "model_state_dict":     model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
-        "val_loss":   val_loss,
-        "train_loss": train_loss,
-    }, RESULTS_DIR / "final_model.pt")
-    log.info(f"Final model saved to {RESULTS_DIR / 'final_model.pt'}")
+        "val_loss_total":       val_losses["loss_total"],
+        "train_loss_total":     train_losses["loss_total"],
+        "use_control":          use_control,
+        "use_ic":               use_ic,
+    }, results_dir / "final_model.pt")
+
+    log.info(f"Final model saved to {results_dir / 'final_model.pt'}")
     log.info(f"Best val loss: {best_val_loss:.4f}")
     log.info("Training complete.")
 
+    return best_val_loss
 
+
+# ================================================================================
+# ENTRY POINT
+# ================================================================================
 if __name__ == "__main__":
-    train()
+    parser = argparse.ArgumentParser(description="Train BRICK model")
+    parser.add_argument("--epochs",     type=int,  default=N_EPOCHS)
+    parser.add_argument("--no-control", action="store_true",
+                        help="Ablation: disable control module")
+    parser.add_argument("--no-ic",      action="store_true",
+                        help="Ablation: disable initial condition module")
+    parser.add_argument("--run-name",   type=str,  default=None,
+                        help="Name for results subdirectory")
+    args = parser.parse_args()
+
+    use_control = not args.no_control
+    use_ic      = not args.no_ic
+
+    if args.run_name:
+        run_name = args.run_name
+    elif not use_control and not use_ic:
+        run_name = "ablation_no_control_no_ic"
+    elif not use_control:
+        run_name = "ablation_no_control"
+    elif not use_ic:
+        run_name = "ablation_no_ic"
+    else:
+        run_name = f"train_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    train(
+        n_epochs=args.epochs,
+        use_control=use_control,
+        use_ic=use_ic,
+        run_name=run_name,
+    )
