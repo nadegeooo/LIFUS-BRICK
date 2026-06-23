@@ -7,8 +7,8 @@ Description:
     Trains a single shared BRICK model on all subjects and sessions
     (pre and post sonication, VIM and ZI targets) simultaneously.
         - One shared BRICK instance (shared K, per-subject-per-session C)
-        - Train on all 76 items (19 subjects × 2 targets × pre + post)
-        - Extract C_pre and C_post after training to compute ΔC
+        - Train on all 76 items (19 subjects x 2 targets x pre + post)
+        - Extract C_pre and C_post after training to compute Delta_C
 
     Training protocol (Zhou et al. 2025):
         - Optimizer:  AdamW, lr=1e-3, weight_decay=1e-5
@@ -16,7 +16,13 @@ Description:
         - Early stop: patience=50 epochs on total validation loss
         - Split:      7:1:2 by subject (no session leakage)
 
-    Outputs saved to results/training/:
+    KL Annealing (training stabilization for N=19, not in original BRICK):
+        - KL_g0: linear ramp from 0 to 1 over KL_G0_ANNEAL_EPOCHS
+        - KL_u:  held at 0 for KL_U_DELAY_EPOCHS, then ramped over KL_U_ANNEAL_EPOCHS
+        - Free bits applied during training only (apply_free_bits=True)
+        - Validation uses true ELBO (apply_free_bits=False) for honest evaluation
+
+    Outputs saved to results/training/{run_name}/:
         - best_model.pt      — checkpoint with lowest validation loss
         - final_model.pt     — checkpoint after last epoch / early stop
         - loss_history.csv   — per-epoch logging of all loss components
@@ -45,13 +51,16 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from models.brick import BRICK
 from training.dataset import BRICKDataset, split_dataset
-from config import M, N_ROIS, H, T as T_DATA
+from config import (
+    M, N_ROIS, H, T as T_DATA,
+    KL_G0_ANNEAL_EPOCHS, KL_G0_DELAY_EPOCHS, KL_U_DELAY_EPOCHS, KL_U_ANNEAL_EPOCHS,
+)
 
 # ================================================================================
 # DEFAULTS
 # ================================================================================
 N_EPOCHS        = 1000
-LR              = 1e-3
+LR              = 1e-4
 WEIGHT_DECAY    = 1e-5
 PATIENCE        = 50
 SEED            = 42
@@ -60,6 +69,7 @@ RESULTS_DIR     = ROOT_DIR / "results" / "training"
 
 CSV_COLUMNS = [
     "epoch",
+    "kl_g0_weight", "kl_u_weight",
     "train_loss_total", "train_loss_recon", "train_loss_kl_g0",
     "train_loss_kl_u",  "train_loss_cls",
     "val_loss_total",   "val_loss_recon",   "val_loss_kl_g0",
@@ -89,17 +99,61 @@ def setup_logging(results_dir: Path, run_name: str) -> logging.Logger:
 
 
 # ================================================================================
+# KL ANNEALING WEIGHTS
+# ================================================================================
+def get_kl_weights(epoch: int) -> tuple[float, float]:
+    """
+    Compute KL annealing weights for g0 and u at a given epoch.
+
+    KL_g0: linear ramp from 0 to 1 over KL_G0_ANNEAL_EPOCHS.
+           Set KL_G0_ANNEAL_EPOCHS=0 in config to disable (weight=1.0 always).
+
+    KL_u:  held at 0 for KL_U_DELAY_EPOCHS, then linear ramp over
+           KL_U_ANNEAL_EPOCHS. Gives reconstruction time to stabilize
+           before the control pathway is regularized.
+           Set KL_U_ANNEAL_EPOCHS=0 in config to disable (weight=1.0 always).
+
+    Args:
+        epoch (int): Current training epoch (1-indexed)
+
+    Returns:
+        kl_g0_weight (float): weight on KL_g0 term, in [0, 1]
+        kl_u_weight  (float): weight on KL_u term, in [0, 1]
+    """
+    kl_g0_weight = (
+        max(0.0, min(1.0, (epoch - KL_G0_DELAY_EPOCHS) / KL_G0_ANNEAL_EPOCHS))
+        if KL_G0_ANNEAL_EPOCHS > 0 else 1.0
+    )
+    kl_u_weight = (
+        max(0.0, min(1.0, (epoch - KL_U_DELAY_EPOCHS) / KL_U_ANNEAL_EPOCHS))
+        if KL_U_ANNEAL_EPOCHS > 0 else 1.0
+    )
+    return kl_g0_weight, kl_u_weight
+
+
+# ================================================================================
 # EPOCH
 # ================================================================================
-def run_epoch(model: BRICK, subset, train: bool, optimizer=None) -> dict:
+def run_epoch(
+    model:           BRICK,
+    subset,
+    train:           bool,
+    optimizer        = None,
+    kl_g0_weight:    float = 1.0,
+    kl_u_weight:     float = 1.0,
+    apply_free_bits: bool  = True,
+) -> dict:
     """
     Run one epoch over a dataset subset.
 
     Args:
-        model    (BRICK):  The model
-        subset:            torch.utils.data.Subset
-        train    (bool):   If True, update weights
-        optimizer:         AdamW (None in eval mode)
+        model            (BRICK):  The model
+        subset:                    torch.utils.data.Subset
+        train            (bool):   If True, update weights
+        optimizer:                 AdamW (None in eval mode)
+        kl_g0_weight     (float):  Annealing weight for KL_g0
+        kl_u_weight      (float):  Annealing weight for KL_u
+        apply_free_bits  (bool):   Apply free bits floor (True=train, False=val)
 
     Returns:
         dict of mean loss components over the epoch
@@ -117,7 +171,12 @@ def run_epoch(model: BRICK, subset, train: bool, optimizer=None) -> dict:
         x     = item["x"]
         label = item["lifus_condition"]
 
-        out  = model(x, label)
+        out  = model(
+            x, label,
+            kl_g0_weight=kl_g0_weight,
+            kl_u_weight=kl_u_weight,
+            apply_free_bits=apply_free_bits,
+        )
         loss = out["losses"]["loss_total"]
 
         if train and optimizer is not None:
@@ -145,10 +204,12 @@ def train(
     log = setup_logging(results_dir, run_name)
 
     log.info("=" * 60)
-    log.info(f"BRICK Training — {run_name}")
+    log.info(f"BRICK Training -- {run_name}")
     log.info(f"N_ROIS={N_ROIS}, M={M}, H={H}, T={T_DATA}")
     log.info(f"Epochs={n_epochs}, LR={LR}, WeightDecay={WEIGHT_DECAY}")
     log.info(f"Patience={PATIENCE}, use_control={use_control}, use_ic={use_ic}")
+    log.info(f"KL annealing: g0 over {KL_G0_ANNEAL_EPOCHS} epochs, "
+             f"u delayed {KL_U_DELAY_EPOCHS} then over {KL_U_ANNEAL_EPOCHS} epochs")
     log.info("=" * 60)
 
     # --- Data ---
@@ -188,24 +249,40 @@ def train(
         writer.writeheader()
 
     # --- Training loop ---
-    best_val_loss  = float("inf")
+    best_val_loss     = float("inf")
     epochs_no_improve = 0
     log.info("Starting training...")
 
     for epoch in range(1, n_epochs + 1):
 
-        # Train
-        train_losses = run_epoch(model, train_ds, train=True, optimizer=optimizer)
+        # KL annealing weights for this epoch
+        kl_g0_weight, kl_u_weight = get_kl_weights(epoch)
+
+        # Train — use free bits to prevent collapse
+        train_losses = run_epoch(
+            model, train_ds, train=True, optimizer=optimizer,
+            kl_g0_weight=kl_g0_weight, kl_u_weight=kl_u_weight,
+            apply_free_bits=True,
+        )
         scheduler.step()
 
-        # Validate
+        # Validate — true ELBO, no free bits, full KL weights
         with torch.no_grad():
-            val_losses = run_epoch(model, val_ds, train=False, optimizer=None)
+            val_losses = run_epoch(
+                model, val_ds, train=False, optimizer=None,
+                kl_g0_weight=1.0, kl_u_weight=1.0,
+                apply_free_bits=False,
+            )
 
         current_lr = scheduler.get_last_lr()[0]
 
         # --- Log to CSV ---
-        row = {"epoch": epoch, "lr": f"{current_lr:.2e}"}
+        row = {
+            "epoch":        epoch,
+            "kl_g0_weight": f"{kl_g0_weight:.3f}",
+            "kl_u_weight":  f"{kl_u_weight:.3f}",
+            "lr":           f"{current_lr:.2e}",
+        }
         for k, v in train_losses.items():
             row[f"train_{k}"] = f"{v:.6f}"
         for k, v in val_losses.items():
@@ -219,6 +296,7 @@ def train(
         if epoch % 10 == 0 or epoch == 1:
             log.info(
                 f"Epoch {epoch:4d}/{n_epochs} | "
+                f"kl_g0_w={kl_g0_weight:.2f} kl_u_w={kl_u_weight:.2f} | "
                 f"train={train_losses['loss_total']:.4f} "
                 f"(recon={train_losses['loss_recon']:.4f}, "
                 f"kl_g0={train_losses['loss_kl_g0']:.4f}, "
@@ -241,6 +319,8 @@ def train(
                 "train_loss_total":     train_losses["loss_total"],
                 "use_control":          use_control,
                 "use_ic":               use_ic,
+                "h":                    model.h,
+                "m":                    model.m,
             }, results_dir / "best_model.pt")
             log.info(f"  -> New best val loss: {val_total:.4f} (saved best_model.pt)")
         else:
@@ -249,7 +329,7 @@ def train(
         # --- Early stopping ---
         if epochs_no_improve >= PATIENCE:
             log.info(
-                f"Early stopping at epoch {epoch} — "
+                f"Early stopping at epoch {epoch} -- "
                 f"no improvement for {PATIENCE} epochs."
             )
             break
@@ -263,6 +343,8 @@ def train(
         "train_loss_total":     train_losses["loss_total"],
         "use_control":          use_control,
         "use_ic":               use_ic,
+        "h":                    model.h,
+        "m":                    model.m,
     }, results_dir / "final_model.pt")
 
     log.info(f"Final model saved to {results_dir / 'final_model.pt'}")
