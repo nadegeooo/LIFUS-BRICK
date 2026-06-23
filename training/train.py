@@ -54,6 +54,7 @@ from training.dataset import BRICKDataset, split_dataset
 from config import (
     M, N_ROIS, H, T as T_DATA,
     KL_G0_ANNEAL_EPOCHS, KL_G0_DELAY_EPOCHS, KL_U_DELAY_EPOCHS, KL_U_ANNEAL_EPOCHS,
+    PATIENCE, WEIGHT_DECAY,
 )
 
 # ================================================================================
@@ -61,8 +62,6 @@ from config import (
 # ================================================================================
 N_EPOCHS        = 1000
 LR              = 1e-4
-WEIGHT_DECAY    = 1e-5
-PATIENCE        = 50
 SEED            = 42
 DATA_DIR        = ROOT_DIR / "data" / "preprocessed_data"
 RESULTS_DIR     = ROOT_DIR / "results" / "training"
