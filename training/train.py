@@ -11,8 +11,8 @@ Description:
         - Extract C_pre and C_post after training to compute Delta_C
 
     Training protocol (Zhou et al. 2025):
-        - Optimizer:  AdamW, lr=1e-3, weight_decay=1e-5
-        - Scheduler:  CosineAnnealingLR over n_epochs
+        - Optimizer:  AdamW, lr=1e-3, weight_decay=1e-3
+        - Scheduler:  ReduceLROnPlateau(mode='min', factor=0.5, patience=15, min_lr=1e-6) - changed
         - Early stop: patience=50 epochs on total validation loss
         - Split:      7:1:2 by subject (no session leakage)
 
@@ -42,7 +42,9 @@ import logging
 import argparse
 from pathlib import Path
 from datetime import datetime
+import random
 
+import numpy as np
 import torch
 import torch.optim as optim
 
@@ -54,7 +56,7 @@ from training.dataset import BRICKDataset, split_dataset
 from config import (
     M, N_ROIS, H, T as T_DATA,
     KL_G0_ANNEAL_EPOCHS, KL_G0_DELAY_EPOCHS, KL_U_DELAY_EPOCHS, KL_U_ANNEAL_EPOCHS,
-    PATIENCE, WEIGHT_DECAY,
+    PATIENCE, WEIGHT_DECAY, BATCH_SIZE
 )
 
 # ================================================================================
@@ -165,27 +167,31 @@ def run_epoch(
     }
     n = len(subset)
 
-    for i in subset.indices:
-        item  = subset.dataset[i]
-        x     = item["x"]
-        label = item["lifus_condition"]
+    indices = list(subset.indices)
+    if train:
+        random.shuffle(indices)
+        optimizer.zero_grad()
 
-        out  = model(
-            x, label,
-            kl_g0_weight=kl_g0_weight,
-            kl_u_weight=kl_u_weight,
-            apply_free_bits=apply_free_bits,
-        )
-        loss = out["losses"]["loss_total"]
+    for batch_start in range(0, n, BATCH_SIZE):
+        batch_indices = indices[batch_start : batch_start + BATCH_SIZE]
 
-        if train and optimizer is not None:
-            optimizer.zero_grad()
-            loss.backward()
+        batch_losses = []
+        for i in batch_indices:
+            item = subset.dataset[i]
+            x = item["x"]
+            label = item["lifus_condition"]
+
+            out = model(x, label, kl_g0_weight=kl_g0_weight, kl_u_weight=kl_u_weight, apply_free_bits=apply_free_bits)
+            batch_losses.append(out["losses"]["loss_total"] / len(batch_indices))
+
+            for key in totals:
+                totals[key] += out["losses"][key].item()
+
+        if train:
+            torch.stack(batch_losses).sum().backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
-
-        for key in totals:
-            totals[key] += out["losses"][key].item()
+            optimizer.zero_grad()
 
     return {k: v / n for k, v in totals.items()}
 
@@ -199,13 +205,14 @@ def train(
     use_ic:      bool  = True,
     run_name:    str   = "train",
 ):
+    random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED)
     results_dir = RESULTS_DIR / run_name
     log = setup_logging(results_dir, run_name)
 
     log.info("=" * 60)
     log.info(f"BRICK Training -- {run_name}")
     log.info(f"N_ROIS={N_ROIS}, M={M}, H={H}, T={T_DATA}")
-    log.info(f"Epochs={n_epochs}, LR={LR}, WeightDecay={WEIGHT_DECAY}")
+    log.info(f"Epochs={n_epochs}, LR={LR}, WD={WEIGHT_DECAY}")    
     log.info(f"Patience={PATIENCE}, use_control={use_control}, use_ic={use_ic}")
     log.info(f"KL annealing: g0 over {KL_G0_ANNEAL_EPOCHS} epochs, "
              f"u delayed {KL_U_DELAY_EPOCHS} then over {KL_U_ANNEAL_EPOCHS} epochs")
@@ -237,8 +244,8 @@ def train(
 
     # --- Optimizer and scheduler ---
     optimizer = optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(
-        optimizer, T_max=n_epochs, eta_min=1e-6
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.5, patience=15, min_lr=1e-6
     )
 
     # --- CSV ---
@@ -263,7 +270,6 @@ def train(
             kl_g0_weight=kl_g0_weight, kl_u_weight=kl_u_weight,
             apply_free_bits=True,
         )
-        scheduler.step()
 
         # Validate — true ELBO, no free bits, full KL weights
         with torch.no_grad():
@@ -272,8 +278,10 @@ def train(
                 kl_g0_weight=1.0, kl_u_weight=1.0,
                 apply_free_bits=False,
             )
+        
+        scheduler.step(val_losses["loss_total"])
 
-        current_lr = scheduler.get_last_lr()[0]
+        current_lr = optimizer.param_groups[0]['lr']
 
         # --- Log to CSV ---
         row = {
