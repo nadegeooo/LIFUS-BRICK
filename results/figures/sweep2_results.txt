@@ -1,0 +1,13 @@
+Param                Value      Best Val Recon     Best Val Cls   
+-----------------------------------------------------------------
+LAMBDA_NOISE         0.05       3.5864             0.6107         
+LAMBDA_NOISE         0.01       10.2732            0.5974         
+LAMBDA_NOISE         0.005      17.5950            0.6127         
+
+WEIGHT_DECAY         0.1        9.5605             0.5980         
+WEIGHT_DECAY         0.05       9.8271             0.5974         
+WEIGHT_DECAY         0.01       10.2732            0.5974         
+
+BATCH_SIZE           1          7.5387             0.6121         
+BATCH_SIZE           2          9.0603             0.6173         
+BATCH_SIZE           4          10.2732            0.5974         

@@ -58,6 +58,7 @@ from config import (
     KL_G0_ANNEAL_EPOCHS, KL_G0_DELAY_EPOCHS, KL_U_DELAY_EPOCHS, KL_U_ANNEAL_EPOCHS,
     PATIENCE, WEIGHT_DECAY, BATCH_SIZE
 )
+import config
 
 # ================================================================================
 # DEFAULTS
@@ -84,7 +85,8 @@ CSV_COLUMNS = [
 # ================================================================================
 def setup_logging(results_dir: Path, run_name: str) -> logging.Logger:
     results_dir.mkdir(parents=True, exist_ok=True)
-    log_path = results_dir / f"{run_name}.log"
+    log_filename = Path(run_name).name  # takes only "sweep_LAMBDA_NOISE_0.001"
+    log_path = results_dir / f"{log_filename}.log"
 
     logger = logging.getLogger(run_name)
     logger.setLevel(logging.INFO)
@@ -143,6 +145,7 @@ def run_epoch(
     kl_g0_weight:    float = 1.0,
     kl_u_weight:     float = 1.0,
     apply_free_bits: bool  = True,
+    batch_size:      int   = None,
 ) -> dict:
     """
     Run one epoch over a dataset subset.
@@ -159,6 +162,9 @@ def run_epoch(
     Returns:
         dict of mean loss components over the epoch
     """
+    
+    _batch_size = batch_size if batch_size is not None else config.BATCH_SIZE
+    
     model.train(train)
 
     totals = {
@@ -172,8 +178,8 @@ def run_epoch(
         random.shuffle(indices)
         optimizer.zero_grad()
 
-    for batch_start in range(0, n, BATCH_SIZE):
-        batch_indices = indices[batch_start : batch_start + BATCH_SIZE]
+    for batch_start in range(0, n, _batch_size):
+        batch_indices = indices[batch_start : batch_start + _batch_size]
 
         batch_losses = []
         for i in batch_indices:
@@ -204,7 +210,16 @@ def train(
     use_control: bool  = True,
     use_ic:      bool  = True,
     run_name:    str   = "train",
+    lambda_noise: float = None,
+    weight_decay: float = None,
+    batch_size:   int   = None,
 ):
+    
+    # Resolve: use override if provided, else fall back to config
+    _lambda_noise = lambda_noise if lambda_noise is not None else config.LAMBDA_NOISE
+    _weight_decay = weight_decay if weight_decay is not None else config.WEIGHT_DECAY
+    _batch_size   = batch_size   if batch_size   is not None else config.BATCH_SIZE
+
     random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED)
     results_dir = RESULTS_DIR / run_name
     log = setup_logging(results_dir, run_name)
@@ -212,7 +227,7 @@ def train(
     log.info("=" * 60)
     log.info(f"BRICK Training -- {run_name}")
     log.info(f"N_ROIS={N_ROIS}, M={M}, H={H}, T={T_DATA}")
-    log.info(f"Epochs={n_epochs}, LR={LR}, WD={WEIGHT_DECAY}")    
+    log.info(f"Epochs={n_epochs}, LR={LR}, WD={_weight_decay}, LAMBDA_NOISE={_lambda_noise}, BATCH_SIZE={_batch_size}")
     log.info(f"Patience={PATIENCE}, use_control={use_control}, use_ic={use_ic}")
     log.info(f"KL annealing: g0 over {KL_G0_ANNEAL_EPOCHS} epochs, "
              f"u delayed {KL_U_DELAY_EPOCHS} then over {KL_U_ANNEAL_EPOCHS} epochs")
@@ -238,12 +253,12 @@ def train(
         json.dump(split_info, f, indent=2)
 
     # --- Model ---
-    model = BRICK(use_control=use_control, use_ic=use_ic)
+    model = BRICK(use_control=use_control, use_ic=use_ic, lambda_noise=_lambda_noise)
     n_params = sum(p.numel() for p in model.parameters())
     log.info(f"Model parameters: {n_params:,}")
 
     # --- Optimizer and scheduler ---
-    optimizer = optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
+    optimizer = optim.AdamW(model.parameters(), lr=LR, weight_decay=_weight_decay)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='min', factor=0.5, patience=15, min_lr=1e-6
     )
@@ -268,7 +283,7 @@ def train(
         train_losses = run_epoch(
             model, train_ds, train=True, optimizer=optimizer,
             kl_g0_weight=kl_g0_weight, kl_u_weight=kl_u_weight,
-            apply_free_bits=True,
+            apply_free_bits=True, batch_size=_batch_size,
         )
 
         # Validate — true ELBO, no free bits, full KL weights
@@ -276,7 +291,7 @@ def train(
             val_losses = run_epoch(
                 model, val_ds, train=False, optimizer=None,
                 kl_g0_weight=1.0, kl_u_weight=1.0,
-                apply_free_bits=False,
+                apply_free_bits=False, batch_size=_batch_size,
             )
         
         scheduler.step(val_losses["loss_total"])

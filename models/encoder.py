@@ -6,7 +6,7 @@ from config import N_ROIS, H, M, MLP_HIDDEN, NHEAD, NUM_LAYERS
 
 class Encoder(nn.Module):
     def __init__(self, n_rois=N_ROIS, h=H, m=M, mlp_hidden=MLP_HIDDEN,
-                 nhead=NHEAD, num_layers=NUM_LAYERS, dropout=0.0, logvar_clamp=(-10.0, 10.0)):
+                 nhead=NHEAD, num_layers=NUM_LAYERS, dropout=0.1, logvar_clamp=(-10.0, 10.0)):
         super().__init__()
         # FIX: guard the d_model % nhead == 0 requirement up front
         assert h % nhead == 0, f"H={h} must be divisible by NHEAD={nhead}"
@@ -41,7 +41,8 @@ class Encoder(nn.Module):
         # tokens, so this is the layer the paper's Phi-equivariance claim is about.
         mu = self.mu_proj(self.mu_head(z0))
         logvar = self.logvar_proj(self.logvar_head(z0))
-        logvar = torch.clamp(logvar, *self.logvar_clamp)   # FIX: stabilize exp()
+        LOGVAR_MIN, LOGVAR_MAX = -6.0, 2.0
+        logvar = LOGVAR_MIN + 0.5 * (LOGVAR_MAX - LOGVAR_MIN) * (torch.tanh(logvar) + 1.0)
         return mu, logvar
 
     def encode_distribution(self, x):

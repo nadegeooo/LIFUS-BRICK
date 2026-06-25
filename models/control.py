@@ -49,7 +49,6 @@ class ControlModule(nn.Module):
         nhead       (int): Attention heads in TransformerEncoder.
         num_layers  (int): Number of TransformerEncoder layers.
         num_classes (int): Number of task states to classify. Default 2 (pre/post).
-        logvar_clamp (tuple): Clamp range for logvar_u for numerical stability.
     """
 
     def __init__(
@@ -59,21 +58,19 @@ class ControlModule(nn.Module):
         nhead:       int   = NHEAD,
         num_layers:  int   = NUM_LAYERS,
         num_classes: int   = 2,
-        logvar_clamp: tuple = (-10.0, 10.0),
     ):
         super().__init__()
 
         self.n_rois      = n_rois
         self.m           = m
         self.num_classes = num_classes
-        self.logvar_clamp = logvar_clamp
 
         # --- Transformer Encoder: x (T, N) -> E (T, M) ---
         # Projects N -> M first, then applies transformer over T tokens
         self.input_proj = nn.Linear(n_rois, m)
 
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=m, nhead=nhead, batch_first=True, dim_feedforward=m * 4         # 4 is feedforward multiplier, common default in transformer architectures (see Attention Is All You Need paper)
+            d_model=m, nhead=nhead, batch_first=True, dim_feedforward=m * 4, dropout=0.1         # 4 is feedforward multiplier, common default in transformer architectures (see Attention Is All You Need paper)
         )
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
 
@@ -86,6 +83,10 @@ class ControlModule(nn.Module):
 
         # --- Task state classifier: e (M,) -> s_hat (num_classes,) ---
         self.classifier = nn.Linear(m, num_classes)
+
+        # Initialize logvar head near zero -> logvar ≈ -2 at init, sigma ≈ 0.37
+        nn.init.zeros_(self.mlp_sig[-1].weight)
+        nn.init.zeros_(self.mlp_sig[-1].bias) 
 
     def encode(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -140,17 +141,9 @@ class ControlModule(nn.Module):
         # Control inputs from E: (B, M, T) -> (B, T, M)
         E_t      = E.permute(0, 2, 1)              # (B, T, M)
         mu_u     = self.mlp_mu(E_t)                # (B, T, M)
+        LOGVAR_MIN, LOGVAR_MAX = -6.0, 2.0    # sigma in [0.05, 2.7]
         logvar_u = self.mlp_sig(E_t)               # (B, T, M)
-        logvar_u = logvar_u.clamp(*self.logvar_clamp)
-
-        if self.training and ((logvar_u == self.logvar_clamp[0]).any() or (logvar_u == self.logvar_clamp[1]).any()):
-            warnings.warn(
-                "ControlModule.forward: logvar_u hit clamp bounds "
-                f"[{self.logvar_clamp[0]}, {self.logvar_clamp[1]}] — "
-                "possible numerical instability. Consider adjusting logvar_clamp or learning rate.",
-                RuntimeWarning,
-                stacklevel=2,
-            )
+        logvar_u = LOGVAR_MIN + 0.5 * (LOGVAR_MAX - LOGVAR_MIN) * (torch.tanh(logvar_u) + 1.0)
 
         if self.training:
             eps = torch.randn_like(mu_u)
