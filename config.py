@@ -26,7 +26,7 @@ EPSILON = 1.0           # prior variance for g_0 ~ N(0, εI)
 LAMBDA_NOISE = 0.01     # noise scaling. 0.01 is ideal
 
 # KL Annealing
-KL_G0_DELAY_EPOCHS   = 0   # hold KL_g0 at 0 for first epochs
+KL_G0_DELAY_EPOCHS  = 0   # hold KL_g0 at 0 for first epochs
 KL_G0_ANNEAL_EPOCHS = 0  # ramp KL_g0 from 0 to 1 over time
 KL_U_DELAY_EPOCHS   = 0   # hold KL_u at 0 for first epochs
 KL_U_ANNEAL_EPOCHS  = 0   # then ramp KL_u from 0 to 1 over time
@@ -34,8 +34,6 @@ KL_U_FREE_BITS      = 0.25  # minimum KL_u before penalty kicks in
 U_PRIOR_SIGMA       = 0.5  # prior std on u_t (tighter = harder to collapse)
 
 #Training
-PATIENCE                    = 20                #Epochs to wait for early stopping
-WEIGHT_DECAY                = 0.05        # Weight decay for optimizer
-BATCH_SIZE                  = 16            # Batch size for training
-
-LOGVAR_MIN, LOGVAR_MAX = -6.0, 2.0          #clamp in control
+PATIENCE            = 30          # Epochs to wait for early stopping
+WEIGHT_DECAY        = 0.05        # Weight decay for optimizer
+BATCH_SIZE          = 12          # Batch size for training
