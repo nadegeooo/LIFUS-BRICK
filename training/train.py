@@ -205,6 +205,16 @@ def run_epoch(
 # ================================================================================
 # MAIN TRAINING LOOP
 # ================================================================================
+def safe_save(obj: dict, path: Path) -> None:
+    """Save a checkpoint atomically to avoid file lock issues on Windows."""
+    tmp = path.with_suffix(".tmp")
+    if tmp.exists():
+        tmp.unlink()
+    torch.save(obj, tmp)
+    if path.exists():
+        path.unlink()
+    tmp.rename(path)
+
 def train(
     n_epochs:    int   = N_EPOCHS,
     use_control: bool  = True,
@@ -333,11 +343,11 @@ def train(
         if val_total < best_val_loss:
             best_val_loss = val_total
             epochs_no_improve = 0
-            torch.save({
+            safe_save({
                 "epoch":                epoch,
                 "model_state_dict":     model.state_dict(),
                 "optimizer_state_dict": optimizer.state_dict(),
-                "val_loss_total":       val_total,
+                "val_loss_total":       val_losses["loss_total"],
                 "train_loss_total":     train_losses["loss_total"],
                 "use_control":          use_control,
                 "use_ic":               use_ic,
@@ -357,7 +367,7 @@ def train(
             break
 
     # --- Save final checkpoint ---
-    torch.save({
+    safe_save({
         "epoch":                epoch,
         "model_state_dict":     model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),

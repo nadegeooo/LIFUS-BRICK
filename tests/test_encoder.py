@@ -388,3 +388,23 @@ def test_forward_consistent_with_encode_distribution():
     mu_dist, logvar_dist = enc.encode_distribution(x)
     assert torch.allclose(mu_sample, mu_dist),         "mu mismatch with encode_distribution"
     assert torch.allclose(logvar_sample, logvar_dist), "logvar mismatch with encode_distribution"
+
+
+
+def test_g0_prior_variance_near_epsilon():
+    """
+    Untrained encoder g_0 samples should have std close to sqrt(epsilon),
+    consistent with the prior g_0 ~ N(0, epsilon*I).
+    """
+    from config import EPSILON
+    torch.manual_seed(42)
+    enc = Encoder()
+    enc.train()
+    x = torch.randn(T_DATA, N_ROIS)
+
+    samples = torch.stack([enc(x)[0] for _ in range(500)])
+    std = samples.std(dim=0)
+    expected_std = EPSILON ** 0.5  # 1.0 with default config
+
+    assert (std.mean() - expected_std).abs() < 0.5, \
+        f"g_0 std {std.mean():.4f} far from expected {expected_std:.4f}"
