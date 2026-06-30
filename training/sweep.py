@@ -9,8 +9,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from training.train import train
 
 ROOT_DIR     = Path(__file__).resolve().parent.parent
-TRAINING_DIR = ROOT_DIR / "results" / "training" / "sweep"
-FIGURES_DIR  = ROOT_DIR / "results" / "figures"
+
+SWEEP_NAME = "sweep_3"   # <-- change this each time
+
+TRAINING_DIR = ROOT_DIR / "results" / "training" / SWEEP_NAME
+FIGURES_DIR  = ROOT_DIR / "results" / "figures" / SWEEP_NAME
 
 BASELINE = {
     "WEIGHT_DECAY": 0.05,
@@ -31,11 +34,10 @@ PARAM_MAP = {
 def run_sweep():
     for param, values in SWEEP.items():
         for val in values:
-            # Build kwargs: baseline for all params, override for this one
             kwargs = {PARAM_MAP[p]: BASELINE[p] for p in BASELINE}
             kwargs[PARAM_MAP[param]] = val
             run_name = f"sweep_{param}_{val}"
-            train(n_epochs=200, run_name=f"sweep/{run_name}", **kwargs)
+            train(n_epochs=200, run_name=f"{SWEEP_NAME}/{run_name}", **kwargs)
 
     plot_sweep()
 
@@ -45,7 +47,6 @@ def plot_sweep():
 
     for row, (param, values) in enumerate(SWEEP.items()):
         ax_recon, ax_cls = axes[row]
-
         for val in values:
             run_name = f"sweep_{param}_{val}"
             csv_path = TRAINING_DIR / run_name / "loss_history.csv"
@@ -54,7 +55,6 @@ def plot_sweep():
             df = pd.read_csv(csv_path)
             ax_recon.plot(df["epoch"], df["val_loss_recon"], label=f"{val}")
             ax_cls.plot(df["epoch"], df["val_loss_cls"], label=f"{val}")
-
         ax_recon.set_title(f"{param} — val recon loss")
         ax_cls.set_title(f"{param} — val cls loss")
         ax_recon.legend(); ax_cls.legend()
@@ -65,7 +65,6 @@ def plot_sweep():
     plt.savefig(out, dpi=150)
     print(f"Plot saved to {out}")
 
-    # --- Comparison table ---
     lines = []
     lines.append(f"{'Param':<20} {'Value':<10} {'Best Val Recon':<18} {'Best Val Cls':<15}")
     lines.append("-" * 65)
@@ -83,7 +82,6 @@ def plot_sweep():
 
     output = "\n".join(lines)
     print(output)
-
     table_path = FIGURES_DIR / "sweep_results.txt"
     table_path.write_text(output)
     print(f"Table saved to {table_path}")
