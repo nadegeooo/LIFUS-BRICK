@@ -2,7 +2,7 @@
 
 import pytest
 import torch
-from config import M, N_ROIS, H, T as T_DATA, NUM_CLASSES
+from config import M, N_ROIS, T as T_DATA, NUM_CLASSES
 from models.brick import BRICK
 
 

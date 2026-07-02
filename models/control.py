@@ -14,10 +14,12 @@ Description:
     where C is a subject-specific diagonal control matrix and u_{1:T} are
     external control inputs generated from the BOLD observations.
 
-    The module has three outputs:
+    The module has five outputs:
         1. C  — diagonal control matrix, shape (M, M), diag values in (-1, 1)
         2. u  — control inputs, shape (T, M), sampled via reparameterization
         3. s_hat — task state prediction (pre/post), shape (num_classes,)
+        4.
+        5.
 
     Architecture:
         - TransformerEncoder: x_{1:T} (T, N) -> E (M, T)
@@ -35,7 +37,6 @@ References:
 import torch
 import torch.nn as nn
 from config import N_ROIS, M, NHEAD, NUM_LAYERS
-import warnings
 
 
 class ControlModule(nn.Module):
