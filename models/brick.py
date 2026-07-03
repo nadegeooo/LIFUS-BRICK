@@ -49,7 +49,7 @@ from models.koopman_utils import (
 
 from config import (
     M, N_ROIS, H, NHEAD, NUM_LAYERS, BETA, NUM_CLASSES, EPSILON,
-    KL_U_FREE_BITS, U_PRIOR_SIGMA, LAMBDA_NOISE, 
+    KL_G0_FREE_BITS, KL_U_FREE_BITS, U_PRIOR_SIGMA, LAMBDA_NOISE, 
 )
 
 
@@ -93,8 +93,9 @@ class BRICK(nn.Module):
         epsilon:        float = EPSILON,
         use_control:    bool  = True,
         use_ic:         bool  = True,
+        kl_g0_free_bits: float = KL_G0_FREE_BITS,
         kl_u_free_bits: float = KL_U_FREE_BITS,
-        lambda_noise:  float = LAMBDA_NOISE,
+        lambda_noise:   float = LAMBDA_NOISE,
     ):
         assert m == n_rois * h, \
             f"Latent dimension mismatch: m={m} must equal n_rois*h={n_rois}*{h}={n_rois*h}. Check config.py."
@@ -107,6 +108,7 @@ class BRICK(nn.Module):
         self.epsilon     = epsilon
         self.use_control = use_control
         self.use_ic      = use_ic
+        self.free_bits_g0 = kl_g0_free_bits
         self.free_bits   = kl_u_free_bits
         self.lambda_noise = lambda_noise
         # --- Koopman operator parameters (shared across subjects) ---
@@ -325,7 +327,9 @@ class BRICK(nn.Module):
                 - 1.0
                 - torch.log(var_g0 / self.epsilon)
             )
-            loss_kl_g0 = kl_g0_per_dim.sum() / N    #Normalize to N instead of T*N since g0 is a single vector per observation
+            if apply_free_bits:
+                kl_g0_per_dim = torch.clamp(kl_g0_per_dim, min=self.free_bits_g0)
+            loss_kl_g0 = kl_g0_per_dim.sum() / (T * N)
         else:
             loss_kl_g0 = torch.zeros((), device=x.device)
 

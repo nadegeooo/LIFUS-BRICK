@@ -6,14 +6,13 @@ from config import N_ROIS, H, M, MLP_HIDDEN, NHEAD, NUM_LAYERS
 
 class Encoder(nn.Module):
     def __init__(self, n_rois=N_ROIS, h=H, m=M, mlp_hidden=MLP_HIDDEN,
-                 nhead=NHEAD, num_layers=NUM_LAYERS, dropout=0.1, logvar_clamp=(-10.0, 10.0)):
+                 nhead=NHEAD, num_layers=NUM_LAYERS, dropout=0.1):
         super().__init__()
         # FIX: guard the d_model % nhead == 0 requirement up front
         assert h % nhead == 0, f"H={h} must be divisible by NHEAD={nhead}"
         self.n_rois = n_rois
         self.h = h
         self.m = m
-        self.logvar_clamp = logvar_clamp
 
         self.row_mlp = nn.Sequential(
             nn.Linear(n_rois, mlp_hidden), 

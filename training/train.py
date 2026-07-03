@@ -71,7 +71,7 @@ RESULTS_DIR     = ROOT_DIR / "results" / "training"
 
 CSV_COLUMNS = [
     "epoch",
-    "kl_g0_weight", "kl_u_weight",
+    "kl_g0_weight", "kl_u_weight", "cost_ratio_u_over_g0",
     "train_loss_total", "train_loss_recon", "train_loss_kl_g0",
     "train_loss_kl_u",  "train_loss_cls",
     "val_loss_total",   "val_loss_recon",   "val_loss_kl_g0",
@@ -132,6 +132,23 @@ def get_kl_weights(epoch: int) -> tuple[float, float]:
         if KL_U_ANNEAL_EPOCHS > 0 else 1.0
     )
     return kl_g0_weight, kl_u_weight
+
+
+def compute_cost_ratio(kl_g0_weight: float, kl_u_weight: float, T: int = T_DATA, N: int = N_ROIS) -> float:
+    """
+    Effective marginal cost ratio: how much cheaper (or more expensive) it is
+    to keep one u-unit informative vs one g0-unit informative, given the
+    current annealing weights and brick.py's normalization
+    (loss_kl_g0 /N, loss_kl_u /(T*N)).
+
+    ratio << 1  -> u is structurally cheaper; model favors routing info through u
+    ratio ~= 1  -> no structural bias between the two pathways
+    ratio >> 1  -> g0 is structurally cheaper
+    """
+    eps = 1e-12
+    effective_cost_g0 = kl_g0_weight / N
+    effective_cost_u  = kl_u_weight  / (T * N)
+    return effective_cost_u / max(effective_cost_g0, eps)
 
 
 # ================================================================================
@@ -288,6 +305,7 @@ def train(
 
         # KL annealing weights for this epoch
         kl_g0_weight, kl_u_weight = get_kl_weights(epoch)
+        cost_ratio = compute_cost_ratio(kl_g0_weight, kl_u_weight)   
 
         # Train — use free bits to prevent collapse
         train_losses = run_epoch(
@@ -313,6 +331,7 @@ def train(
             "epoch":        epoch,
             "kl_g0_weight": f"{kl_g0_weight:.3f}",
             "kl_u_weight":  f"{kl_u_weight:.3f}",
+            "cost_ratio_u_over_g0": f"{cost_ratio:.6f}",
             "lr":           f"{current_lr:.2e}",
         }
         for k, v in train_losses.items():
@@ -329,6 +348,7 @@ def train(
             log.info(
                 f"Epoch {epoch:4d}/{n_epochs} | "
                 f"kl_g0_w={kl_g0_weight:.2f} kl_u_w={kl_u_weight:.2f} | "
+                f"cost_ratio(u/g0)={cost_ratio:.4f} | "
                 f"train={train_losses['loss_total']:.4f} "
                 f"(recon={train_losses['loss_recon']:.4f}, "
                 f"kl_g0={train_losses['loss_kl_g0']:.4f}, "
