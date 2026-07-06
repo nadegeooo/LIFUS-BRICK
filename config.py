@@ -38,3 +38,5 @@ U_PRIOR_SIGMA       = 0.5  # prior std on u_t (tighter = harder to collapse)
 PATIENCE            = 30          # Epochs to wait for early stopping
 WEIGHT_DECAY        = 0.05        # Weight decay for optimizer
 BATCH_SIZE          = 12          # Batch size for training
+
+OVERFIT_THRESHOLD = 1.5  # val/train recon ratio above which overfitting is detected

@@ -43,8 +43,6 @@ import argparse
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.colors as mcolors
 import torch
 from pathlib import Path
 from scipy import stats
@@ -129,6 +127,119 @@ def compute_roi_projection_weights(W_bar_x: np.ndarray) -> np.ndarray:
 def project_to_roi(diag_arr: np.ndarray, roi_weights: np.ndarray) -> np.ndarray:
     """diag_arr: (n_subjects, M) -> (n_subjects, N_ROIS) via roi_weights."""
     return diag_arr @ roi_weights.T
+
+
+def check_per_subject_consistency_brain_space(
+    C_dict: dict,
+    model:  BRICK,
+    target: str = "zi",
+) -> pd.DataFrame:
+    """
+    For each of the 24 ROIs, compute the sign of ΔC projected to brain space
+    per subject and report how many subjects agree on direction.
+
+    ΔC_brain = W_real @ (C_post - C_pre) @ W_real.T   (24, 24)
+    We take the diagonal: how much each ROI's self-control changes.
+
+    Args:
+        C_dict: dict from extract_C_matrices
+        model:  trained BRICK model (for W_bar_x)
+        target: 'vim' or 'zi'
+
+    Returns:
+        DataFrame with columns:
+            roi, n_positive, n_negative, n_consistent,
+            consistent_direction, consistency_fraction, mean_delta
+    """
+    from preprocessing.load_preprocessed_data import TARGET_ROIS
+
+    # Filter to target
+    keys = sorted([k for k in C_dict.keys() if k[1] == target])
+    n_subjects = len(keys)
+
+    if n_subjects == 0:
+        raise ValueError(f"No subjects found for target={target}")
+
+    print(f"  Checking brain-space consistency across {n_subjects} subjects for target={target}")
+
+    # Projection matrix
+    with torch.no_grad():
+        W_real = model.W_bar_x.real.cpu().numpy()  # (24, 96)
+
+    # Per-subject ΔC projected to brain space diagonal
+    delta_brain_diag = []
+    for k in keys:
+        C_pre  = C_dict[k]["pre"].numpy()   # (96, 96)
+        C_post = C_dict[k]["post"].numpy()  # (96, 96)
+        delta_C = C_post - C_pre            # (96, 96)
+
+        # Project to brain space
+        delta_C_brain = W_real @ delta_C @ W_real.T  # (24, 24)
+
+        # Take diagonal — self-control change per ROI
+        delta_brain_diag.append(np.diag(delta_C_brain))  # (24,)
+
+    delta_brain_diag = np.stack(delta_brain_diag)  # (n_subjects, 24)
+
+    # Count sign agreement per ROI
+    n_positive  = (delta_brain_diag > 0).sum(axis=0)   # (24,)
+    n_negative  = (delta_brain_diag < 0).sum(axis=0)   # (24,)
+    n_consistent = np.maximum(n_positive, n_negative)
+    consistent_direction = np.where(
+        n_positive >= n_negative, "increase", "decrease"
+    )
+    consistency_fraction = n_consistent / n_subjects
+    mean_delta = delta_brain_diag.mean(axis=0)          # (24,)
+
+    df = pd.DataFrame({
+        "roi":                   TARGET_ROIS,
+        "n_positive":            n_positive,
+        "n_negative":            n_negative,
+        "n_consistent":          n_consistent,
+        "consistent_direction":  consistent_direction,
+        "consistency_fraction":  consistency_fraction,
+        "mean_delta":            mean_delta,
+    })
+
+    df = df.sort_values("n_consistent", ascending=False).reset_index(drop=True)
+
+    return df
+
+
+def report_consistency_brain_space(
+    consistency_df: pd.DataFrame,
+    n_subjects:     int,
+    threshold:      int = 15,
+):
+    """Print brain-space consistency report."""
+    print(f"\n{'='*60}")
+    print(f"Brain-space ΔC consistency (threshold: {threshold}/{n_subjects})")
+    print(f"{'='*60}")
+
+    consistent = consistency_df[consistency_df["n_consistent"] >= threshold]
+
+    if len(consistent) == 0:
+        print(f"No ROIs show consistent direction in {threshold}+ subjects.")
+    else:
+        print(f"ROIs with consistent direction in {threshold}+ subjects: {len(consistent)}")
+        for _, row in consistent.iterrows():
+            print(
+                f"  {row['roi']:<35} "
+                f"{int(row['n_consistent'])}/{n_subjects} subjects "
+                f"{row['consistent_direction']} | "
+                f"mean ΔC = {row['mean_delta']:+.4f}"
+            )
+
+    print(f"\nAll ROIs ranked by consistency:")
+    print(f"{'ROI':<35} {'n_agree':>8} {'direction':>12} {'mean_delta':>12}")
+    print("-" * 70)
+    for _, row in consistency_df.iterrows():
+        print(
+            f"{row['roi']:<35} "
+            f"{int(row['n_consistent']):>5}/{n_subjects:<3} "
+            f"{row['consistent_direction']:>12} "
+            f"{row['mean_delta']:>+12.4f}"
+        )
 
 
 # ================================================================================
@@ -696,6 +807,40 @@ def main(targets, alpha=0.05, top_k=M):
             plot_delta_C_roi_comparison(roi_dfs, TARGET_ROIS,
                                         FIGURES_DIR / "delta_C_roi_comparison.png",
                                         alpha=alpha)
+            
+
+    # --- Brain-space consistency check ---
+    # Build C_dict for consistency functions (keyed by (subject_id, target))
+    print("\n--- Per-subject ΔC consistency (brain space) ---")
+    C_dict = {}
+    with torch.no_grad():
+        for s in subjects:
+            if s["target"] not in targets:
+                continue
+            x_pre  = znorm(torch.tensor(s["mpre"],  dtype=torch.float32))
+            x_post = znorm(torch.tensor(s["mpost"], dtype=torch.float32))
+            key = (s["subject_id"], s["target"])
+            C_dict[key] = {
+                "pre":  model(x_pre)["C"],
+                "post": model(x_post)["C"],
+            }
+
+    for target in targets:
+        try:
+            brain_consistency_df = check_per_subject_consistency_brain_space(
+                C_dict, model, target=target
+            )
+            n_subjects = len([k for k in C_dict.keys() if k[1] == target])
+            report_consistency_brain_space(
+                brain_consistency_df,
+                n_subjects=n_subjects,
+                threshold=15,
+            )
+            cons_path = RESULTS_DIR / f"consistency_brain_{target}.csv"
+            brain_consistency_df.to_csv(cons_path, index=False)
+            print(f"Brain-space consistency saved to {cons_path}")
+        except ValueError as e:
+            print(f"  Skipping {target}: {e}")
 
 
 # ================================================================================

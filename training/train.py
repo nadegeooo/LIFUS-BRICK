@@ -56,7 +56,7 @@ from training.dataset import BRICKDataset, split_dataset
 from config import (
     M, N_ROIS, H, T as T_DATA,
     KL_G0_ANNEAL_EPOCHS, KL_G0_DELAY_EPOCHS, KL_U_DELAY_EPOCHS, KL_U_ANNEAL_EPOCHS,
-    PATIENCE, WEIGHT_DECAY, BATCH_SIZE
+    PATIENCE, OVERFIT_THRESHOLD
 )
 import config
 
@@ -132,6 +132,21 @@ def get_kl_weights(epoch: int) -> tuple[float, float]:
         if KL_U_ANNEAL_EPOCHS > 0 else 1.0
     )
     return kl_g0_weight, kl_u_weight
+
+
+# ================================================================================
+# OVERFITTING 
+# ================================================================================
+
+def is_overfitting(train_losses: dict, val_losses: dict) -> bool:
+    """
+    Returns True if val/train reconstruction loss ratio exceeds OVERFIT_THRESHOLD.
+    """
+    train_recon = train_losses["loss_recon"]
+    val_recon   = val_losses["loss_recon"]
+    if train_recon < 1e-8:
+        return False
+    return (val_recon / train_recon) > OVERFIT_THRESHOLD
 
 
 # ================================================================================
@@ -242,6 +257,7 @@ def train(
     log.info(f"KL annealing: g0 over {KL_G0_ANNEAL_EPOCHS} epochs, "
              f"u delayed {KL_U_DELAY_EPOCHS} then over {KL_U_ANNEAL_EPOCHS} epochs")
     log.info("=" * 60)
+    log.info(f"Overfit threshold: {OVERFIT_THRESHOLD} (val/train recon ratio)")
 
     # --- Data ---
     log.info("Loading dataset...")
@@ -280,7 +296,8 @@ def train(
         writer.writeheader()
 
     # --- Training loop ---
-    best_val_loss     = float("inf")
+    best_val_loss  = float("inf")
+    best_val_recon = float("inf")  # tracks best pre-overfitting checkpoint
     epochs_no_improve = 0
     log.info("Starting training...")
 
@@ -303,10 +320,12 @@ def train(
                 kl_g0_weight=1.0, kl_u_weight=1.0,
                 apply_free_bits=False, batch_size=_batch_size,
             )
-        
-        scheduler.step(val_losses["loss_total"])
 
+        scheduler.step(val_losses["loss_total"])
         current_lr = optimizer.param_groups[0]['lr']
+
+        # --- Overfitting check ---
+        overfit = is_overfitting(train_losses, val_losses)
 
         # --- Log to CSV ---
         row = {
@@ -336,9 +355,10 @@ def train(
                 f"cls={train_losses['loss_cls']:.4f}) | "
                 f"val={val_losses['loss_total']:.4f} | "
                 f"lr={current_lr:.2e}"
+                + (" [OVERFIT]" if overfit else "")
             )
 
-        # --- Save best checkpoint ---
+        # --- Save best checkpoint (by total val loss) ---
         val_total = val_losses["loss_total"]
         if val_total < best_val_loss:
             best_val_loss = val_total
@@ -357,6 +377,24 @@ def train(
             log.info(f"  -> New best val loss: {val_total:.4f} (saved best_model.pt)")
         else:
             epochs_no_improve += 1
+
+        # --- Save best pre-overfitting checkpoint (by val recon) ---
+        if not overfit and val_losses["loss_recon"] < best_val_recon:
+            best_val_recon = val_losses["loss_recon"]
+            safe_save({
+                "epoch":                epoch,
+                "model_state_dict":     model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "val_loss_total":       val_losses["loss_total"],
+                "train_loss_total":     train_losses["loss_total"],
+                "use_control":          use_control,
+                "use_ic":               use_ic,
+                "h":                    model.h,
+                "m":                    model.m,
+            }, results_dir / "best_model_preoverfit.pt")
+            log.info(f"  -> New best pre-overfit val recon: {best_val_recon:.4f} (saved best_model_preoverfit.pt)")
+        elif overfit:
+            log.info(f"  -> Overfitting detected (val/train recon ratio > {OVERFIT_THRESHOLD}), skipping pre-overfit save")
 
         # --- Early stopping ---
         if epochs_no_improve >= PATIENCE:
@@ -381,6 +419,7 @@ def train(
 
     log.info(f"Final model saved to {results_dir / 'final_model.pt'}")
     log.info(f"Best val loss: {best_val_loss:.4f}")
+    log.info(f"Best pre-overfit val recon: {best_val_recon:.4f}")
     log.info("Training complete.")
 
     return best_val_loss

@@ -311,11 +311,10 @@ class BRICK(nn.Module):
             dict: loss_total, loss_recon, loss_kl_g0, loss_kl_u, loss_cls
         """
         T, N = x.shape
-        #norm = T * N  # global normalizer — same denominator as F.mse_loss
+        norm = T * N  # global normalizer — same denominator as F.mse_loss
 
         # --- Reconstruction ---
-        # F.mse_loss(mean) == recon_sum / (T*N), already on per-observation scale
-        recon_sq = (x - x_recon).pow(2).sum() / (T * N)
+        recon_sq = (x - x_recon).pow(2).sum() / norm
         loss_recon = 0.5 / self.lambda_noise * recon_sq
 
         # --- KL(g_0): KL(N(mu, sigma^2) || N(0, epsilon*I)) ---
@@ -329,7 +328,7 @@ class BRICK(nn.Module):
             )
             if apply_free_bits:
                 kl_g0_per_dim = torch.clamp(kl_g0_per_dim, min=self.free_bits_g0)
-            loss_kl_g0 = kl_g0_per_dim.sum() / (T * N)
+            loss_kl_g0 = kl_g0_per_dim.sum() / norm
         else:
             loss_kl_g0 = torch.zeros((), device=x.device)
 
