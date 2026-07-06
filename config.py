@@ -20,7 +20,7 @@ NHEAD = 4
 NUM_LAYERS = 4
 
 #Brick implementation
-BETA = 0.5             # loss balance: β * L_cls + (1-β) * L_ELBO
+BETA = 0             # loss balance: β * L_cls + (1-β) * L_ELBO
 NUM_CLASSES = 2         # number of task states for classifier (pre- vs post- sonication)
 EPSILON = 1.0           # prior variance for g_0 ~ N(0, εI)
 LAMBDA_NOISE = 0.01     # noise scaling. 0.01 is ideal
@@ -28,9 +28,10 @@ LAMBDA_NOISE = 0.01     # noise scaling. 0.01 is ideal
 # KL Annealing
 KL_G0_DELAY_EPOCHS  = 0   # hold KL_g0 at 0 for first epochs
 KL_G0_ANNEAL_EPOCHS = 0  # ramp KL_g0 from 0 to 1 over time
+KL_G0_FREE_BITS     = 0  # minimum KL_g0 per dim before penalty kicks in
 KL_U_DELAY_EPOCHS   = 0   # hold KL_u at 0 for first epochs
 KL_U_ANNEAL_EPOCHS  = 0   # then ramp KL_u from 0 to 1 over time
-KL_U_FREE_BITS      = 0.25  # minimum KL_u before penalty kicks in
+KL_U_FREE_BITS      = 0  # minimum KL_u before penalty kicks in
 U_PRIOR_SIGMA       = 0.5  # prior std on u_t (tighter = harder to collapse)
 
 #Training
