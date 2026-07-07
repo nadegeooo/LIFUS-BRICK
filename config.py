@@ -20,7 +20,7 @@ NHEAD = 4
 NUM_LAYERS = 4
 
 #Brick implementation
-BETA = 0             # loss balance: β * L_cls + (1-β) * L_ELBO
+BETA = 0            # loss balance: β * L_cls + (1-β) * L_ELBO
 NUM_CLASSES = 2         # number of task states for classifier (pre- vs post- sonication)
 EPSILON = 1.0           # prior variance for g_0 ~ N(0, εI)
 LAMBDA_NOISE = 0.01     # noise scaling. 0.01 is ideal
@@ -38,5 +38,3 @@ U_PRIOR_SIGMA       = 0.5  # prior std on u_t (tighter = harder to collapse)
 PATIENCE            = 30          # Epochs to wait for early stopping
 WEIGHT_DECAY        = 0.05        # Weight decay for optimizer
 BATCH_SIZE          = 12          # Batch size for training
-
-OVERFIT_THRESHOLD = 1.5  # val/train recon ratio above which overfitting is detected

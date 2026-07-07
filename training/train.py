@@ -56,7 +56,7 @@ from training.dataset import BRICKDataset, split_dataset
 from config import (
     M, N_ROIS, H, T as T_DATA,
     KL_G0_ANNEAL_EPOCHS, KL_G0_DELAY_EPOCHS, KL_U_DELAY_EPOCHS, KL_U_ANNEAL_EPOCHS,
-    PATIENCE, OVERFIT_THRESHOLD
+    PATIENCE
 )
 import config
 
@@ -132,21 +132,6 @@ def get_kl_weights(epoch: int) -> tuple[float, float]:
         if KL_U_ANNEAL_EPOCHS > 0 else 1.0
     )
     return kl_g0_weight, kl_u_weight
-
-
-# ================================================================================
-# OVERFITTING 
-# ================================================================================
-
-def is_overfitting(train_losses: dict, val_losses: dict) -> bool:
-    """
-    Returns True if val/train reconstruction loss ratio exceeds OVERFIT_THRESHOLD.
-    """
-    train_recon = train_losses["loss_recon"]
-    val_recon   = val_losses["loss_recon"]
-    if train_recon < 1e-8:
-        return False
-    return (val_recon / train_recon) > OVERFIT_THRESHOLD
 
 
 # ================================================================================
@@ -257,7 +242,6 @@ def train(
     log.info(f"KL annealing: g0 over {KL_G0_ANNEAL_EPOCHS} epochs, "
              f"u delayed {KL_U_DELAY_EPOCHS} then over {KL_U_ANNEAL_EPOCHS} epochs")
     log.info("=" * 60)
-    log.info(f"Overfit threshold: {OVERFIT_THRESHOLD} (val/train recon ratio)")
 
     # --- Data ---
     log.info("Loading dataset...")
@@ -296,8 +280,9 @@ def train(
         writer.writeheader()
 
     # --- Training loop ---
-    best_val_loss  = float("inf")
-    best_val_recon = float("inf")  # tracks best pre-overfitting checkpoint
+    best_val_loss   = float("inf")
+    best_val_recon  = float("inf")   # tracks best pre-overfitting checkpoint
+    best_train_recon = float("inf")  # NEW: paired with best_val_recon
     epochs_no_improve = 0
     log.info("Starting training...")
 
@@ -324,8 +309,9 @@ def train(
         scheduler.step(val_losses["loss_total"])
         current_lr = optimizer.param_groups[0]['lr']
 
-        # --- Overfitting check ---
-        overfit = is_overfitting(train_losses, val_losses)
+        # --- Save best pre-overfitting checkpoint (val AND train recon both improve) ---
+        val_recon_improved   = val_losses["loss_recon"]   < best_val_recon
+        train_recon_improved = train_losses["loss_recon"] < best_train_recon
 
         # --- Log to CSV ---
         row = {
@@ -355,7 +341,7 @@ def train(
                 f"cls={train_losses['loss_cls']:.4f}) | "
                 f"val={val_losses['loss_total']:.4f} | "
                 f"lr={current_lr:.2e}"
-                + (" [OVERFIT]" if overfit else "")
+                + (" [PREOVERFIT-UPDATE]" if (val_recon_improved and train_recon_improved) else "")
             )
 
         # --- Save best checkpoint (by total val loss) ---
@@ -378,9 +364,9 @@ def train(
         else:
             epochs_no_improve += 1
 
-        # --- Save best pre-overfitting checkpoint (by val recon) ---
-        if not overfit and val_losses["loss_recon"] < best_val_recon:
-            best_val_recon = val_losses["loss_recon"]
+        if val_recon_improved and train_recon_improved:
+            best_val_recon   = val_losses["loss_recon"]
+            best_train_recon = train_losses["loss_recon"]
             safe_save({
                 "epoch":                epoch,
                 "model_state_dict":     model.state_dict(),
@@ -392,9 +378,8 @@ def train(
                 "h":                    model.h,
                 "m":                    model.m,
             }, results_dir / "best_model_preoverfit.pt")
-            log.info(f"  -> New best pre-overfit val recon: {best_val_recon:.4f} (saved best_model_preoverfit.pt)")
-        elif overfit:
-            log.info(f"  -> Overfitting detected (val/train recon ratio > {OVERFIT_THRESHOLD}), skipping pre-overfit save")
+            log.info(f"  -> New joint-best pre-overfit checkpoint: "
+                    f"val_recon={best_val_recon:.4f}, train_recon={best_train_recon:.4f}")
 
         # --- Early stopping ---
         if epochs_no_improve >= PATIENCE:
