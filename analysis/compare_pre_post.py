@@ -773,6 +773,26 @@ def run_C_inference(model, W_bar_x, target, alpha):
     plot_delta_C_coordinates(coord_df["delta"].values,
                              FIGURES_DIR / f"delta_C_coord_{target}.png", target)
 
+    # Cohen's d per ROI (paired): mean(diff) / std(diff)
+    diff_roi = post_roi - pre_roi                          # (N, N_ROIS)
+    cohens_d_per_roi = (
+        diff_roi.mean(axis=0) / (diff_roi.std(axis=0) + 1e-8)
+    )                                                      # (N_ROIS,)
+    median_cohens_d = float(np.median(np.abs(cohens_d_per_roi)))
+
+    summary = {
+        "target":          target,
+        "n_sig_coord":     n_sig_coord,
+        "n_sig_roi":       n_sig_roi,
+        "omnibus_t":       t_n,
+        "omnibus_p":       p_n,
+        "median_cohens_d": median_cohens_d,
+    }
+    
+    summary_path = RESULTS_DIR / f"brick_summary_{target}.csv"
+    pd.DataFrame([summary]).to_csv(summary_path, index=False)
+    print(f"  Saved {summary_path}")
+
     return roi_df, coord_df
 
 
