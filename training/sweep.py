@@ -10,25 +10,33 @@ from training.train import train
 
 ROOT_DIR     = Path(__file__).resolve().parent.parent
 
-SWEEP_NAME = "sweep_3"   # <-- change this each time
+SWEEP_NAME = "sweep_1"   # <-- change this each time
 
 TRAINING_DIR = ROOT_DIR / "results" / "training" / SWEEP_NAME
 FIGURES_DIR  = ROOT_DIR / "results" / "figures" / SWEEP_NAME
 
 BASELINE = {
-    "WEIGHT_DECAY": 0.05,
+    "LAMBDA_NOISE": 0.01,
+    "WEIGHT_DECAY": 1e-3,
     "BATCH_SIZE":   4,
+    "BETA":         0.0,
+    "EPSILON":      1.0,
 }
 
 SWEEP = {
-    "WEIGHT_DECAY":  [0.1, 0.05, 1e-2],
-    "BATCH_SIZE":    [1, 2, 4],
+    "LAMBDA_NOISE": [0.001, 0.01, 0.1],
+    "WEIGHT_DECAY": [1e-4, 1e-3, 1e-2],
+    "BATCH_SIZE":   [2, 4, 8],
+    "BETA":         [0.0, 0.05, 0.1],
+    "EPSILON":      [0.5, 1.0, 2.0],
 }
 
 PARAM_MAP = {
     "LAMBDA_NOISE": "lambda_noise",
     "WEIGHT_DECAY": "weight_decay",
     "BATCH_SIZE":   "batch_size",
+    "BETA":         "beta",
+    "EPSILON":      "epsilon",
 }
 
 def run_sweep():
