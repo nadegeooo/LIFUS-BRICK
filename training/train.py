@@ -216,19 +216,21 @@ def safe_save(obj: dict, path: Path) -> None:
     tmp.rename(path)
 
 def train(
-    n_epochs:    int   = N_EPOCHS,
-    use_control: bool  = True,
-    use_ic:      bool  = True,
-    run_name:    str   = "train",
+    n_epochs:     int   = N_EPOCHS,
+    use_control:  bool  = True,
+    use_ic:       bool  = True,
+    run_name:     str   = "train",
     lambda_noise: float = None,
     weight_decay: float = None,
     batch_size:   int   = None,
+    beta:         float = None,   
+    epsilon:      float = None,   
 ):
-    
-    # Resolve: use override if provided, else fall back to config
     _lambda_noise = lambda_noise if lambda_noise is not None else config.LAMBDA_NOISE
     _weight_decay = weight_decay if weight_decay is not None else config.WEIGHT_DECAY
     _batch_size   = batch_size   if batch_size   is not None else config.BATCH_SIZE
+    _beta         = beta         if beta         is not None else config.BETA       
+    _epsilon      = epsilon      if epsilon      is not None else config.EPSILON     
 
     random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED)
     results_dir = RESULTS_DIR / run_name
@@ -237,7 +239,9 @@ def train(
     log.info("=" * 60)
     log.info(f"BRICK Training -- {run_name}")
     log.info(f"N_ROIS={N_ROIS}, M={M}, H={H}, T={T_DATA}")
-    log.info(f"Epochs={n_epochs}, LR={LR}, WD={_weight_decay}, LAMBDA_NOISE={_lambda_noise}, BATCH_SIZE={_batch_size}")
+    log.info(f"Epochs={n_epochs}, LR={LR}, WD={_weight_decay}, "
+             f"LAMBDA_NOISE={_lambda_noise}, BATCH_SIZE={_batch_size}, "
+             f"BETA={_beta}, EPSILON={_epsilon}")    
     log.info(f"Patience={PATIENCE}, use_control={use_control}, use_ic={use_ic}")
     log.info(f"KL annealing: g0 over {KL_G0_ANNEAL_EPOCHS} epochs, "
              f"u delayed {KL_U_DELAY_EPOCHS} then over {KL_U_ANNEAL_EPOCHS} epochs")
@@ -263,7 +267,8 @@ def train(
         json.dump(split_info, f, indent=2)
 
     # --- Model ---
-    model = BRICK(use_control=use_control, use_ic=use_ic, lambda_noise=_lambda_noise)
+    model = BRICK(use_control=use_control, use_ic=use_ic,
+              lambda_noise=_lambda_noise, beta=_beta, epsilon=_epsilon)
     n_params = sum(p.numel() for p in model.parameters())
     log.info(f"Model parameters: {n_params:,}")
 
