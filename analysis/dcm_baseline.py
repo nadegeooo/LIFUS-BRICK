@@ -312,52 +312,115 @@ def build_comparison_table(
 # 8. PLOTTING
 # ================================================================================
 
+def per_connection_bh_thresholds(p_vals: np.ndarray, alpha: float, df: int):
+    """
+    Compute each connection's own BH-FDR threshold, in both p and t space.
+
+    Each p-value's threshold depends on its RANK among all N tests:
+        threshold_p(rank k) = (k / N) * alpha
+    Converted to |t| via the inverse t-distribution (two-tailed) so it can
+    be displayed alongside the observed t-statistic.
+
+    Returns:
+        thresh_p (np.ndarray): shape (N,) -- this connection's own p threshold
+        thresh_t (np.ndarray): shape (N,) -- same threshold in |t| units
+        ranks    (np.ndarray): shape (N,) -- 1-indexed rank (1 = smallest p)
+    """
+    N = len(p_vals)
+    order = np.argsort(p_vals)          # indices sorted by p ascending
+    ranks_by_sorted_pos = np.arange(1, N + 1)
+
+    # Map rank back to original connection order
+    ranks = np.empty(N, dtype=int)
+    ranks[order] = ranks_by_sorted_pos
+
+    thresh_p = (ranks / N) * alpha
+    thresh_t = stats.t.ppf(1 - thresh_p / 2, df)
+
+    return thresh_p, thresh_t, ranks
+
+
 def plot_var_connections(
     var_results: list,
     roi_idx:     int,
     roi_name:    str,
     t_out:       np.ndarray,
+    p_out:       np.ndarray,
     p_fdr_out:   np.ndarray,
     sig_out:     np.ndarray,
     t_in:        np.ndarray,
+    p_in:        np.ndarray,
     p_fdr_in:    np.ndarray,
     sig_in:      np.ndarray,
     out_path:    Path,
+    alpha:       float = 0.05,
 ):
     """
-    Plot outgoing and incoming connection t-statistics for the sonicated ROI.
-    Significant connections marked in red.
+    Horizontal bar plot of mean paired difference (post - pre) in VAR
+    connection strength for the sonicated ROI. Bars colored by FDR
+    significance; each bar labeled with its observed t-statistic AND
+    the |t| threshold that connection's own BH rank required to pass.
     """
+    from matplotlib.patches import Patch
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    fig, axes = plt.subplots(2, 1, figsize=(14, 8))
-    fig.suptitle(f"VAR Connection Changes for {roi_name} (pre vs post)", fontsize=13)
+    pre_out  = np.stack([get_outgoing(r["A_pre"],  roi_idx) for r in var_results])
+    post_out = np.stack([get_outgoing(r["A_post"], roi_idx) for r in var_results])
+    diff_out = (post_out - pre_out).mean(axis=0)
 
-    x = np.arange(len(TARGET_ROIS))
+    pre_in   = np.stack([get_incoming(r["A_pre"],  roi_idx) for r in var_results])
+    post_in  = np.stack([get_incoming(r["A_post"], roi_idx) for r in var_results])
+    diff_in  = (post_in - pre_in).mean(axis=0)
 
-    for ax, t_stats, sig, title in [
-        (axes[0], t_out, sig_out, f"Outgoing from {roi_name} (drives others)"),
-        (axes[1], t_in,  sig_in,  f"Incoming to {roi_name} (driven by others)"),
+    df = len(var_results) - 1
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 10), sharey=True)
+    fig.suptitle(f"VAR Connection Changes for {roi_name} (post \u2212 pre, mean paired diff)", fontsize=13)
+
+    y = np.arange(len(TARGET_ROIS))
+
+    for ax, diffs, t_stats, p_raw, sig, title in [
+        (axes[0], diff_out, t_out, p_out, sig_out, f"Outgoing from {roi_name}"),
+        (axes[1], diff_in,  t_in,  p_in,  sig_in,  f"Incoming to {roi_name}"),
     ]:
-        colors = ["red" if s else "steelblue" for s in sig]
-        ax.bar(x, t_stats, color=colors)
-        ax.axhline(y=0, color="black", linewidth=0.8)
-        ax.set_xticks(x)
-        ax.set_xticklabels(TARGET_ROIS, rotation=90, fontsize=7)
-        ax.set_ylabel("t-statistic")
-        ax.set_title(title)
-        ax.grid(alpha=0.3, axis="y")
+        colors = ["seagreen" if s else "indianred" for s in sig]
 
-        # Add legend
-        from matplotlib.patches import Patch
-        ax.legend(handles=[
-            Patch(color="red",      label="significant (FDR)"),
-            Patch(color="steelblue", label="non-significant"),
-        ])
+        ax.barh(y, diffs, color=colors)
+        ax.axvline(x=0, color="black", linewidth=0.8)
+        ax.set_yticks(y)
+        ax.set_yticklabels(TARGET_ROIS, fontsize=7)
+        ax.invert_yaxis()
+        ax.set_xlabel("\u0394 connection strength (post \u2212 pre)")
+        ax.set_title(title, fontsize=10)
+        ax.grid(alpha=0.3, axis="x")
 
-    plt.tight_layout()
+        xmin, xmax = ax.get_xlim()
+        span = xmax - xmin
+        offset = span * 0.02
+
+        # Per-connection BH threshold, in both p and t space
+        thresh_p, thresh_t, ranks = per_connection_bh_thresholds(p_raw, alpha, df)
+
+        for yi, (d, t, tc) in enumerate(zip(diffs, t_stats, thresh_t)):
+            label = f"t={t:.2f} (crit \u00b1{tc:.2f})"
+            if d >= 0:
+                ax.text(d + offset, yi, label, va="center", ha="left", fontsize=6)
+            else:
+                ax.text(d - offset, yi, label, va="center", ha="right", fontsize=6)
+
+        ax.set_xlim(xmin - span * 0.12, xmax + span * 0.12)  # extra room for longer labels
+
+    legend_handles = [
+        Patch(color="seagreen",  label="significant (FDR < \u03b1)"),
+        Patch(color="indianred", label="not significant"),
+    ]
+    fig.legend(handles=legend_handles, loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.02))
+
+    plt.tight_layout(rect=[0, 0.03, 1, 1])
     plt.savefig(out_path, dpi=150, bbox_inches="tight")
-    print(f"Saved VAR connections plot to {out_path}")
+    print(f"Saved horizontal VAR connections plot to {out_path}")
+    plt.close()
 
 
 def plot_a_eff_heatmap(
@@ -466,9 +529,10 @@ def main(roi_name: str = "lh_vim", target_filter: str = None, alpha: float = 0.0
     # Plots
     plot_var_connections(
         var_results, roi_idx, roi_name,
-        t_out, p_fdr_out, sig_out,
-        t_in,  p_fdr_in,  sig_in,
+        t_out, p_out, p_fdr_out, sig_out,
+        t_in,  p_in,  p_fdr_in,  sig_in,
         FIGURES_DIR / f"var_connections_{roi_name}{suffix}.png",
+        alpha=alpha,
     )
     plot_a_eff_heatmap(
         var_results,

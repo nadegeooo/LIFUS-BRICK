@@ -56,9 +56,9 @@ from models.brick import BRICK
 from models.koopman_utils import compute_lambda
 from preprocessing.load_preprocessed_data import load_all, TARGET_ROIS
 
-FINAL_MODEL_PATH = ROOT_DIR / "results" / "final_model" / "best_model.pt"
-RESULTS_DIR      = ROOT_DIR / "results" / "final_model"
-FIGURES_DIR      = ROOT_DIR / "results" / "final_model" / "figures_final_model"
+FINAL_MODEL_PATH = ROOT_DIR / "results" / "final_model" / "best_model_cls_preoverfit.pt"
+RESULTS_DIR      = ROOT_DIR / "results" / "final_model" / "cls_preoverfit"
+FIGURES_DIR      = ROOT_DIR / "results" / "final_model" / "figures_final_model" / "cls_preoverfit"
 
 TR = 2.0                       # seconds per volume
 RESTING_BAND = (0.01, 0.10)    # Hz, conventional resting-state BOLD band
