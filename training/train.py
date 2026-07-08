@@ -280,9 +280,9 @@ def train(
         writer.writeheader()
 
     # --- Training loop ---
-    best_val_loss   = float("inf")
-    best_val_recon  = float("inf")   # tracks best pre-overfitting checkpoint
-    best_train_recon = float("inf")  # NEW: paired with best_val_recon
+    best_val_loss               = float("inf")   # best_model.pt: val-only
+    best_val_loss_preoverfit    = float("inf")   # best_model_preoverfit.pt: joint val+train
+    best_train_loss_preoverfit  = float("inf")
     epochs_no_improve = 0
     log.info("Starting training...")
 
@@ -309,9 +309,9 @@ def train(
         scheduler.step(val_losses["loss_total"])
         current_lr = optimizer.param_groups[0]['lr']
 
-        # --- Save best pre-overfitting checkpoint (val AND train recon both improve) ---
-        val_recon_improved   = val_losses["loss_recon"]   < best_val_recon
-        train_recon_improved = train_losses["loss_recon"] < best_train_recon
+        # --- Pre-overfit criterion (val AND train total loss both improve) ---
+        val_loss_improved_joint   = val_losses["loss_total"]   < best_val_loss_preoverfit
+        train_loss_improved_joint = train_losses["loss_total"] < best_train_loss_preoverfit
 
         # --- Log to CSV ---
         row = {
@@ -341,10 +341,10 @@ def train(
                 f"cls={train_losses['loss_cls']:.4f}) | "
                 f"val={val_losses['loss_total']:.4f} | "
                 f"lr={current_lr:.2e}"
-                + (" [PREOVERFIT-UPDATE]" if (val_recon_improved and train_recon_improved) else "")
+                + (" [PREOVERFIT-UPDATE]" if (val_loss_improved_joint and train_loss_improved_joint) else "")
             )
 
-        # --- Save best checkpoint (by total val loss) ---
+        # --- Save best checkpoint (by total val loss only — original behavior) ---
         val_total = val_losses["loss_total"]
         if val_total < best_val_loss:
             best_val_loss = val_total
@@ -364,9 +364,10 @@ def train(
         else:
             epochs_no_improve += 1
 
-        if val_recon_improved and train_recon_improved:
-            best_val_recon   = val_losses["loss_recon"]
-            best_train_recon = train_losses["loss_recon"]
+        # --- Save best pre-overfit checkpoint (val AND train total loss both improve) ---
+        if val_loss_improved_joint and train_loss_improved_joint:
+            best_val_loss_preoverfit   = val_losses["loss_total"]
+            best_train_loss_preoverfit = train_losses["loss_total"]
             safe_save({
                 "epoch":                epoch,
                 "model_state_dict":     model.state_dict(),
@@ -378,10 +379,10 @@ def train(
                 "h":                    model.h,
                 "m":                    model.m,
             }, results_dir / "best_model_preoverfit.pt")
-            log.info(f"  -> New joint-best pre-overfit checkpoint: "
-                    f"val_recon={best_val_recon:.4f}, train_recon={best_train_recon:.4f}")
+            log.info(f"  -> New joint-best pre-overfit total loss: "
+                     f"val={best_val_loss_preoverfit:.4f}, train={best_train_loss_preoverfit:.4f}")
 
-        # --- Early stopping ---
+        # --- Early stopping (tied to best_model.pt only) ---
         if epochs_no_improve >= PATIENCE:
             log.info(
                 f"Early stopping at epoch {epoch} -- "
@@ -404,7 +405,7 @@ def train(
 
     log.info(f"Final model saved to {results_dir / 'final_model.pt'}")
     log.info(f"Best val loss: {best_val_loss:.4f}")
-    log.info(f"Best pre-overfit val recon: {best_val_recon:.4f}")
+    log.info(f"Best pre-overfit total loss: val={best_val_loss_preoverfit:.4f}, train={best_train_loss_preoverfit:.4f}")
     log.info("Training complete.")
 
     return best_val_loss
