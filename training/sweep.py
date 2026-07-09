@@ -17,17 +17,17 @@ FIGURES_DIR  = ROOT_DIR / "results" / "figures" / SWEEP_NAME
 
 BASELINE = {
     "LAMBDA_NOISE": 0.01,
-    "WEIGHT_DECAY": 1e-3,
-    "BATCH_SIZE":   4,
-    "BETA":         0.0,
+    "WEIGHT_DECAY": 0.05,
+    "BATCH_SIZE":   12,
+    "BETA":         0.1,
     "EPSILON":      1.0,
 }
 
 SWEEP = {
     "LAMBDA_NOISE": [0.001, 0.01, 0.1],
-    "WEIGHT_DECAY": [1e-4, 1e-3, 1e-2],
-    "BATCH_SIZE":   [2, 4, 8],
-    "BETA":         [0.0, 0.05, 0.1],
+    "WEIGHT_DECAY": [1e-2, 0.05, 1e-3],
+    "BATCH_SIZE":   [4, 8, 12, 16],
+    "BETA":         [0.01, 0.05, 0.1],
     "EPSILON":      [0.5, 1.0, 2.0],
 }
 
