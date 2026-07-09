@@ -327,7 +327,7 @@ class BRICK(nn.Module):
             )
             if apply_free_bits:
                 kl_g0_per_dim = torch.clamp(kl_g0_per_dim, min=self.free_bits_g0)
-            loss_kl_g0 = kl_g0_per_dim.sum() / M
+            loss_kl_g0 = kl_g0_per_dim.sum() / (M*T)
         else:
             loss_kl_g0 = torch.zeros((), device=x.device)
 
