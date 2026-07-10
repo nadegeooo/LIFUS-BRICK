@@ -1,0 +1,23 @@
+2026-07-06 19:53:45,912 | ============================================================
+2026-07-06 19:53:45,912 | BRICK Training -- ablation_no_control_no_ic
+2026-07-06 19:53:45,912 | N_ROIS=24, M=96, H=4, T=240
+2026-07-06 19:53:45,912 | Epochs=5000, LR=0.0001, WD=0.05, LAMBDA_NOISE=0.01, BATCH_SIZE=12
+2026-07-06 19:53:45,912 | Patience=30, use_control=False, use_ic=False
+2026-07-06 19:53:45,912 | KL annealing: g0 over 0 epochs, u delayed 0 then over 0 epochs
+2026-07-06 19:53:45,912 | ============================================================
+2026-07-06 19:53:45,912 | Overfit threshold: 1.5 (val/train recon ratio)
+2026-07-06 19:53:45,912 | Loading dataset...
+2026-07-06 19:53:45,982 | Split: 52 train | 4 val | 20 test items
+2026-07-06 19:53:46,003 | Model parameters: 554,702
+2026-07-06 19:53:46,003 | Starting training...
+2026-07-06 19:53:46,512 | Epoch    1/5000 | kl_g0_w=1.00 kl_u_w=1.00 | train=49.7917 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=49.7917 | lr=1.00e-04
+2026-07-06 19:53:46,523 |   -> New best val loss: 49.7917 (saved best_model.pt)
+2026-07-06 19:53:46,530 |   -> New best pre-overfit val recon: 49.7917 (saved best_model_preoverfit.pt)
+2026-07-06 19:53:51,028 | Epoch   10/5000 | kl_g0_w=1.00 kl_u_w=1.00 | train=49.7917 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=49.7917 | lr=1.00e-04
+2026-07-06 19:53:55,959 | Epoch   20/5000 | kl_g0_w=1.00 kl_u_w=1.00 | train=49.7917 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=49.7917 | lr=5.00e-05
+2026-07-06 19:54:00,873 | Epoch   30/5000 | kl_g0_w=1.00 kl_u_w=1.00 | train=49.7917 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=49.7917 | lr=5.00e-05
+2026-07-06 19:54:01,365 | Early stopping at epoch 31 -- no improvement for 30 epochs.
+2026-07-06 19:54:01,376 | Final model saved to /home/nadegeo/LIFUS-BRICK/results/training/ablation_no_control_no_ic/final_model.pt
+2026-07-06 19:54:01,376 | Best val loss: 49.7917
+2026-07-06 19:54:01,376 | Best pre-overfit val recon: 49.7917
+2026-07-06 19:54:01,376 | Training complete.

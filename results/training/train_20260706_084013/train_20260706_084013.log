@@ -1,0 +1,18 @@
+2026-07-06 08:40:13,485 | ============================================================
+2026-07-06 08:40:13,485 | BRICK Training -- train_20260706_084013
+2026-07-06 08:40:13,485 | N_ROIS=24, M=96, H=4, T=240
+2026-07-06 08:40:13,485 | Epochs=1000, LR=0.0001, WD=0.05, LAMBDA_NOISE=0.01, BATCH_SIZE=12
+2026-07-06 08:40:13,485 | Patience=30, use_control=True, use_ic=True
+2026-07-06 08:40:13,485 | KL annealing: g0 over 0 epochs, u delayed 0 then over 0 epochs
+2026-07-06 08:40:13,485 | ============================================================
+2026-07-06 08:40:13,485 | Loading dataset...
+2026-07-06 08:40:13,578 | Split: 52 train | 4 val | 20 test items
+2026-07-06 08:40:13,598 | Model parameters: 554,702
+2026-07-06 08:40:14,023 | Starting training...
+2026-07-06 08:40:15,903 | Epoch    1/1000 | kl_g0_w=1.00 kl_u_w=1.00 | cost_ratio(u/g0)=0.0042 | train=3252.1143 (recon=3251.2790, kl_g0=0.0215, kl_u=0.8138, cls=0.7013) | val=317.0313 | lr=1.00e-04
+2026-07-06 08:40:15,930 |   -> New best val loss: 317.0313 (saved best_model.pt)
+2026-07-06 08:40:17,391 |   -> New best val loss: 252.1197 (saved best_model.pt)
+2026-07-06 08:40:18,781 |   -> New best val loss: 219.4941 (saved best_model.pt)
+2026-07-06 08:40:20,458 |   -> New best val loss: 196.9515 (saved best_model.pt)
+2026-07-06 08:40:21,983 |   -> New best val loss: 184.4029 (saved best_model.pt)
+2026-07-06 08:40:23,830 |   -> New best val loss: 169.5467 (saved best_model.pt)
