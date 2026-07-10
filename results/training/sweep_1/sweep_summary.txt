@@ -1,0 +1,18 @@
+Run                                 Epoch   Val Total      Val Recon      Val Cls       
+----------------------------------------------------------------------------------------
+sweep_BATCH_SIZE_12                 1627    3.4634         2.7744         0.5255        
+sweep_BATCH_SIZE_16                 1982    3.5381         2.8619         0.4887        
+sweep_BATCH_SIZE_4                  819     2.3512         1.5555         0.5918        
+sweep_BATCH_SIZE_8                  1346    2.7750         2.0278         0.5207        
+sweep_BETA_0.01                     2666    1.6085         0.7182         0.6652        
+sweep_BETA_0.05                     2229    2.1814         1.3153         0.5427        
+sweep_BETA_0.1                      1627    3.4634         2.7744         0.5255        
+sweep_EPSILON_0.5                   1627    3.4521         2.7654         0.5291        
+sweep_EPSILON_1.0                   1627    3.4634         2.7744         0.5255        
+sweep_EPSILON_2.0                   1627    3.4627         2.7681         0.5318        
+sweep_LAMBDA_NOISE_0.001            2513    10.6218        9.2897         0.6772        
+sweep_LAMBDA_NOISE_0.01             1627    3.4634         2.7744         0.5255        
+sweep_LAMBDA_NOISE_0.1              644     1.0689         0.8082         0.5753        
+sweep_WEIGHT_DECAY_0.001            1740    3.6348         2.9851         0.5441        
+sweep_WEIGHT_DECAY_0.01             1658    3.7455         3.1101         0.5688        
+sweep_WEIGHT_DECAY_0.05             1627    3.4634         2.7744         0.5255        

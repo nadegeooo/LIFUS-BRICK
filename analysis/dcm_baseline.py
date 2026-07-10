@@ -38,6 +38,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from scipy import stats
 from statsmodels.stats.multitest import multipletests
+from statsmodels.stats.power import TTestPower
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
@@ -457,6 +458,220 @@ def plot_a_eff_heatmap(
     plt.close()
 
 
+def plot_diff_heatmap_comparison(
+    vim_results: list,
+    zi_results:  list,
+    out_path:    Path,
+):
+    """
+    Raw mean(A_post - A_pre) heatmap, side-by-side for VIM and ZI.
+    No per-edge standardization — this is the raw effect magnitude,
+    shared color scale across both panels so relative magnitude is honest.
+    """
+    diff_vim = np.mean([r["A_post"] - r["A_pre"] for r in vim_results], axis=0)
+    diff_zi  = np.mean([r["A_post"] - r["A_pre"] for r in zi_results],  axis=0)
+
+    vmax = max(np.abs(diff_vim).max(), np.abs(diff_zi).max())
+
+    fig, axes = plt.subplots(1, 2, figsize=(20, 9))
+    fig.suptitle("Raw mean \u0394A_eff (post \u2212 pre), shared color scale", fontsize=13)
+
+    for ax, diff, title in [(axes[0], diff_vim, "VIM"), (axes[1], diff_zi, "ZI")]:
+        im = ax.imshow(diff, cmap="RdBu_r", vmin=-vmax, vmax=vmax, aspect="auto")
+        ax.set_xticks(range(len(TARGET_ROIS)))
+        ax.set_yticks(range(len(TARGET_ROIS)))
+        ax.set_xticklabels(TARGET_ROIS, rotation=90, fontsize=6)
+        ax.set_yticklabels(TARGET_ROIS, fontsize=6)
+        ax.set_title(f"{title} (n={len(vim_results) if title=='VIM' else len(zi_results)})", fontsize=11)
+
+    fig.colorbar(im, ax=axes, fraction=0.025, pad=0.02, label="\u0394 connection strength (raw)")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(out_path, dpi=150, bbox_inches="tight")
+    print(f"Saved raw diff heatmap comparison to {out_path}")
+    plt.close()
+
+
+from scipy.stats import binomtest
+
+def sign_concordance_test(var_results: list, alpha: float = 0.05) -> dict:
+    """
+    Per-edge sign test: is the direction of (A_post - A_pre) consistent
+    across subjects more often than chance (p=0.5), independent of magnitude?
+
+    Returns dict with concordance (fraction agreeing with majority sign),
+    raw p-values, FDR-corrected p-values, and significance mask — all (N,N).
+    """
+    diffs = np.stack([r["A_post"] - r["A_pre"] for r in var_results])  # (n_subj, N, N)
+    n_subj = diffs.shape[0]
+    N = diffs.shape[1]
+
+    n_pos = (diffs > 0).sum(axis=0)
+    n_neg = (diffs < 0).sum(axis=0)
+    n_nonzero = n_pos + n_neg
+
+    concordance = np.zeros((N, N))
+    p_raw = np.ones((N, N))
+
+    for i in range(N):
+        for j in range(N):
+            n = n_nonzero[i, j]
+            if n == 0:
+                continue
+            k = max(n_pos[i, j], n_neg[i, j])
+            concordance[i, j] = k / n
+            p_raw[i, j] = binomtest(int(k), int(n), p=0.5, alternative="greater").pvalue
+
+    # exclude diagonal from multiple-comparison correction
+    mask = ~np.eye(N, dtype=bool)
+    p_fdr = np.ones((N, N))
+    _, p_fdr_flat, _, _ = multipletests(p_raw[mask], method="fdr_bh")
+    p_fdr[mask] = p_fdr_flat
+
+    significant = p_fdr < alpha
+
+    return {
+        "concordance": concordance,
+        "p_raw": p_raw,
+        "p_fdr": p_fdr,
+        "significant": significant,
+        "n_subjects": n_subj,
+    }
+
+
+def print_sign_concordance_summary(conc_result: dict, target_name: str, top_k: int = 10):
+    """
+    Print a summary of sign concordance results: overall stats plus the
+    top-k most concordant edges (by FDR p-value) with ROI names.
+    """
+    concordance = conc_result["concordance"]
+    p_fdr       = conc_result["p_fdr"]
+    sig         = conc_result["significant"]
+    n_subj      = conc_result["n_subjects"]
+
+    N = concordance.shape[0]
+    mask = ~np.eye(N, dtype=bool)
+
+    print(f"\n{'='*60}")
+    print(f"Sign Concordance — {target_name} (n={n_subj} subjects)")
+    print(f"{'='*60}")
+    print(f"  Edges tested (off-diagonal): {mask.sum()}")
+    print(f"  Mean concordance:            {concordance[mask].mean():.3f}")
+    print(f"  Edges FDR-significant:       {sig[mask].sum()} / {mask.sum()}")
+
+    # top-k edges by lowest FDR p-value
+    idx = np.dstack(np.unravel_index(np.argsort(np.where(mask, p_fdr, np.inf), axis=None), p_fdr.shape))[0]
+    print(f"\n  Top {top_k} edges by concordance:")
+    shown = 0
+    for i, j in idx:
+        if i == j:
+            continue
+        print(f"    {TARGET_ROIS[j]:>18s} -> {TARGET_ROIS[i]:<18s}  "
+              f"concordance={concordance[i,j]:.2f}  p_fdr={p_fdr[i,j]:.4f}"
+              f"{'  *' if sig[i,j] else ''}")
+        shown += 1
+        if shown >= top_k:
+            break
+
+
+def matrix_paired_ttest(var_results: list, alpha: float = 0.05):
+    """
+    Paired t-test on every off-diagonal edge of A_eff (post vs pre) across
+    the full N x N connectivity matrix, with BH-FDR correction.
+    """
+    A_pre  = np.stack([r["A_pre"]  for r in var_results])  # (n_subj, N, N)
+    A_post = np.stack([r["A_post"] for r in var_results])
+    N = A_pre.shape[1]
+    mask = ~np.eye(N, dtype=bool)
+
+    t_stats = np.zeros((N, N))
+    p_vals  = np.ones((N, N))
+    for i in range(N):
+        for j in range(N):
+            if i == j:
+                continue
+            t_stats[i, j], p_vals[i, j] = stats.ttest_rel(A_pre[:, i, j], A_post[:, i, j])
+
+    p_fdr = np.ones((N, N))
+    _, p_fdr_flat, _, _ = multipletests(p_vals[mask], method="fdr_bh", alpha=alpha)
+    p_fdr[mask] = p_fdr_flat
+
+    return t_stats, p_vals, p_fdr, mask
+
+
+def bh_critical_alpha(p_vals: np.ndarray, alpha: float) -> float:
+    """
+    The actual per-comparison alpha implied by BH-FDR: the largest
+    threshold p(k) = (k/m)*alpha for which the k-th smallest p-value
+    still clears it (the step-up critical value). If nothing clears
+    (as when zero edges are significant), returns the strictest
+    threshold the procedure would have allowed (rank 1, i.e. alpha/m) —
+    this is derived from your real p-values via the BH rule itself,
+    not assumed a priori like Bonferroni.
+    """
+    m = len(p_vals)
+    sorted_p = np.sort(p_vals)
+    ranks = np.arange(1, m + 1)
+    thresholds = (ranks / m) * alpha
+    passed = sorted_p <= thresholds
+    if passed.any():
+        k_max = np.max(np.where(passed)[0]) + 1
+        return thresholds[k_max - 1]
+    return thresholds[0]
+
+
+def power_sensitivity_report(
+    var_results:  list,
+    target_name:  str,
+    alpha:        float = 0.05,
+    target_power: float = 0.8,
+):
+    """
+    Runs the actual paired t-test + BH-FDR correction across all
+    off-diagonal edges, then reports the minimum detectable Cohen's d
+    at target_power using the BH-derived critical alpha (not a
+    Bonferroni approximation), compared against the observed median |d|.
+    """
+    n_subj = len(var_results)
+    N = len(TARGET_ROIS)
+    mask = ~np.eye(N, dtype=bool)
+
+    t_stats, p_vals, p_fdr, _ = matrix_paired_ttest(var_results, alpha=alpha)
+    n_tests = int(mask.sum())
+    n_sig   = int((p_fdr[mask] < alpha).sum())
+
+    alpha_effective = bh_critical_alpha(p_vals[mask], alpha=alpha)
+
+    power_analysis = TTestPower()
+    required_d = power_analysis.solve_power(
+        effect_size=None, nobs=n_subj, alpha=alpha_effective, power=target_power
+    )
+
+    A_pre  = np.stack([r["A_pre"]  for r in var_results])
+    A_post = np.stack([r["A_post"] for r in var_results])
+    diff = A_post - A_pre
+    d_map = diff.mean(axis=0) / (diff.std(axis=0) + 1e-8)
+    observed_median_d = float(np.median(np.abs(d_map[mask])))
+
+    print(f"\n{'='*60}")
+    print(f"Power / Sensitivity — {target_name} (n={n_subj} subjects)")
+    print(f"{'='*60}")
+    print(f"  Edges tested:              {n_tests}")
+    print(f"  Edges FDR-significant:     {n_sig} / {n_tests}")
+    print(f"  BH-derived critical alpha: {alpha_effective:.2e}")
+    print(f"  Min detectable |d| at {int(target_power*100)}% power: {required_d:.3f}")
+    print(f"  Observed median |d|:       {observed_median_d:.3f}")
+    print(f"  --> {'UNDERPOWERED' if observed_median_d < required_d else 'adequately powered'} "
+          f"for the observed effect size at this sample size / correction level")
+
+    return {
+        "required_d": required_d,
+        "observed_median_d": observed_median_d,
+        "n_tests": n_tests,
+        "n_sig": n_sig,
+        "alpha_effective": alpha_effective,
+    }
+
+
 # ================================================================================
 # 9. MAIN
 # ================================================================================
@@ -545,6 +760,11 @@ def main(roi_name: str = "lh_vim", target_filter: str = None, alpha: float = 0.0
         condition="post",
     )
 
+    if target_filter in ("vim", "zi"):
+        conc = sign_concordance_test(var_results, alpha=alpha)
+        print_sign_concordance_summary(conc, target_name=target_filter.upper())
+        power_sensitivity_report(var_results, target_name=target_filter.upper(), alpha=alpha)
+
     return var_results, df_var, table
 
 
@@ -563,4 +783,13 @@ if __name__ == "__main__":
                         help="FDR significance threshold. Default: 0.05.")
     args = parser.parse_args()
 
-    main(roi_name=args.roi, target_filter=args.target, alpha=args.alpha)
+    var_results, df_var, table = main(roi_name=args.roi, target_filter=args.target, alpha=args.alpha)
+
+    if args.target is None:
+        print("\nGenerating combined VIM/ZI raw diff heatmap...")
+        vim_results = [r for r in var_results if r["target"] == "vim"]
+        zi_results  = [r for r in var_results if r["target"] == "zi"]
+        plot_diff_heatmap_comparison(
+            vim_results, zi_results,
+            FIGURES_DIR / "var_diff_heatmap_vim_vs_zi.png",
+        )
