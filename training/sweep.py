@@ -45,7 +45,7 @@ def run_sweep():
             kwargs = {PARAM_MAP[p]: BASELINE[p] for p in BASELINE}
             kwargs[PARAM_MAP[param]] = val
             run_name = f"sweep_{param}_{val}"
-            train(n_epochs=200, run_name=f"{SWEEP_NAME}/{run_name}", **kwargs)
+            train(n_epochs=2700, run_name=f"{SWEEP_NAME}/{run_name}", **kwargs)
 
     plot_sweep()
 
