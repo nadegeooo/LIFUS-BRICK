@@ -1,0 +1,29 @@
+2026-07-10 17:06:28,363 | ============================================================
+2026-07-10 17:06:28,363 | BRICK Training -- ablation_2/ablation_no_control_no_ic
+2026-07-10 17:06:28,363 | N_ROIS=24, M=96, H=4, T=240
+2026-07-10 17:06:28,363 | Epochs=3000, LR=0.0001, WD=0.05, LAMBDA_NOISE=0.01, BATCH_SIZE=1, BETA=0.05, EPSILON=1.0
+2026-07-10 17:06:28,363 | Patience=100, use_control=False, use_ic=False
+2026-07-10 17:06:28,363 | KL annealing: g0 over 0 epochs, u delayed 0 then over 0 epochs
+2026-07-10 17:06:28,363 | ============================================================
+2026-07-10 17:06:28,363 | Loading dataset...
+2026-07-10 17:06:28,423 | Split: 52 train | 4 val | 20 test items
+2026-07-10 17:06:28,500 | Model parameters: 554,702
+2026-07-10 17:06:28,501 | Starting training...
+2026-07-10 17:06:28,795 | Epoch    1/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-10 17:06:28,800 |   -> New best val loss: 47.3021 (saved best_model.pt)
+2026-07-10 17:06:28,805 |   -> New joint-best cls loss: val=0.0000, train=0.0000
+2026-07-10 17:06:31,401 | Epoch   10/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=1.00e-04
+2026-07-10 17:06:34,259 | Epoch   20/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=5.00e-05
+2026-07-10 17:06:37,131 | Epoch   30/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=5.00e-05
+2026-07-10 17:06:39,989 | Epoch   40/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=2.50e-05
+2026-07-10 17:06:42,856 | Epoch   50/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=1.25e-05
+2026-07-10 17:06:45,712 | Epoch   60/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=1.25e-05
+2026-07-10 17:06:48,561 | Epoch   70/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=6.25e-06
+2026-07-10 17:06:51,438 | Epoch   80/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=6.25e-06
+2026-07-10 17:06:54,290 | Epoch   90/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=3.13e-06
+2026-07-10 17:06:57,138 | Epoch  100/3000 | kl_g0_w=1.00 kl_u_w=1.00 | train=47.3021 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=47.3021 | lr=1.56e-06
+2026-07-10 17:06:57,427 | Early stopping at epoch 101 -- no improvement for 100 epochs.
+2026-07-10 17:06:57,432 | Final model saved to /home/nadegeo/LIFUS-BRICK/results/training/ablation_2/ablation_no_control_no_ic/final_model.pt
+2026-07-10 17:06:57,433 | Best val loss: 47.3021
+2026-07-10 17:06:57,433 | Best joint-best cls loss: val=0.0000, train=0.0000
+2026-07-10 17:06:57,433 | Training complete.
