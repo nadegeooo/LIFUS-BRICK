@@ -3,7 +3,7 @@
 N_ROIS = 24
 T = 240        # Number of timepoints. This is a dataset-level cocanstant and not a model param. T, _ = x.shape is used for the model
 H = 4          # Per-node feature dimension (hidden multiplier to "lift" to higher dimension for Koopman linearity) Note: keep H << N_ROIS to avoid overfitting. Original paper used H=2
-M = N_ROIS * H #T= = 240 Koopman latent dimension 
+M = N_ROIS * H #Koopman latent dimensions 
 
 # Koopman eigenvalue initialization -> R_MIN and R_MAX control the minimum and maximum magnitude of eigenvalues at initialization
 # Values close to 1.0 give slow dynamics, which is appropriate for fMRI data. Setting R_MAX < 1.0 ensures stability of the Koopman operator.
@@ -14,13 +14,13 @@ R_MIN = 0.9
 R_MAX = 0.999
 
 
-# Hyperparams for Control Module encoder (row-wise MLP)
+# Hyperparams for Transformer encoder (row-wise MLP)
 MLP_HIDDEN = 256 #MLP hidden multiplier
 NHEAD = 4
 NUM_LAYERS = 4
 
 #Brick implementation
-BETA = 0.1            # loss balance: β * L_cls + (1-β) * L_ELBO
+BETA = 0.05             # loss balance: β * L_cls + (1-β) * L_ELBO
 NUM_CLASSES = 2         # number of task states for classifier (pre- vs post- sonication)
 EPSILON = 1.0           # prior variance for g_0 ~ N(0, εI)
 LAMBDA_NOISE = 0.01     # noise scaling. 0.01 is ideal
@@ -35,6 +35,6 @@ KL_U_FREE_BITS      = 0  # minimum KL_u before penalty kicks in
 U_PRIOR_SIGMA       = 0.5  # prior std on u_t (tighter = harder to collapse)
 
 #Training
-PATIENCE            = 30          # Epochs to wait for early stopping
+PATIENCE            = 100          # Epochs to wait for early stopping
 WEIGHT_DECAY        = 0.05        # Weight decay for optimizer
 BATCH_SIZE          = 12          # Batch size for training

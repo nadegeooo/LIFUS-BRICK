@@ -10,7 +10,7 @@ from training.train import train
 
 ROOT_DIR     = Path(__file__).resolve().parent.parent
 
-SWEEP_NAME = "sweep_2"   # <-- change this each time
+SWEEP_NAME = "sweep_3_seeds"   # <-- change this each time
 
 TRAINING_DIR = ROOT_DIR / "results" / "training" / SWEEP_NAME
 FIGURES_DIR  = ROOT_DIR / "results" / "figures" / SWEEP_NAME
@@ -19,12 +19,15 @@ BASELINE = {
     "LAMBDA_NOISE": 0.01,
     "WEIGHT_DECAY": 0.05,
     "BATCH_SIZE":   4,
-    "BETA":         0.1,
+    "BETA":         0.05,
     "EPSILON":      1.0,
+    "TRAIN_SEED":   42,   
+    "SPLIT_SEED":   42, 
 }
 
 SWEEP = {
-    "BATCH_SIZE":   [1, 2, 3, 4],
+    "TRAIN_SEED": [42, 123, 2024],   
+    "SPLIT_SEED": [42, 123, 2024],
 }
 
 PARAM_MAP = {
@@ -33,6 +36,8 @@ PARAM_MAP = {
     "BATCH_SIZE":   "batch_size",
     "BETA":         "beta",
     "EPSILON":      "epsilon",
+    "TRAIN_SEED":   "train_seed",
+    "SPLIT_SEED":   "split_seed",
 }
 
 def run_sweep():
@@ -73,6 +78,7 @@ def plot_sweep():
     lines.append(f"{'Param':<20} {'Value':<10} {'Best Val Recon':<18} {'Best Val Cls':<15}")
     lines.append("-" * 65)
     for param, values in SWEEP.items():
+        recons, clss = [], []
         for val in values:
             run_name = f"sweep_{param}_{val}"
             csv_path = TRAINING_DIR / run_name / "loss_history.csv"
@@ -81,7 +87,13 @@ def plot_sweep():
             df = pd.read_csv(csv_path)
             best_recon = df["val_loss_recon"].min()
             best_cls   = df["val_loss_cls"].min()
+            recons.append(best_recon); clss.append(best_cls)
             lines.append(f"{param:<20} {str(val):<10} {best_recon:<18.4f} {best_cls:<15.4f}")
+        if len(recons) > 1:
+            lines.append(
+                f"{'  range':<20} {'':<10} "
+                f"{max(recons)-min(recons):<18.4f} {max(clss)-min(clss):<15.4f}"
+            )
         lines.append("")
 
     output = "\n".join(lines)

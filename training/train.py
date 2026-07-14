@@ -224,15 +224,19 @@ def train(
     weight_decay: float = None,
     batch_size:   int   = None,
     beta:         float = None,   
-    epsilon:      float = None,   
+    epsilon:      float = None,
+    train_seed:   int   = None,   # NEW: overrides SEED for model init/training stochasticity
+    split_seed:   int   = None,   # NEW: overrides SEED for train/val/test split   
 ):
     _lambda_noise = lambda_noise if lambda_noise is not None else config.LAMBDA_NOISE
     _weight_decay = weight_decay if weight_decay is not None else config.WEIGHT_DECAY
     _batch_size   = batch_size   if batch_size   is not None else config.BATCH_SIZE
     _beta         = beta         if beta         is not None else config.BETA       
     _epsilon      = epsilon      if epsilon      is not None else config.EPSILON     
+    _train_seed   = train_seed   if train_seed   is not None else SEED
+    _split_seed   = split_seed   if split_seed   is not None else SEED
 
-    random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED)
+    random.seed(_train_seed); np.random.seed(_train_seed); torch.manual_seed(_train_seed)
     results_dir = RESULTS_DIR / run_name
     log = setup_logging(results_dir, run_name)
 
@@ -250,7 +254,7 @@ def train(
     # --- Data ---
     log.info("Loading dataset...")
     ds = BRICKDataset(DATA_DIR)
-    train_ds, val_ds, test_ds = split_dataset(ds, seed=SEED)
+    train_ds, val_ds, test_ds = split_dataset(ds, seed=_split_seed)
     log.info(
         f"Split: {len(train_ds)} train | {len(val_ds)} val | "
         f"{len(test_ds)} test items"
@@ -366,8 +370,6 @@ def train(
                 "m":                    model.m,
             }, results_dir / "best_model.pt")
             log.info(f"  -> New best val loss: {val_total:.4f} (saved best_model.pt)")
-        else:
-            epochs_no_improve += 1
 
         # --- Save best pre-overfit checkpoint (val AND train classification loss both improve) ---
         if val_cls_improved_joint and train_cls_improved_joint:
@@ -388,8 +390,11 @@ def train(
             }, results_dir / "best_model_cls_preoverfit.pt")
             log.info(f"  -> New joint-best cls loss: "
                      f"val={best_val_loss_cls_preoverfit:.4f}, train={best_train_loss_cls_preoverfit:.4f}")
+            
+        else:
+            epochs_no_improve += 1
 
-        # --- Early stopping (tied to best_model.pt only) ---
+        # --- Early stopping (tied to best_model_cls_preoverfit.pt only) ---
         if epochs_no_improve >= PATIENCE:
             log.info(
                 f"Early stopping at epoch {epoch} -- "
