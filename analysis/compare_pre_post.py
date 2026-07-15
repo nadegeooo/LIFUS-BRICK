@@ -535,9 +535,9 @@ def paired_tests_per_coordinate(pre, post, alpha=0.05) -> pd.DataFrame:
         if np.allclose(diff[:, m], 0.0):
             t[m], p[m] = 0.0, 1.0
         else:
-            t[m], p[m] = stats.ttest_rel(pre[:, m], post[:, m])
+            t[m], p[m] = stats.ttest_rel(post[:, m], pre[:, m])
         try:
-            w[m] = stats.wilcoxon(pre[:, m], post[:, m]).pvalue
+            w[m] = stats.wilcoxon(post[:, m], pre[:, m]).pvalue
         except ValueError:
             w[m] = 1.0
 
@@ -571,9 +571,9 @@ def paired_tests_per_roi(pre_roi, post_roi, roi_names, alpha=0.05) -> pd.DataFra
         if np.allclose(diff[:, i], 0.0):
             t[i], p[i] = 0.0, 1.0
         else:
-            t[i], p[i] = stats.ttest_rel(pre_roi[:, i], post_roi[:, i])
+            t[i], p[i] = stats.ttest_rel(post_roi[:, i], pre_roi[:, i])
         try:
-            w[i] = stats.wilcoxon(pre_roi[:, i], post_roi[:, i]).pvalue
+            w[i] = stats.wilcoxon(post_roi[:, i], pre_roi[:, i]).pvalue
         except ValueError:
             w[i] = 1.0
     _, p_fdr, _, _ = multipletests(p, method="fdr_bh")
@@ -599,9 +599,9 @@ def norm_omnibus(pre, post):
     """
     pre_norm  = np.sqrt((pre ** 2).sum(1))
     post_norm = np.sqrt((post ** 2).sum(1))
-    t, p = stats.ttest_rel(pre_norm, post_norm)
+    t, p = stats.ttest_rel(post_norm, pre_norm)
     try:
-        w = stats.wilcoxon(pre_norm, post_norm).pvalue
+        w = stats.wilcoxon(post_norm, pre_norm).pvalue
     except ValueError:
         w = 1.0
     return float(t), float(p), float(w)

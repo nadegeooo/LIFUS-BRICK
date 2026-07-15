@@ -1,0 +1,3 @@
+method,n_significant,median_cohens_d,interpretation
+BRICK,0,0.0,Decoder-projected ROI control gains pre vs post
+VAR,0,0.11786748616674084,Directed effective connectivity pre vs post

@@ -215,7 +215,7 @@ def run_var_ttest(
 
     for j in range(N):
         t_stats[j], p_vals[j] = stats.ttest_rel(
-            pre_conns[:, j], post_conns[:, j]
+            post_conns[:, j], pre_conns[:, j]
         )
 
     _, p_fdr, _, _ = multipletests(p_vals, method="fdr_bh")
@@ -589,7 +589,7 @@ def matrix_paired_ttest(var_results: list, alpha: float = 0.05):
         for j in range(N):
             if i == j:
                 continue
-            t_stats[i, j], p_vals[i, j] = stats.ttest_rel(A_pre[:, i, j], A_post[:, i, j])
+            t_stats[i, j], p_vals[i, j] = stats.ttest_rel(A_post[:, i, j], A_pre[:, i, j])
 
     p_fdr = np.ones((N, N))
     _, p_fdr_flat, _, _ = multipletests(p_vals[mask], method="fdr_bh", alpha=alpha)

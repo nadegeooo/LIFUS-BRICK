@@ -34,6 +34,10 @@ same quantity the FDR test itself was run on) -- NOT the quadratic-form
 projection and isn't comparable in magnitude. Consistency is used only for
 color.
 
+Both output figures (vim, zi) share the same symmetric y-axis, computed from
+the global max |delta| across both targets and all batch sizes, so the two
+plots are directly comparable by eye.
+
 IMPORTANT: batch_size=1 here means results/training/sweep_2/sweep_BATCH_SIZE_1,
 NOT results/training/ablation_2_batch_size_1 -- the latter looks like it's
 from the ablation study (different config), not a same-conditions batch-size
@@ -233,7 +237,17 @@ COLOR_MAP = {
 }
 
 
-def plot_target(df: pd.DataFrame, target: str):
+def compute_shared_ylim(df: pd.DataFrame, pad_frac: float = 0.1) -> tuple:
+    """Symmetric y-limit (centered on 0) covering every ROI/target/batch_size,
+    so both output figures (vim, zi) are directly comparable by eye."""
+    max_abs = df["delta"].abs().max()
+    if not np.isfinite(max_abs) or max_abs == 0:
+        return (-1.0, 1.0)
+    padded = max_abs * (1 + pad_frac)
+    return (-padded, padded)
+
+
+def plot_target(df: pd.DataFrame, target: str, ylim: tuple):
     sub = df[df["target"] == target]
     rois = list(cpp.TARGET_ROIS)
     n_rois = len(rois)
@@ -248,6 +262,7 @@ def plot_target(df: pd.DataFrame, target: str):
         colors = [COLOR_MAP.get(c, "gray") for c in roi_data["classification"]]
         ax.bar([str(b) for b in BATCH_SIZES], roi_data["delta"].values, color=colors)
         ax.axhline(0, color="black", lw=0.6)
+        ax.set_ylim(ylim)
         ax.set_title(roi, fontsize=9)
         ax.tick_params(labelsize=7)
         if idx // ncols == nrows - 1:
@@ -284,8 +299,9 @@ def plot_target(df: pd.DataFrame, target: str):
 
 def main(force: bool = False):
     df = load_batch_size_data(force=force)
+    ylim = compute_shared_ylim(df)
     for target in TARGETS:
-        plot_target(df, target)
+        plot_target(df, target, ylim=ylim)
 
 
 if __name__ == "__main__":

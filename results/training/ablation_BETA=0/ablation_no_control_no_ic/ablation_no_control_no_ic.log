@@ -1,0 +1,20 @@
+2026-06-26 14:49:54,317 | ============================================================
+2026-06-26 14:49:54,317 | BRICK Training -- ablation_no_control_no_ic
+2026-06-26 14:49:54,317 | N_ROIS=24, M=96, H=4, T=240
+2026-06-26 14:49:54,318 | Epochs=1400, LR=0.0001, WD=0.05, LAMBDA_NOISE=0.01, BATCH_SIZE=12
+2026-06-26 14:49:54,318 | Patience=30, use_control=False, use_ic=False
+2026-06-26 14:49:54,318 | KL annealing: g0 over 0 epochs, u delayed 0 then over 0 epochs
+2026-06-26 14:49:54,318 | ============================================================
+2026-06-26 14:49:54,318 | Loading dataset...
+2026-06-26 14:49:54,614 | Split: 52 train | 4 val | 20 test items
+2026-06-26 14:49:54,695 | Model parameters: 554,702
+2026-06-26 14:49:54,703 | Starting training...
+2026-06-26 14:49:55,306 | Epoch    1/1400 | kl_g0_w=1.00 kl_u_w=1.00 | train=49.7917 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=49.7917 | lr=1.00e-04
+2026-06-26 14:49:55,322 |   -> New best val loss: 49.7917 (saved best_model.pt)
+2026-06-26 14:50:00,516 | Epoch   10/1400 | kl_g0_w=1.00 kl_u_w=1.00 | train=49.7917 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=49.7917 | lr=1.00e-04
+2026-06-26 14:50:06,342 | Epoch   20/1400 | kl_g0_w=1.00 kl_u_w=1.00 | train=49.7917 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=49.7917 | lr=5.00e-05
+2026-06-26 14:50:12,326 | Epoch   30/1400 | kl_g0_w=1.00 kl_u_w=1.00 | train=49.7917 (recon=49.7917, kl_g0=0.0000, kl_u=0.0000, cls=0.0000) | val=49.7917 | lr=5.00e-05
+2026-06-26 14:50:12,979 | Early stopping at epoch 31 -- no improvement for 30 epochs.
+2026-06-26 14:50:12,995 | Final model saved to C:\Users\USER\Documents\GitHub\LIFUS-BRICK\results\training\ablation_no_control_no_ic\final_model.pt
+2026-06-26 14:50:12,996 | Best val loss: 49.7917
+2026-06-26 14:50:12,996 | Training complete.
