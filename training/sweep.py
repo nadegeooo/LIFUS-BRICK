@@ -10,7 +10,7 @@ from training.train import train
 
 ROOT_DIR     = Path(__file__).resolve().parent.parent
 
-SWEEP_NAME = "sweep_3_seeds"   # <-- change this each time
+SWEEP_NAME = "sweep_4_beta"   # <-- change this each time
 
 TRAINING_DIR = ROOT_DIR / "results" / "training" / SWEEP_NAME
 FIGURES_DIR  = ROOT_DIR / "results" / "figures" / SWEEP_NAME
@@ -26,8 +26,7 @@ BASELINE = {
 }
 
 SWEEP = {
-    "TRAIN_SEED": [42, 123, 2024],   
-    "SPLIT_SEED": [42, 123, 2024],
+    "BETA": [0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95],   
 }
 
 PARAM_MAP = {
