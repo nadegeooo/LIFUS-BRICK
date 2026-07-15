@@ -1,0 +1,1380 @@
+2026-07-14 16:19:08,948 | ============================================================
+2026-07-14 16:19:08,948 | BRICK Training -- sweep_3_seeds/sweep_SPLIT_SEED_123
+2026-07-14 16:19:08,948 | N_ROIS=24, M=96, H=4, T=240
+2026-07-14 16:19:08,948 | Epochs=2700, LR=0.0001, WD=0.05, LAMBDA_NOISE=0.01, BATCH_SIZE=4, BETA=0.05, EPSILON=1.0
+2026-07-14 16:19:08,948 | Patience=100, use_control=True, use_ic=True
+2026-07-14 16:19:08,948 | KL annealing: g0 over 0 epochs, u delayed 0 then over 0 epochs
+2026-07-14 16:19:08,948 | ============================================================
+2026-07-14 16:19:08,948 | Loading dataset...
+2026-07-14 16:19:09,030 | Split: 52 train | 4 val | 20 test items
+2026-07-14 16:19:09,052 | Model parameters: 554,702
+2026-07-14 16:19:09,052 | Starting training...
+2026-07-14 16:19:11,263 | Epoch    1/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2154.5159 (recon=2267.6590, kl_g0=0.0052, kl_u=0.2106, cls=0.6959) | val=239.0317 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 16:19:11,280 |   -> New best val loss: 239.0317 (saved best_model.pt)
+2026-07-14 16:19:11,294 |   -> New joint-best cls loss: val=0.6614, train=0.6959
+2026-07-14 16:19:13,154 |   -> New best val loss: 185.3946 (saved best_model.pt)
+2026-07-14 16:19:13,169 |   -> New joint-best cls loss: val=0.6602, train=0.6906
+2026-07-14 16:19:15,901 |   -> New best val loss: 160.3167 (saved best_model.pt)
+2026-07-14 16:19:18,591 |   -> New best val loss: 139.9866 (saved best_model.pt)
+2026-07-14 16:19:20,828 |   -> New best val loss: 124.4080 (saved best_model.pt)
+2026-07-14 16:19:22,613 |   -> New best val loss: 114.0326 (saved best_model.pt)
+2026-07-14 16:19:24,617 |   -> New best val loss: 102.0698 (saved best_model.pt)
+2026-07-14 16:19:27,204 |   -> New best val loss: 95.0197 (saved best_model.pt)
+2026-07-14 16:19:29,124 |   -> New best val loss: 86.6598 (saved best_model.pt)
+2026-07-14 16:19:31,193 | Epoch   10/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=144.6612 (recon=151.3291, kl_g0=0.0053, kl_u=0.9041, cls=0.6911) | val=80.4568 | lr=1.00e-04
+2026-07-14 16:19:31,223 |   -> New best val loss: 80.4568 (saved best_model.pt)
+2026-07-14 16:19:33,437 |   -> New best val loss: 76.0776 (saved best_model.pt)
+2026-07-14 16:19:35,638 |   -> New best val loss: 71.8818 (saved best_model.pt)
+2026-07-14 16:19:38,323 |   -> New best val loss: 68.7160 (saved best_model.pt)
+2026-07-14 16:19:40,634 |   -> New best val loss: 65.7152 (saved best_model.pt)
+2026-07-14 16:19:42,294 |   -> New best val loss: 63.1000 (saved best_model.pt)
+2026-07-14 16:19:43,896 |   -> New best val loss: 60.8526 (saved best_model.pt)
+2026-07-14 16:19:45,526 |   -> New best val loss: 58.7705 (saved best_model.pt)
+2026-07-14 16:19:48,219 |   -> New best val loss: 57.1742 (saved best_model.pt)
+2026-07-14 16:19:50,075 |   -> New best val loss: 55.2953 (saved best_model.pt)
+2026-07-14 16:19:52,328 | Epoch   20/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=84.7480 (recon=87.6587, kl_g0=0.0055, kl_u=1.5079, cls=0.6889) | val=53.6045 | lr=1.00e-04
+2026-07-14 16:19:52,356 |   -> New best val loss: 53.6045 (saved best_model.pt)
+2026-07-14 16:19:55,081 |   -> New best val loss: 52.5486 (saved best_model.pt)
+2026-07-14 16:19:57,367 |   -> New best val loss: 51.2070 (saved best_model.pt)
+2026-07-14 16:19:59,696 |   -> New best val loss: 50.0105 (saved best_model.pt)
+2026-07-14 16:20:01,819 |   -> New best val loss: 48.1063 (saved best_model.pt)
+2026-07-14 16:20:03,810 |   -> New best val loss: 47.0927 (saved best_model.pt)
+2026-07-14 16:20:05,490 |   -> New best val loss: 46.4411 (saved best_model.pt)
+2026-07-14 16:20:07,676 |   -> New best val loss: 45.6896 (saved best_model.pt)
+2026-07-14 16:20:10,340 |   -> New best val loss: 44.5298 (saved best_model.pt)
+2026-07-14 16:20:13,016 |   -> New best val loss: 43.3302 (saved best_model.pt)
+2026-07-14 16:20:15,693 | Epoch   30/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=61.1841 (recon=62.6685, kl_g0=0.0058, kl_u=1.6936, cls=0.6903) | val=42.0827 | lr=1.00e-04
+2026-07-14 16:20:15,713 |   -> New best val loss: 42.0827 (saved best_model.pt)
+2026-07-14 16:20:17,618 |   -> New best val loss: 41.6591 (saved best_model.pt)
+2026-07-14 16:20:19,253 |   -> New best val loss: 41.0064 (saved best_model.pt)
+2026-07-14 16:20:20,869 |   -> New best val loss: 40.3782 (saved best_model.pt)
+2026-07-14 16:20:22,501 |   -> New best val loss: 39.1939 (saved best_model.pt)
+2026-07-14 16:20:24,852 |   -> New best val loss: 38.2898 (saved best_model.pt)
+2026-07-14 16:20:27,034 |   -> New best val loss: 38.0562 (saved best_model.pt)
+2026-07-14 16:20:29,093 |   -> New best val loss: 36.8484 (saved best_model.pt)
+2026-07-14 16:20:31,730 |   -> New best val loss: 36.7390 (saved best_model.pt)
+2026-07-14 16:20:33,702 |   -> New best val loss: 36.3496 (saved best_model.pt)
+2026-07-14 16:20:35,897 | Epoch   40/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=48.0880 (recon=48.8143, kl_g0=0.0061, kl_u=1.7623, cls=0.6891) | val=35.5795 | lr=1.00e-04
+2026-07-14 16:20:35,926 |   -> New best val loss: 35.5795 (saved best_model.pt)
+2026-07-14 16:20:40,081 |   -> New best val loss: 34.7095 (saved best_model.pt)
+2026-07-14 16:20:42,732 |   -> New best val loss: 34.3964 (saved best_model.pt)
+2026-07-14 16:20:45,152 |   -> New best val loss: 33.8041 (saved best_model.pt)
+2026-07-14 16:20:46,810 |   -> New best val loss: 33.1870 (saved best_model.pt)
+2026-07-14 16:20:48,466 |   -> New best val loss: 32.6543 (saved best_model.pt)
+2026-07-14 16:20:50,373 |   -> New best val loss: 31.9001 (saved best_model.pt)
+2026-07-14 16:20:52,347 |   -> New best val loss: 31.4281 (saved best_model.pt)
+2026-07-14 16:20:54,421 |   -> New best val loss: 31.0027 (saved best_model.pt)
+2026-07-14 16:20:56,498 | Epoch   50/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=38.6322 (recon=38.8341, kl_g0=0.0064, kl_u=1.7887, cls=0.6900) | val=30.4546 | lr=1.00e-04
+2026-07-14 16:20:56,530 |   -> New best val loss: 30.4546 (saved best_model.pt)
+2026-07-14 16:20:59,239 |   -> New best val loss: 30.3380 (saved best_model.pt)
+2026-07-14 16:21:01,064 |   -> New best val loss: 29.8765 (saved best_model.pt)
+2026-07-14 16:21:03,176 |   -> New best val loss: 29.3792 (saved best_model.pt)
+2026-07-14 16:21:07,435 |   -> New best val loss: 28.7452 (saved best_model.pt)
+2026-07-14 16:21:09,457 |   -> New best val loss: 28.3616 (saved best_model.pt)
+2026-07-14 16:21:11,859 |   -> New best val loss: 27.7779 (saved best_model.pt)
+2026-07-14 16:21:16,156 |   -> New best val loss: 27.6844 (saved best_model.pt)
+2026-07-14 16:21:17,699 | Epoch   60/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=32.2016 (recon=32.0673, kl_g0=0.0067, kl_u=1.7863, cls=0.6873) | val=26.9317 | lr=1.00e-04
+2026-07-14 16:21:17,716 |   -> New best val loss: 26.9317 (saved best_model.pt)
+2026-07-14 16:21:19,902 |   -> New best val loss: 26.4723 (saved best_model.pt)
+2026-07-14 16:21:23,682 |   -> New best val loss: 26.0593 (saved best_model.pt)
+2026-07-14 16:21:26,256 |   -> New best val loss: 25.5289 (saved best_model.pt)
+2026-07-14 16:21:27,932 |   -> New best val loss: 25.5169 (saved best_model.pt)
+2026-07-14 16:21:30,228 |   -> New best val loss: 25.3762 (saved best_model.pt)
+2026-07-14 16:21:32,679 |   -> New best val loss: 24.6268 (saved best_model.pt)
+2026-07-14 16:21:34,304 |   -> New best val loss: 24.3841 (saved best_model.pt)
+2026-07-14 16:21:35,906 |   -> New best val loss: 24.2380 (saved best_model.pt)
+2026-07-14 16:21:38,107 | Epoch   70/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=27.2337 (recon=26.8275, kl_g0=0.0069, kl_u=1.7964, cls=0.6885) | val=23.8641 | lr=1.00e-04
+2026-07-14 16:21:38,130 |   -> New best val loss: 23.8641 (saved best_model.pt)
+2026-07-14 16:21:40,307 |   -> New best val loss: 23.4888 (saved best_model.pt)
+2026-07-14 16:21:42,178 |   -> New best val loss: 23.1662 (saved best_model.pt)
+2026-07-14 16:21:43,805 |   -> New best val loss: 22.8118 (saved best_model.pt)
+2026-07-14 16:21:45,621 |   -> New best val loss: 22.4669 (saved best_model.pt)
+2026-07-14 16:21:48,188 |   -> New best val loss: 22.4598 (saved best_model.pt)
+2026-07-14 16:21:49,902 |   -> New best val loss: 21.8348 (saved best_model.pt)
+2026-07-14 16:21:51,919 |   -> New best val loss: 21.6478 (saved best_model.pt)
+2026-07-14 16:21:53,718 |   -> New best val loss: 21.3994 (saved best_model.pt)
+2026-07-14 16:21:55,984 |   -> New best val loss: 21.0090 (saved best_model.pt)
+2026-07-14 16:21:58,603 | Epoch   80/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=23.1400 (recon=22.5128, kl_g0=0.0071, kl_u=1.8016, cls=0.6904) | val=20.9110 | lr=1.00e-04
+2026-07-14 16:21:58,634 |   -> New best val loss: 20.9110 (saved best_model.pt)
+2026-07-14 16:22:01,092 |   -> New best val loss: 20.7879 (saved best_model.pt)
+2026-07-14 16:22:03,701 |   -> New best val loss: 20.5033 (saved best_model.pt)
+2026-07-14 16:22:06,100 |   -> New best val loss: 20.1886 (saved best_model.pt)
+2026-07-14 16:22:08,705 |   -> New best val loss: 19.8372 (saved best_model.pt)
+2026-07-14 16:22:11,333 |   -> New best val loss: 19.7124 (saved best_model.pt)
+2026-07-14 16:22:14,013 |   -> New best val loss: 19.1799 (saved best_model.pt)
+2026-07-14 16:22:15,790 |   -> New best val loss: 19.1213 (saved best_model.pt)
+2026-07-14 16:22:17,357 |   -> New best val loss: 18.8874 (saved best_model.pt)
+2026-07-14 16:22:21,042 | Epoch   90/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=20.1870 (recon=19.4115, kl_g0=0.0073, kl_u=1.7944, cls=0.6886) | val=18.5616 | lr=1.00e-04
+2026-07-14 16:22:21,075 |   -> New best val loss: 18.5616 (saved best_model.pt)
+2026-07-14 16:22:22,845 |   -> New best val loss: 18.3543 (saved best_model.pt)
+2026-07-14 16:22:24,519 |   -> New best val loss: 18.1870 (saved best_model.pt)
+2026-07-14 16:22:26,633 |   -> New best val loss: 18.0820 (saved best_model.pt)
+2026-07-14 16:22:28,565 |   -> New best val loss: 17.9308 (saved best_model.pt)
+2026-07-14 16:22:30,189 |   -> New best val loss: 17.4531 (saved best_model.pt)
+2026-07-14 16:22:33,422 |   -> New best val loss: 17.1736 (saved best_model.pt)
+2026-07-14 16:22:36,105 |   -> New best val loss: 17.0103 (saved best_model.pt)
+2026-07-14 16:22:38,794 |   -> New best val loss: 16.7753 (saved best_model.pt)
+2026-07-14 16:22:41,457 | Epoch  100/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=17.7505 (recon=16.8476, kl_g0=0.0075, kl_u=1.7935, cls=0.6875) | val=16.7971 | lr=1.00e-04
+2026-07-14 16:22:43,769 |   -> New best val loss: 16.4979 (saved best_model.pt)
+2026-07-14 16:22:45,892 |   -> New best val loss: 16.2715 (saved best_model.pt)
+2026-07-14 16:22:47,479 |   -> New best val loss: 16.1681 (saved best_model.pt)
+2026-07-14 16:22:49,416 |   -> New best val loss: 15.8858 (saved best_model.pt)
+2026-07-14 16:22:51,383 |   -> New best val loss: 15.8316 (saved best_model.pt)
+2026-07-14 16:22:53,676 |   -> New best val loss: 15.6068 (saved best_model.pt)
+2026-07-14 16:22:57,180 |   -> New best val loss: 15.3530 (saved best_model.pt)
+2026-07-14 16:22:59,762 |   -> New best val loss: 15.1229 (saved best_model.pt)
+2026-07-14 16:23:02,538 | Epoch  110/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=15.8445 (recon=14.8608, kl_g0=0.0076, kl_u=1.7737, cls=0.6878) | val=15.1311 | lr=1.00e-04
+2026-07-14 16:23:05,266 |   -> New best val loss: 14.9769 (saved best_model.pt)
+2026-07-14 16:23:07,942 |   -> New best val loss: 14.7642 (saved best_model.pt)
+2026-07-14 16:23:10,597 |   -> New best val loss: 14.6580 (saved best_model.pt)
+2026-07-14 16:23:13,086 |   -> New best val loss: 14.5380 (saved best_model.pt)
+2026-07-14 16:23:15,657 |   -> New best val loss: 14.3639 (saved best_model.pt)
+2026-07-14 16:23:17,625 |   -> New best val loss: 14.2678 (saved best_model.pt)
+2026-07-14 16:23:19,827 |   -> New best val loss: 14.2107 (saved best_model.pt)
+2026-07-14 16:23:22,445 |   -> New best val loss: 13.9360 (saved best_model.pt)
+2026-07-14 16:23:24,610 |   -> New best val loss: 13.8792 (saved best_model.pt)
+2026-07-14 16:23:26,151 | Epoch  120/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=14.2774 (recon=13.2306, kl_g0=0.0078, kl_u=1.7541, cls=0.6904) | val=13.7013 | lr=1.00e-04
+2026-07-14 16:23:26,170 |   -> New best val loss: 13.7013 (saved best_model.pt)
+2026-07-14 16:23:30,080 |   -> New best val loss: 13.5893 (saved best_model.pt)
+2026-07-14 16:23:31,789 |   -> New best val loss: 13.4137 (saved best_model.pt)
+2026-07-14 16:23:36,229 |   -> New best val loss: 13.2703 (saved best_model.pt)
+2026-07-14 16:23:37,842 |   -> New best val loss: 13.2019 (saved best_model.pt)
+2026-07-14 16:23:40,120 |   -> New best val loss: 13.1582 (saved best_model.pt)
+2026-07-14 16:23:42,357 |   -> New best val loss: 13.0902 (saved best_model.pt)
+2026-07-14 16:23:44,925 |   -> New best val loss: 13.0289 (saved best_model.pt)
+2026-07-14 16:23:47,175 | Epoch  130/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=13.0874 (recon=11.9910, kl_g0=0.0079, kl_u=1.7409, cls=0.6906) | val=12.7369 | lr=1.00e-04
+2026-07-14 16:23:47,205 |   -> New best val loss: 12.7369 (saved best_model.pt)
+2026-07-14 16:23:49,584 |   -> New best val loss: 12.7162 (saved best_model.pt)
+2026-07-14 16:23:51,194 |   -> New best val loss: 12.6233 (saved best_model.pt)
+2026-07-14 16:23:53,336 |   -> New best val loss: 12.4273 (saved best_model.pt)
+2026-07-14 16:23:58,057 |   -> New best val loss: 12.3697 (saved best_model.pt)
+2026-07-14 16:24:00,081 |   -> New best val loss: 12.2063 (saved best_model.pt)
+2026-07-14 16:24:02,000 |   -> New best val loss: 12.1760 (saved best_model.pt)
+2026-07-14 16:24:04,435 |   -> New best val loss: 12.0978 (saved best_model.pt)
+2026-07-14 16:24:06,053 |   -> New best val loss: 12.0956 (saved best_model.pt)
+2026-07-14 16:24:08,094 | Epoch  140/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=12.1960 (recon=11.0643, kl_g0=0.0080, kl_u=1.7294, cls=0.6883) | val=11.9695 | lr=1.00e-04
+2026-07-14 16:24:08,124 |   -> New best val loss: 11.9695 (saved best_model.pt)
+2026-07-14 16:24:10,761 |   -> New best val loss: 11.8562 (saved best_model.pt)
+2026-07-14 16:24:13,449 |   -> New best val loss: 11.8223 (saved best_model.pt)
+2026-07-14 16:24:16,124 |   -> New best val loss: 11.6747 (saved best_model.pt)
+2026-07-14 16:24:18,256 |   -> New best val loss: 11.6181 (saved best_model.pt)
+2026-07-14 16:24:22,906 |   -> New best val loss: 11.5068 (saved best_model.pt)
+2026-07-14 16:24:26,690 |   -> New best val loss: 11.4268 (saved best_model.pt)
+2026-07-14 16:24:28,315 |   -> New best val loss: 11.4015 (saved best_model.pt)
+2026-07-14 16:24:29,913 | Epoch  150/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=11.3891 (recon=10.2432, kl_g0=0.0081, kl_u=1.7009, cls=0.6893) | val=11.2880 | lr=1.00e-04
+2026-07-14 16:24:29,929 |   -> New best val loss: 11.2880 (saved best_model.pt)
+2026-07-14 16:24:31,563 |   -> New best val loss: 11.1649 (saved best_model.pt)
+2026-07-14 16:24:34,054 |   -> New best val loss: 11.1289 (saved best_model.pt)
+2026-07-14 16:24:36,126 |   -> New best val loss: 11.0630 (saved best_model.pt)
+2026-07-14 16:24:38,715 |   -> New best val loss: 10.9966 (saved best_model.pt)
+2026-07-14 16:24:40,315 |   -> New best val loss: 10.9939 (saved best_model.pt)
+2026-07-14 16:24:42,560 |   -> New best val loss: 10.9060 (saved best_model.pt)
+2026-07-14 16:24:44,796 |   -> New best val loss: 10.8340 (saved best_model.pt)
+2026-07-14 16:24:49,772 |   -> New best val loss: 10.7975 (saved best_model.pt)
+2026-07-14 16:24:51,437 | Epoch  160/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=10.7251 (recon=9.5714, kl_g0=0.0082, kl_u=1.6736, cls=0.6902) | val=10.6885 | lr=1.00e-04
+2026-07-14 16:24:51,454 |   -> New best val loss: 10.6885 (saved best_model.pt)
+2026-07-14 16:24:53,208 |   -> New best val loss: 10.6651 (saved best_model.pt)
+2026-07-14 16:24:55,348 |   -> New best val loss: 10.5962 (saved best_model.pt)
+2026-07-14 16:24:57,664 |   -> New best val loss: 10.5634 (saved best_model.pt)
+2026-07-14 16:24:59,233 |   -> New best val loss: 10.5122 (saved best_model.pt)
+2026-07-14 16:25:01,906 |   -> New best val loss: 10.4874 (saved best_model.pt)
+2026-07-14 16:25:04,098 |   -> New best val loss: 10.3932 (saved best_model.pt)
+2026-07-14 16:25:06,625 |   -> New best val loss: 10.3928 (saved best_model.pt)
+2026-07-14 16:25:09,000 |   -> New best val loss: 10.3492 (saved best_model.pt)
+2026-07-14 16:25:10,826 |   -> New best val loss: 10.3100 (saved best_model.pt)
+2026-07-14 16:25:13,276 | Epoch  170/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=10.1453 (recon=8.9841, kl_g0=0.0083, kl_u=1.6506, cls=0.6896) | val=10.2615 | lr=1.00e-04
+2026-07-14 16:25:13,308 |   -> New best val loss: 10.2615 (saved best_model.pt)
+2026-07-14 16:25:17,320 |   -> New best val loss: 10.2214 (saved best_model.pt)
+2026-07-14 16:25:19,538 |   -> New best val loss: 10.0888 (saved best_model.pt)
+2026-07-14 16:25:23,892 |   -> New best val loss: 10.0525 (saved best_model.pt)
+2026-07-14 16:25:28,184 |   -> New best val loss: 9.9404 (saved best_model.pt)
+2026-07-14 16:25:30,942 |   -> New best val loss: 9.9121 (saved best_model.pt)
+2026-07-14 16:25:33,482 |   -> New best val loss: 9.9037 (saved best_model.pt)
+2026-07-14 16:25:35,560 | Epoch  180/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=9.6957 (recon=8.5396, kl_g0=0.0084, kl_u=1.6215, cls=0.6916) | val=9.9129 | lr=1.00e-04
+2026-07-14 16:25:38,101 |   -> New best val loss: 9.8351 (saved best_model.pt)
+2026-07-14 16:25:39,742 |   -> New best val loss: 9.7392 (saved best_model.pt)
+2026-07-14 16:25:42,380 |   -> New best val loss: 9.7087 (saved best_model.pt)
+2026-07-14 16:25:46,844 |   -> New best val loss: 9.7060 (saved best_model.pt)
+2026-07-14 16:25:48,416 |   -> New best val loss: 9.6329 (saved best_model.pt)
+2026-07-14 16:25:50,810 |   -> New best val loss: 9.5716 (saved best_model.pt)
+2026-07-14 16:25:55,473 |   -> New best val loss: 9.5499 (saved best_model.pt)
+2026-07-14 16:25:57,061 | Epoch  190/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=9.2890 (recon=8.1457, kl_g0=0.0085, kl_u=1.5875, cls=0.6887) | val=9.5189 | lr=1.00e-04
+2026-07-14 16:25:57,076 |   -> New best val loss: 9.5189 (saved best_model.pt)
+2026-07-14 16:25:59,032 |   -> New best val loss: 9.4787 (saved best_model.pt)
+2026-07-14 16:26:01,104 |   -> New best val loss: 9.4661 (saved best_model.pt)
+2026-07-14 16:26:02,798 |   -> New best val loss: 9.4051 (saved best_model.pt)
+2026-07-14 16:26:04,957 |   -> New best val loss: 9.3718 (saved best_model.pt)
+2026-07-14 16:26:06,652 |   -> New best val loss: 9.3639 (saved best_model.pt)
+2026-07-14 16:26:08,321 |   -> New best val loss: 9.3234 (saved best_model.pt)
+2026-07-14 16:26:10,420 |   -> New best val loss: 9.2826 (saved best_model.pt)
+2026-07-14 16:26:12,297 |   -> New best val loss: 9.2547 (saved best_model.pt)
+2026-07-14 16:26:14,411 |   -> New best val loss: 9.2410 (saved best_model.pt)
+2026-07-14 16:26:17,038 | Epoch  200/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=8.9494 (recon=7.8144, kl_g0=0.0086, kl_u=1.5612, cls=0.6878) | val=9.2180 | lr=1.00e-04
+2026-07-14 16:26:17,068 |   -> New best val loss: 9.2180 (saved best_model.pt)
+2026-07-14 16:26:19,768 |   -> New best val loss: 9.1470 (saved best_model.pt)
+2026-07-14 16:26:22,187 |   -> New best val loss: 9.1157 (saved best_model.pt)
+2026-07-14 16:26:26,549 |   -> New best val loss: 9.1058 (saved best_model.pt)
+2026-07-14 16:26:31,392 |   -> New best val loss: 8.9956 (saved best_model.pt)
+2026-07-14 16:26:33,998 |   -> New best val loss: 8.9904 (saved best_model.pt)
+2026-07-14 16:26:40,416 | Epoch  210/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=8.5916 (recon=7.4580, kl_g0=0.0086, kl_u=1.5409, cls=0.6897) | val=8.9719 | lr=1.00e-04
+2026-07-14 16:26:40,445 |   -> New best val loss: 8.9719 (saved best_model.pt)
+2026-07-14 16:26:42,410 |   -> New best val loss: 8.9192 (saved best_model.pt)
+2026-07-14 16:26:44,703 |   -> New best val loss: 8.8976 (saved best_model.pt)
+2026-07-14 16:26:47,236 |   -> New best val loss: 8.8706 (saved best_model.pt)
+2026-07-14 16:26:49,619 |   -> New best val loss: 8.8660 (saved best_model.pt)
+2026-07-14 16:26:52,313 |   -> New best val loss: 8.8369 (saved best_model.pt)
+2026-07-14 16:26:54,694 |   -> New best val loss: 8.8146 (saved best_model.pt)
+2026-07-14 16:26:58,272 |   -> New best val loss: 8.7686 (saved best_model.pt)
+2026-07-14 16:27:00,576 |   -> New best val loss: 8.7317 (saved best_model.pt)
+2026-07-14 16:27:02,792 | Epoch  220/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=8.3408 (recon=7.2124, kl_g0=0.0087, kl_u=1.5224, cls=0.6887) | val=8.7304 | lr=1.00e-04
+2026-07-14 16:27:02,807 |   -> New best val loss: 8.7304 (saved best_model.pt)
+2026-07-14 16:27:07,567 |   -> New best val loss: 8.6693 (saved best_model.pt)
+2026-07-14 16:27:10,115 |   -> New best val loss: 8.6205 (saved best_model.pt)
+2026-07-14 16:27:15,834 |   -> New best val loss: 8.5609 (saved best_model.pt)
+2026-07-14 16:27:20,082 |   -> New best val loss: 8.5335 (saved best_model.pt)
+2026-07-14 16:27:21,691 |   -> New best val loss: 8.5199 (saved best_model.pt)
+2026-07-14 16:27:23,477 | Epoch  230/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=8.0636 (recon=6.9428, kl_g0=0.0088, kl_u=1.5000, cls=0.6907) | val=8.4853 | lr=1.00e-04
+2026-07-14 16:27:23,495 |   -> New best val loss: 8.4853 (saved best_model.pt)
+2026-07-14 16:27:30,160 |   -> New best val loss: 8.4107 (saved best_model.pt)
+2026-07-14 16:27:33,782 |   -> New best val loss: 8.3803 (saved best_model.pt)
+2026-07-14 16:27:35,394 |   -> New best val loss: 8.3613 (saved best_model.pt)
+2026-07-14 16:27:38,904 |   -> New best val loss: 8.3514 (saved best_model.pt)
+2026-07-14 16:27:41,495 |   -> New best val loss: 8.3101 (saved best_model.pt)
+2026-07-14 16:27:44,090 | Epoch  240/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=7.8345 (recon=6.7194, kl_g0=0.0088, kl_u=1.4823, cls=0.6899) | val=8.3250 | lr=1.00e-04
+2026-07-14 16:27:46,369 |   -> New best val loss: 8.2581 (saved best_model.pt)
+2026-07-14 16:27:48,783 |   -> New best val loss: 8.2411 (saved best_model.pt)
+2026-07-14 16:27:53,104 |   -> New best val loss: 8.1990 (saved best_model.pt)
+2026-07-14 16:27:58,130 |   -> New best val loss: 8.1860 (saved best_model.pt)
+2026-07-14 16:28:00,275 |   -> New best val loss: 8.1568 (saved best_model.pt)
+2026-07-14 16:28:02,101 |   -> New best val loss: 8.1153 (saved best_model.pt)
+2026-07-14 16:28:06,325 | Epoch  250/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=7.5977 (recon=6.4876, kl_g0=0.0089, kl_u=1.4649, cls=0.6885) | val=8.1056 | lr=1.00e-04
+2026-07-14 16:28:06,353 |   -> New best val loss: 8.1056 (saved best_model.pt)
+2026-07-14 16:28:08,884 |   -> New best val loss: 8.0809 (saved best_model.pt)
+2026-07-14 16:28:11,308 |   -> New best val loss: 8.0689 (saved best_model.pt)
+2026-07-14 16:28:12,883 |   -> New best val loss: 8.0667 (saved best_model.pt)
+2026-07-14 16:28:15,277 |   -> New best val loss: 8.0339 (saved best_model.pt)
+2026-07-14 16:28:16,924 |   -> New best val loss: 8.0245 (saved best_model.pt)
+2026-07-14 16:28:18,527 |   -> New best val loss: 8.0102 (saved best_model.pt)
+2026-07-14 16:28:20,989 |   -> New best val loss: 7.9813 (saved best_model.pt)
+2026-07-14 16:28:23,644 |   -> New best val loss: 7.9589 (saved best_model.pt)
+2026-07-14 16:28:25,942 |   -> New best val loss: 7.9440 (saved best_model.pt)
+2026-07-14 16:28:27,659 | Epoch  260/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=7.3916 (recon=6.2894, kl_g0=0.0089, kl_u=1.4460, cls=0.6894) | val=7.9486 | lr=1.00e-04
+2026-07-14 16:28:29,655 |   -> New best val loss: 7.9036 (saved best_model.pt)
+2026-07-14 16:28:31,412 |   -> New best val loss: 7.8888 (saved best_model.pt)
+2026-07-14 16:28:33,586 |   -> New best val loss: 7.8681 (saved best_model.pt)
+2026-07-14 16:28:36,276 |   -> New best val loss: 7.8503 (saved best_model.pt)
+2026-07-14 16:28:40,852 |   -> New best val loss: 7.8427 (saved best_model.pt)
+2026-07-14 16:28:42,831 |   -> New best val loss: 7.8023 (saved best_model.pt)
+2026-07-14 16:28:44,633 |   -> New best val loss: 7.7892 (saved best_model.pt)
+2026-07-14 16:28:46,790 |   -> New best val loss: 7.7724 (saved best_model.pt)
+2026-07-14 16:28:48,509 | Epoch  270/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=7.1817 (recon=6.0774, kl_g0=0.0090, kl_u=1.4370, cls=0.6890) | val=7.7532 | lr=1.00e-04
+2026-07-14 16:28:48,527 |   -> New best val loss: 7.7532 (saved best_model.pt)
+2026-07-14 16:28:51,022 |   -> New best val loss: 7.7435 (saved best_model.pt)
+2026-07-14 16:28:53,100 |   -> New best val loss: 7.7280 (saved best_model.pt)
+2026-07-14 16:28:56,287 |   -> New best val loss: 7.7116 (saved best_model.pt)
+2026-07-14 16:28:58,814 |   -> New best val loss: 7.6856 (saved best_model.pt)
+2026-07-14 16:29:00,874 |   -> New best val loss: 7.6544 (saved best_model.pt)
+2026-07-14 16:29:02,942 |   -> New best val loss: 7.6273 (saved best_model.pt)
+2026-07-14 16:29:04,714 |   -> New best val loss: 7.6195 (saved best_model.pt)
+2026-07-14 16:29:06,548 |   -> New best val loss: 7.6063 (saved best_model.pt)
+2026-07-14 16:29:08,426 | Epoch  280/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=6.9763 (recon=5.8773, kl_g0=0.0090, kl_u=1.4208, cls=0.6899) | val=7.5946 | lr=1.00e-04
+2026-07-14 16:29:08,458 |   -> New best val loss: 7.5946 (saved best_model.pt)
+2026-07-14 16:29:10,399 |   -> New best val loss: 7.5756 (saved best_model.pt)
+2026-07-14 16:29:12,037 |   -> New best val loss: 7.5554 (saved best_model.pt)
+2026-07-14 16:29:13,657 |   -> New best val loss: 7.5371 (saved best_model.pt)
+2026-07-14 16:29:15,287 |   -> New best val loss: 7.5248 (saved best_model.pt)
+2026-07-14 16:29:19,358 |   -> New best val loss: 7.5001 (saved best_model.pt)
+2026-07-14 16:29:21,304 |   -> New best val loss: 7.4822 (saved best_model.pt)
+2026-07-14 16:29:24,952 |   -> New best val loss: 7.4276 (saved best_model.pt)
+2026-07-14 16:29:26,693 | Epoch  290/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=6.8169 (recon=5.7282, kl_g0=0.0091, kl_u=1.4021, cls=0.6903) | val=7.4355 | lr=1.00e-04
+2026-07-14 16:29:29,318 |   -> New best val loss: 7.3998 (saved best_model.pt)
+2026-07-14 16:29:34,689 |   -> New best val loss: 7.3760 (saved best_model.pt)
+2026-07-14 16:29:37,350 |   -> New best val loss: 7.3619 (saved best_model.pt)
+2026-07-14 16:29:42,469 |   -> New best val loss: 7.3557 (saved best_model.pt)
+2026-07-14 16:29:45,164 |   -> New best val loss: 7.3539 (saved best_model.pt)
+2026-07-14 16:29:47,831 |   -> New best val loss: 7.3403 (saved best_model.pt)
+2026-07-14 16:29:49,850 |   -> New best val loss: 7.2942 (saved best_model.pt)
+2026-07-14 16:29:51,469 | Epoch  300/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=6.6432 (recon=5.5560, kl_g0=0.0091, kl_u=1.3915, cls=0.6888) | val=7.3253 | lr=1.00e-04
+2026-07-14 16:29:53,339 |   -> New best val loss: 7.2491 (saved best_model.pt)
+2026-07-14 16:29:55,691 |   -> New best val loss: 7.2445 (saved best_model.pt)
+2026-07-14 16:29:58,231 |   -> New best val loss: 7.2428 (saved best_model.pt)
+2026-07-14 16:30:00,942 |   -> New best val loss: 7.2331 (saved best_model.pt)
+2026-07-14 16:30:03,185 |   -> New best val loss: 7.1990 (saved best_model.pt)
+2026-07-14 16:30:07,908 |   -> New best val loss: 7.1917 (saved best_model.pt)
+2026-07-14 16:30:10,406 |   -> New best val loss: 7.1883 (saved best_model.pt)
+2026-07-14 16:30:12,653 |   -> New best val loss: 7.1431 (saved best_model.pt)
+2026-07-14 16:30:15,038 | Epoch  310/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=6.4670 (recon=5.3880, kl_g0=0.0092, kl_u=1.3739, cls=0.6896) | val=7.1179 | lr=1.00e-04
+2026-07-14 16:30:15,067 |   -> New best val loss: 7.1179 (saved best_model.pt)
+2026-07-14 16:30:18,943 |   -> New best val loss: 7.1123 (saved best_model.pt)
+2026-07-14 16:30:21,390 |   -> New best val loss: 7.0737 (saved best_model.pt)
+2026-07-14 16:30:23,824 |   -> New best val loss: 7.0635 (saved best_model.pt)
+2026-07-14 16:30:26,530 |   -> New best val loss: 7.0594 (saved best_model.pt)
+2026-07-14 16:30:29,205 |   -> New best val loss: 7.0555 (saved best_model.pt)
+2026-07-14 16:30:31,421 |   -> New best val loss: 7.0329 (saved best_model.pt)
+2026-07-14 16:30:33,104 |   -> New best val loss: 7.0296 (saved best_model.pt)
+2026-07-14 16:30:34,741 |   -> New best val loss: 7.0030 (saved best_model.pt)
+2026-07-14 16:30:36,690 | Epoch  320/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=6.2991 (recon=5.2274, kl_g0=0.0092, kl_u=1.3577, cls=0.6886) | val=6.9837 | lr=1.00e-04
+2026-07-14 16:30:36,709 |   -> New best val loss: 6.9837 (saved best_model.pt)
+2026-07-14 16:30:38,331 |   -> New best val loss: 6.9564 (saved best_model.pt)
+2026-07-14 16:30:40,520 |   -> New best val loss: 6.9219 (saved best_model.pt)
+2026-07-14 16:30:48,315 |   -> New best val loss: 6.8919 (saved best_model.pt)
+2026-07-14 16:30:52,300 |   -> New best val loss: 6.8785 (saved best_model.pt)
+2026-07-14 16:30:57,514 | Epoch  330/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=6.1383 (recon=5.0785, kl_g0=0.0093, kl_u=1.3374, cls=0.6875) | val=6.8297 | lr=1.00e-04
+2026-07-14 16:30:57,542 |   -> New best val loss: 6.8297 (saved best_model.pt)
+2026-07-14 16:31:02,107 |   -> New best val loss: 6.8062 (saved best_model.pt)
+2026-07-14 16:31:04,861 |   -> New best val loss: 6.7917 (saved best_model.pt)
+2026-07-14 16:31:07,501 |   -> New best val loss: 6.7782 (saved best_model.pt)
+2026-07-14 16:31:09,658 |   -> New best val loss: 6.7673 (saved best_model.pt)
+2026-07-14 16:31:11,611 |   -> New best val loss: 6.7419 (saved best_model.pt)
+2026-07-14 16:31:13,851 |   -> New best val loss: 6.7408 (saved best_model.pt)
+2026-07-14 16:31:15,642 |   -> New best val loss: 6.7340 (saved best_model.pt)
+2026-07-14 16:31:17,771 |   -> New best val loss: 6.7030 (saved best_model.pt)
+2026-07-14 16:31:19,852 | Epoch  340/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=5.9962 (recon=4.9450, kl_g0=0.0093, kl_u=1.3212, cls=0.6880) | val=6.6984 | lr=1.00e-04
+2026-07-14 16:31:19,869 |   -> New best val loss: 6.6984 (saved best_model.pt)
+2026-07-14 16:31:22,182 |   -> New best val loss: 6.6632 (saved best_model.pt)
+2026-07-14 16:31:24,642 |   -> New best val loss: 6.6574 (saved best_model.pt)
+2026-07-14 16:31:26,919 |   -> New best val loss: 6.6530 (saved best_model.pt)
+2026-07-14 16:31:28,913 |   -> New best val loss: 6.6247 (saved best_model.pt)
+2026-07-14 16:31:31,020 |   -> New best val loss: 6.6017 (saved best_model.pt)
+2026-07-14 16:31:33,152 |   -> New best val loss: 6.5922 (saved best_model.pt)
+2026-07-14 16:31:39,574 |   -> New best val loss: 6.5554 (saved best_model.pt)
+2026-07-14 16:31:42,034 | Epoch  350/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=5.8541 (recon=4.8127, kl_g0=0.0093, kl_u=1.3040, cls=0.6864) | val=6.5426 | lr=1.00e-04
+2026-07-14 16:31:42,066 |   -> New best val loss: 6.5426 (saved best_model.pt)
+2026-07-14 16:31:43,692 |   -> New best val loss: 6.5306 (saved best_model.pt)
+2026-07-14 16:31:45,296 |   -> New best val loss: 6.5116 (saved best_model.pt)
+2026-07-14 16:31:47,345 |   -> New best val loss: 6.5090 (saved best_model.pt)
+2026-07-14 16:31:52,557 |   -> New best val loss: 6.4617 (saved best_model.pt)
+2026-07-14 16:31:57,651 |   -> New best val loss: 6.4509 (saved best_model.pt)
+2026-07-14 16:32:02,081 |   -> New best val loss: 6.4315 (saved best_model.pt)
+2026-07-14 16:32:04,229 | Epoch  360/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=5.7084 (recon=4.6762, kl_g0=0.0094, kl_u=1.2872, cls=0.6871) | val=6.4334 | lr=1.00e-04
+2026-07-14 16:32:06,758 |   -> New best val loss: 6.3821 (saved best_model.pt)
+2026-07-14 16:32:08,827 |   -> New best val loss: 6.3818 (saved best_model.pt)
+2026-07-14 16:32:13,986 |   -> New best val loss: 6.3620 (saved best_model.pt)
+2026-07-14 16:32:18,190 |   -> New best val loss: 6.3311 (saved best_model.pt)
+2026-07-14 16:32:23,292 |   -> New best val loss: 6.3009 (saved best_model.pt)
+2026-07-14 16:32:25,839 |   -> New best val loss: 6.2817 (saved best_model.pt)
+2026-07-14 16:32:28,547 | Epoch  370/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=5.5691 (recon=4.5393, kl_g0=0.0094, kl_u=1.2773, cls=0.6876) | val=6.2930 | lr=1.00e-04
+2026-07-14 16:32:31,216 |   -> New best val loss: 6.2663 (saved best_model.pt)
+2026-07-14 16:32:33,345 |   -> New best val loss: 6.2479 (saved best_model.pt)
+2026-07-14 16:32:35,491 |   -> New best val loss: 6.2351 (saved best_model.pt)
+2026-07-14 16:32:40,207 |   -> New best val loss: 6.2121 (saved best_model.pt)
+2026-07-14 16:32:42,789 |   -> New best val loss: 6.2111 (saved best_model.pt)
+2026-07-14 16:32:45,372 |   -> New best val loss: 6.2075 (saved best_model.pt)
+2026-07-14 16:32:48,076 |   -> New best val loss: 6.1848 (saved best_model.pt)
+2026-07-14 16:32:49,822 |   -> New best val loss: 6.1486 (saved best_model.pt)
+2026-07-14 16:32:51,901 | Epoch  380/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=5.4300 (recon=4.4019, kl_g0=0.0095, kl_u=1.2683, cls=0.6862) | val=6.1640 | lr=1.00e-04
+2026-07-14 16:32:53,946 |   -> New best val loss: 6.1251 (saved best_model.pt)
+2026-07-14 16:32:55,614 |   -> New best val loss: 6.1079 (saved best_model.pt)
+2026-07-14 16:33:00,708 |   -> New best val loss: 6.1005 (saved best_model.pt)
+2026-07-14 16:33:03,183 |   -> New best val loss: 6.0740 (saved best_model.pt)
+2026-07-14 16:33:07,372 |   -> New best val loss: 6.0563 (saved best_model.pt)
+2026-07-14 16:33:09,064 |   -> New best val loss: 6.0507 (saved best_model.pt)
+2026-07-14 16:33:10,677 |   -> New best val loss: 6.0299 (saved best_model.pt)
+2026-07-14 16:33:12,507 | Epoch  390/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=5.3092 (recon=4.2830, kl_g0=0.0095, kl_u=1.2599, cls=0.6873) | val=6.0377 | lr=1.00e-04
+2026-07-14 16:33:15,200 |   -> New best val loss: 6.0055 (saved best_model.pt)
+2026-07-14 16:33:17,753 |   -> New best val loss: 5.9931 (saved best_model.pt)
+2026-07-14 16:33:19,860 |   -> New best val loss: 5.9863 (saved best_model.pt)
+2026-07-14 16:33:22,228 |   -> New best val loss: 5.9751 (saved best_model.pt)
+2026-07-14 16:33:24,032 |   -> New best val loss: 5.9630 (saved best_model.pt)
+2026-07-14 16:33:26,535 |   -> New best val loss: 5.9589 (saved best_model.pt)
+2026-07-14 16:33:28,484 |   -> New best val loss: 5.9394 (saved best_model.pt)
+2026-07-14 16:33:31,697 |   -> New best val loss: 5.9257 (saved best_model.pt)
+2026-07-14 16:33:33,526 | Epoch  400/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=5.1693 (recon=4.1487, kl_g0=0.0095, kl_u=1.2470, cls=0.6860) | val=5.9142 | lr=1.00e-04
+2026-07-14 16:33:33,544 |   -> New best val loss: 5.9142 (saved best_model.pt)
+2026-07-14 16:33:36,164 |   -> New best val loss: 5.8718 (saved best_model.pt)
+2026-07-14 16:33:43,499 |   -> New best val loss: 5.8654 (saved best_model.pt)
+2026-07-14 16:33:45,783 |   -> New best val loss: 5.8413 (saved best_model.pt)
+2026-07-14 16:33:47,429 |   -> New best val loss: 5.8305 (saved best_model.pt)
+2026-07-14 16:33:49,407 |   -> New best val loss: 5.8043 (saved best_model.pt)
+2026-07-14 16:33:52,063 |   -> New best val loss: 5.7954 (saved best_model.pt)
+2026-07-14 16:33:54,243 |   -> New best val loss: 5.7758 (saved best_model.pt)
+2026-07-14 16:33:56,263 | Epoch  410/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=5.0538 (recon=4.0391, kl_g0=0.0096, kl_u=1.2350, cls=0.6864) | val=5.7830 | lr=1.00e-04
+2026-07-14 16:34:00,366 |   -> New best val loss: 5.7401 (saved best_model.pt)
+2026-07-14 16:34:02,579 |   -> New best val loss: 5.7392 (saved best_model.pt)
+2026-07-14 16:34:05,198 |   -> New best val loss: 5.7318 (saved best_model.pt)
+2026-07-14 16:34:07,612 |   -> New best val loss: 5.7153 (saved best_model.pt)
+2026-07-14 16:34:09,670 |   -> New best val loss: 5.6967 (saved best_model.pt)
+2026-07-14 16:34:11,421 |   -> New best val loss: 5.6836 (saved best_model.pt)
+2026-07-14 16:34:13,511 |   -> New best val loss: 5.6796 (saved best_model.pt)
+2026-07-14 16:34:15,925 |   -> New best val loss: 5.6638 (saved best_model.pt)
+2026-07-14 16:34:17,575 | Epoch  420/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.9373 (recon=3.9298, kl_g0=0.0096, kl_u=1.2217, cls=0.6847) | val=5.6649 | lr=1.00e-04
+2026-07-14 16:34:19,305 |   -> New best val loss: 5.6483 (saved best_model.pt)
+2026-07-14 16:34:21,648 |   -> New best val loss: 5.6375 (saved best_model.pt)
+2026-07-14 16:34:23,608 |   -> New best val loss: 5.6200 (saved best_model.pt)
+2026-07-14 16:34:25,234 |   -> New best val loss: 5.5957 (saved best_model.pt)
+2026-07-14 16:34:29,408 |   -> New best val loss: 5.5934 (saved best_model.pt)
+2026-07-14 16:34:31,558 |   -> New best val loss: 5.5804 (saved best_model.pt)
+2026-07-14 16:34:33,377 |   -> New best val loss: 5.5519 (saved best_model.pt)
+2026-07-14 16:34:38,718 | Epoch  430/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.8082 (recon=3.8059, kl_g0=0.0096, kl_u=1.2097, cls=0.6860) | val=5.5216 | lr=1.00e-04
+2026-07-14 16:34:38,748 |   -> New best val loss: 5.5216 (saved best_model.pt)
+2026-07-14 16:34:41,496 |   -> New best val loss: 5.5165 (saved best_model.pt)
+2026-07-14 16:34:43,795 |   -> New best val loss: 5.5153 (saved best_model.pt)
+2026-07-14 16:34:45,821 |   -> New best val loss: 5.4940 (saved best_model.pt)
+2026-07-14 16:34:48,242 |   -> New best val loss: 5.4780 (saved best_model.pt)
+2026-07-14 16:34:49,890 |   -> New best val loss: 5.4678 (saved best_model.pt)
+2026-07-14 16:34:51,740 |   -> New best val loss: 5.4641 (saved best_model.pt)
+2026-07-14 16:34:53,627 |   -> New best val loss: 5.4627 (saved best_model.pt)
+2026-07-14 16:34:55,226 |   -> New best val loss: 5.4487 (saved best_model.pt)
+2026-07-14 16:34:56,862 |   -> New best val loss: 5.4307 (saved best_model.pt)
+2026-07-14 16:34:59,068 | Epoch  440/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.6975 (recon=3.7019, kl_g0=0.0097, kl_u=1.1972, cls=0.6852) | val=5.4024 | lr=1.00e-04
+2026-07-14 16:34:59,084 |   -> New best val loss: 5.4024 (saved best_model.pt)
+2026-07-14 16:35:01,335 |   -> New best val loss: 5.3959 (saved best_model.pt)
+2026-07-14 16:35:03,325 |   -> New best val loss: 5.3850 (saved best_model.pt)
+2026-07-14 16:35:05,963 |   -> New best val loss: 5.3728 (saved best_model.pt)
+2026-07-14 16:35:08,076 |   -> New best val loss: 5.3703 (saved best_model.pt)
+2026-07-14 16:35:10,335 |   -> New best val loss: 5.3684 (saved best_model.pt)
+2026-07-14 16:35:13,041 |   -> New best val loss: 5.3363 (saved best_model.pt)
+2026-07-14 16:35:14,846 |   -> New best val loss: 5.3233 (saved best_model.pt)
+2026-07-14 16:35:19,068 |   -> New best val loss: 5.3046 (saved best_model.pt)
+2026-07-14 16:35:21,263 | Epoch  450/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.5736 (recon=3.5850, kl_g0=0.0097, kl_u=1.1835, cls=0.6857) | val=5.2949 | lr=1.00e-04
+2026-07-14 16:35:21,294 |   -> New best val loss: 5.2949 (saved best_model.pt)
+2026-07-14 16:35:23,124 |   -> New best val loss: 5.2815 (saved best_model.pt)
+2026-07-14 16:35:24,860 |   -> New best val loss: 5.2781 (saved best_model.pt)
+2026-07-14 16:35:28,459 |   -> New best val loss: 5.2412 (saved best_model.pt)
+2026-07-14 16:35:31,944 |   -> New best val loss: 5.2323 (saved best_model.pt)
+2026-07-14 16:35:33,716 |   -> New best val loss: 5.2322 (saved best_model.pt)
+2026-07-14 16:35:35,528 |   -> New best val loss: 5.2195 (saved best_model.pt)
+2026-07-14 16:35:37,698 |   -> New best val loss: 5.1848 (saved best_model.pt)
+2026-07-14 16:35:39,963 | Epoch  460/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.4702 (recon=3.4857, kl_g0=0.0097, kl_u=1.1739, cls=0.6853) | val=5.1852 | lr=1.00e-04
+2026-07-14 16:35:42,152 |   -> New best val loss: 5.1595 (saved best_model.pt)
+2026-07-14 16:35:44,375 |   -> New best val loss: 5.1541 (saved best_model.pt)
+2026-07-14 16:35:48,920 |   -> New best val loss: 5.1499 (saved best_model.pt)
+2026-07-14 16:35:50,689 |   -> New best val loss: 5.1431 (saved best_model.pt)
+2026-07-14 16:35:55,778 |   -> New best val loss: 5.1327 (saved best_model.pt)
+2026-07-14 16:35:57,871 |   -> New best val loss: 5.1075 (saved best_model.pt)
+2026-07-14 16:36:00,166 |   -> New best val loss: 5.0926 (saved best_model.pt)
+2026-07-14 16:36:02,335 | Epoch  470/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.3816 (recon=3.4008, kl_g0=0.0097, kl_u=1.1656, cls=0.6849) | val=5.0850 | lr=1.00e-04
+2026-07-14 16:36:02,363 |   -> New best val loss: 5.0850 (saved best_model.pt)
+2026-07-14 16:36:04,625 |   -> New best val loss: 5.0717 (saved best_model.pt)
+2026-07-14 16:36:07,041 |   -> New best val loss: 5.0336 (saved best_model.pt)
+2026-07-14 16:36:11,333 |   -> New best val loss: 5.0173 (saved best_model.pt)
+2026-07-14 16:36:19,411 |   -> New best val loss: 5.0133 (saved best_model.pt)
+2026-07-14 16:36:21,680 |   -> New best val loss: 4.9752 (saved best_model.pt)
+2026-07-14 16:36:23,648 | Epoch  480/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.2785 (recon=3.2994, kl_g0=0.0098, kl_u=1.1585, cls=0.6849) | val=4.9913 | lr=1.00e-04
+2026-07-14 16:36:25,554 |   -> New best val loss: 4.9650 (saved best_model.pt)
+2026-07-14 16:36:27,957 |   -> New best val loss: 4.9645 (saved best_model.pt)
+2026-07-14 16:36:29,803 |   -> New best val loss: 4.9568 (saved best_model.pt)
+2026-07-14 16:36:32,348 |   -> New best val loss: 4.9475 (saved best_model.pt)
+2026-07-14 16:36:34,651 |   -> New best val loss: 4.9268 (saved best_model.pt)
+2026-07-14 16:36:36,557 |   -> New best val loss: 4.9178 (saved best_model.pt)
+2026-07-14 16:36:38,855 |   -> New best val loss: 4.8901 (saved best_model.pt)
+2026-07-14 16:36:40,712 |   -> New best val loss: 4.8886 (saved best_model.pt)
+2026-07-14 16:36:43,116 |   -> New best val loss: 4.8719 (saved best_model.pt)
+2026-07-14 16:36:45,146 | Epoch  490/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.1785 (recon=3.2014, kl_g0=0.0098, kl_u=1.1512, cls=0.6846) | val=4.8759 | lr=1.00e-04
+2026-07-14 16:36:46,878 |   -> New best val loss: 4.8586 (saved best_model.pt)
+2026-07-14 16:36:48,500 |   -> New best val loss: 4.8564 (saved best_model.pt)
+2026-07-14 16:36:50,601 |   -> New best val loss: 4.8463 (saved best_model.pt)
+2026-07-14 16:36:52,851 |   -> New best val loss: 4.8257 (saved best_model.pt)
+2026-07-14 16:36:56,349 |   -> New best val loss: 4.8185 (saved best_model.pt)
+2026-07-14 16:36:58,664 |   -> New best val loss: 4.7894 (saved best_model.pt)
+2026-07-14 16:37:03,919 |   -> New best val loss: 4.7666 (saved best_model.pt)
+2026-07-14 16:37:06,525 | Epoch  500/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=4.0810 (recon=3.1074, kl_g0=0.0098, kl_u=1.1425, cls=0.6844) | val=4.7720 | lr=1.00e-04
+2026-07-14 16:37:08,883 |   -> New best val loss: 4.7495 (saved best_model.pt)
+2026-07-14 16:37:10,506 |   -> New best val loss: 4.7449 (saved best_model.pt)
+2026-07-14 16:37:12,126 |   -> New best val loss: 4.7446 (saved best_model.pt)
+2026-07-14 16:37:13,754 |   -> New best val loss: 4.7363 (saved best_model.pt)
+2026-07-14 16:37:15,748 |   -> New best val loss: 4.7141 (saved best_model.pt)
+2026-07-14 16:37:17,511 |   -> New best val loss: 4.7037 (saved best_model.pt)
+2026-07-14 16:37:24,065 |   -> New best val loss: 4.6948 (saved best_model.pt)
+2026-07-14 16:37:26,629 | Epoch  510/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.9932 (recon=3.0210, kl_g0=0.0098, kl_u=1.1366, cls=0.6833) | val=4.6805 | lr=1.00e-04
+2026-07-14 16:37:26,651 |   -> New best val loss: 4.6805 (saved best_model.pt)
+2026-07-14 16:37:28,637 |   -> New best val loss: 4.6501 (saved best_model.pt)
+2026-07-14 16:37:34,343 |   -> New best val loss: 4.6378 (saved best_model.pt)
+2026-07-14 16:37:36,765 |   -> New best val loss: 4.6077 (saved best_model.pt)
+2026-07-14 16:37:46,843 |   -> New best val loss: 4.5828 (saved best_model.pt)
+2026-07-14 16:37:49,437 | Epoch  520/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.9088 (recon=2.9441, kl_g0=0.0099, kl_u=1.1245, cls=0.6831) | val=4.5791 | lr=1.00e-04
+2026-07-14 16:37:49,467 |   -> New best val loss: 4.5791 (saved best_model.pt)
+2026-07-14 16:37:51,036 |   -> New best val loss: 4.5640 (saved best_model.pt)
+2026-07-14 16:37:53,095 |   -> New best val loss: 4.5464 (saved best_model.pt)
+2026-07-14 16:38:00,326 |   -> New best val loss: 4.5367 (saved best_model.pt)
+2026-07-14 16:38:03,023 |   -> New best val loss: 4.5250 (saved best_model.pt)
+2026-07-14 16:38:05,102 |   -> New best val loss: 4.5174 (saved best_model.pt)
+2026-07-14 16:38:06,685 |   -> New best val loss: 4.5167 (saved best_model.pt)
+2026-07-14 16:38:08,683 |   -> New best val loss: 4.4875 (saved best_model.pt)
+2026-07-14 16:38:11,407 | Epoch  530/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.8196 (recon=2.8606, kl_g0=0.0099, kl_u=1.1141, cls=0.6842) | val=4.4840 | lr=1.00e-04
+2026-07-14 16:38:11,430 |   -> New best val loss: 4.4840 (saved best_model.pt)
+2026-07-14 16:38:14,223 |   -> New best val loss: 4.4631 (saved best_model.pt)
+2026-07-14 16:38:19,555 |   -> New best val loss: 4.4587 (saved best_model.pt)
+2026-07-14 16:38:22,205 |   -> New best val loss: 4.4502 (saved best_model.pt)
+2026-07-14 16:38:23,809 |   -> New best val loss: 4.4399 (saved best_model.pt)
+2026-07-14 16:38:27,369 |   -> New best val loss: 4.4159 (saved best_model.pt)
+2026-07-14 16:38:30,558 |   -> New best val loss: 4.3975 (saved best_model.pt)
+2026-07-14 16:38:32,756 | Epoch  540/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.7439 (recon=2.7872, kl_g0=0.0099, kl_u=1.1078, cls=0.6840) | val=4.3902 | lr=1.00e-04
+2026-07-14 16:38:32,788 |   -> New best val loss: 4.3902 (saved best_model.pt)
+2026-07-14 16:38:37,187 |   -> New best val loss: 4.3789 (saved best_model.pt)
+2026-07-14 16:38:40,693 |   -> New best val loss: 4.3536 (saved best_model.pt)
+2026-07-14 16:38:43,252 |   -> New best val loss: 4.3453 (saved best_model.pt)
+2026-07-14 16:38:45,203 |   -> New best val loss: 4.3371 (saved best_model.pt)
+2026-07-14 16:38:47,666 |   -> New best val loss: 4.3213 (saved best_model.pt)
+2026-07-14 16:38:51,824 |   -> New best val loss: 4.3088 (saved best_model.pt)
+2026-07-14 16:38:53,479 | Epoch  550/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.6662 (recon=2.7127, kl_g0=0.0099, kl_u=1.1004, cls=0.6852) | val=4.3053 | lr=1.00e-04
+2026-07-14 16:38:53,497 |   -> New best val loss: 4.3053 (saved best_model.pt)
+2026-07-14 16:38:55,082 |   -> New best val loss: 4.2974 (saved best_model.pt)
+2026-07-14 16:38:56,708 |   -> New best val loss: 4.2827 (saved best_model.pt)
+2026-07-14 16:39:00,107 |   -> New best val loss: 4.2824 (saved best_model.pt)
+2026-07-14 16:39:02,761 |   -> New best val loss: 4.2543 (saved best_model.pt)
+2026-07-14 16:39:05,436 |   -> New best val loss: 4.2523 (saved best_model.pt)
+2026-07-14 16:39:08,115 |   -> New best val loss: 4.2356 (saved best_model.pt)
+2026-07-14 16:39:14,038 | Epoch  560/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.5909 (recon=2.6414, kl_g0=0.0100, kl_u=1.0925, cls=0.6838) | val=4.2072 | lr=1.00e-04
+2026-07-14 16:39:14,055 |   -> New best val loss: 4.2072 (saved best_model.pt)
+2026-07-14 16:39:19,251 |   -> New best val loss: 4.1982 (saved best_model.pt)
+2026-07-14 16:39:20,986 |   -> New best val loss: 4.1938 (saved best_model.pt)
+2026-07-14 16:39:23,443 |   -> New best val loss: 4.1727 (saved best_model.pt)
+2026-07-14 16:39:26,064 |   -> New best val loss: 4.1721 (saved best_model.pt)
+2026-07-14 16:39:29,504 |   -> New best val loss: 4.1542 (saved best_model.pt)
+2026-07-14 16:39:32,728 |   -> New best val loss: 4.1249 (saved best_model.pt)
+2026-07-14 16:39:34,436 | Epoch  570/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.5083 (recon=2.5641, kl_g0=0.0100, kl_u=1.0829, cls=0.6831) | val=4.1204 | lr=1.00e-04
+2026-07-14 16:39:34,455 |   -> New best val loss: 4.1204 (saved best_model.pt)
+2026-07-14 16:39:38,680 |   -> New best val loss: 4.1056 (saved best_model.pt)
+2026-07-14 16:39:40,241 |   -> New best val loss: 4.0931 (saved best_model.pt)
+2026-07-14 16:39:41,860 |   -> New best val loss: 4.0914 (saved best_model.pt)
+2026-07-14 16:39:44,534 |   -> New best val loss: 4.0741 (saved best_model.pt)
+2026-07-14 16:39:49,233 |   -> New best val loss: 4.0694 (saved best_model.pt)
+2026-07-14 16:39:51,929 |   -> New best val loss: 4.0595 (saved best_model.pt)
+2026-07-14 16:39:54,158 |   -> New best val loss: 4.0497 (saved best_model.pt)
+2026-07-14 16:39:56,387 | Epoch  580/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.4231 (recon=2.4853, kl_g0=0.0100, kl_u=1.0721, cls=0.6824) | val=4.0343 | lr=1.00e-04
+2026-07-14 16:39:56,406 |   -> New best val loss: 4.0343 (saved best_model.pt)
+2026-07-14 16:39:58,064 |   -> New best val loss: 4.0286 (saved best_model.pt)
+2026-07-14 16:39:59,957 |   -> New best val loss: 4.0067 (saved best_model.pt)
+2026-07-14 16:40:06,796 |   -> New best val loss: 3.9938 (saved best_model.pt)
+2026-07-14 16:40:09,526 |   -> New best val loss: 3.9836 (saved best_model.pt)
+2026-07-14 16:40:11,261 |   -> New best val loss: 3.9746 (saved best_model.pt)
+2026-07-14 16:40:13,965 |   -> New best val loss: 3.9573 (saved best_model.pt)
+2026-07-14 16:40:16,584 |   -> New best val loss: 3.9547 (saved best_model.pt)
+2026-07-14 16:40:19,032 | Epoch  590/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.3475 (recon=2.4172, kl_g0=0.0100, kl_u=1.0607, cls=0.6811) | val=3.9411 | lr=1.00e-04
+2026-07-14 16:40:19,064 |   -> New best val loss: 3.9411 (saved best_model.pt)
+2026-07-14 16:40:20,906 |   -> New best val loss: 3.9354 (saved best_model.pt)
+2026-07-14 16:40:23,355 |   -> New best val loss: 3.9229 (saved best_model.pt)
+2026-07-14 16:40:25,919 |   -> New best val loss: 3.9133 (saved best_model.pt)
+2026-07-14 16:40:27,564 |   -> New best val loss: 3.9097 (saved best_model.pt)
+2026-07-14 16:40:30,127 |   -> New best val loss: 3.9089 (saved best_model.pt)
+2026-07-14 16:40:31,762 |   -> New best val loss: 3.8914 (saved best_model.pt)
+2026-07-14 16:40:36,407 |   -> New best val loss: 3.8809 (saved best_model.pt)
+2026-07-14 16:40:38,621 |   -> New best val loss: 3.8779 (saved best_model.pt)
+2026-07-14 16:40:41,277 | Epoch  600/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.2857 (recon=2.3620, kl_g0=0.0100, kl_u=1.0508, cls=0.6803) | val=3.8646 | lr=1.00e-04
+2026-07-14 16:40:41,307 |   -> New best val loss: 3.8646 (saved best_model.pt)
+2026-07-14 16:40:46,452 |   -> New best val loss: 3.8574 (saved best_model.pt)
+2026-07-14 16:40:48,767 |   -> New best val loss: 3.8533 (saved best_model.pt)
+2026-07-14 16:40:51,441 |   -> New best val loss: 3.8266 (saved best_model.pt)
+2026-07-14 16:40:56,503 |   -> New best val loss: 3.8101 (saved best_model.pt)
+2026-07-14 16:40:58,438 |   -> New best val loss: 3.8076 (saved best_model.pt)
+2026-07-14 16:41:00,462 |   -> New best val loss: 3.7992 (saved best_model.pt)
+2026-07-14 16:41:03,075 |   -> New best val loss: 3.7789 (saved best_model.pt)
+2026-07-14 16:41:04,623 | Epoch  610/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.2157 (recon=2.3032, kl_g0=0.0100, kl_u=1.0358, cls=0.6822) | val=3.7787 | lr=1.00e-04
+2026-07-14 16:41:04,641 |   -> New best val loss: 3.7787 (saved best_model.pt)
+2026-07-14 16:41:07,331 |   -> New best val loss: 3.7705 (saved best_model.pt)
+2026-07-14 16:41:10,032 |   -> New best val loss: 3.7603 (saved best_model.pt)
+2026-07-14 16:41:12,628 |   -> New best val loss: 3.7580 (saved best_model.pt)
+2026-07-14 16:41:14,878 |   -> New best val loss: 3.7354 (saved best_model.pt)
+2026-07-14 16:41:18,624 |   -> New best val loss: 3.7216 (saved best_model.pt)
+2026-07-14 16:41:20,833 |   -> New best val loss: 3.7197 (saved best_model.pt)
+2026-07-14 16:41:23,480 |   -> New best val loss: 3.7077 (saved best_model.pt)
+2026-07-14 16:41:27,582 | Epoch  620/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.1398 (recon=2.2347, kl_g0=0.0101, kl_u=1.0245, cls=0.6806) | val=3.6976 | lr=1.00e-04
+2026-07-14 16:41:27,614 |   -> New best val loss: 3.6976 (saved best_model.pt)
+2026-07-14 16:41:30,310 |   -> New best val loss: 3.6840 (saved best_model.pt)
+2026-07-14 16:41:32,935 |   -> New best val loss: 3.6783 (saved best_model.pt)
+2026-07-14 16:41:35,189 |   -> New best val loss: 3.6732 (saved best_model.pt)
+2026-07-14 16:41:36,801 |   -> New best val loss: 3.6599 (saved best_model.pt)
+2026-07-14 16:41:41,380 |   -> New best val loss: 3.6526 (saved best_model.pt)
+2026-07-14 16:41:44,054 |   -> New best val loss: 3.6282 (saved best_model.pt)
+2026-07-14 16:41:49,394 |   -> New best val loss: 3.6121 (saved best_model.pt)
+2026-07-14 16:41:51,449 | Epoch  630/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=3.0640 (recon=2.1637, kl_g0=0.0101, kl_u=1.0157, cls=0.6802) | val=3.6106 | lr=1.00e-04
+2026-07-14 16:41:51,478 |   -> New best val loss: 3.6106 (saved best_model.pt)
+2026-07-14 16:41:54,238 |   -> New best val loss: 3.6029 (saved best_model.pt)
+2026-07-14 16:41:57,782 |   -> New best val loss: 3.5946 (saved best_model.pt)
+2026-07-14 16:41:59,931 |   -> New best val loss: 3.5762 (saved best_model.pt)
+2026-07-14 16:42:04,383 |   -> New best val loss: 3.5720 (saved best_model.pt)
+2026-07-14 16:42:06,017 |   -> New best val loss: 3.5584 (saved best_model.pt)
+2026-07-14 16:42:07,872 |   -> New best val loss: 3.5418 (saved best_model.pt)
+2026-07-14 16:42:11,579 | Epoch  640/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.9954 (recon=2.0982, kl_g0=0.0101, kl_u=1.0091, cls=0.6786) | val=3.5394 | lr=1.00e-04
+2026-07-14 16:42:11,597 |   -> New best val loss: 3.5394 (saved best_model.pt)
+2026-07-14 16:42:14,274 |   -> New best val loss: 3.5268 (saved best_model.pt)
+2026-07-14 16:42:15,929 |   -> New best val loss: 3.5102 (saved best_model.pt)
+2026-07-14 16:42:18,323 |   -> New best val loss: 3.4973 (saved best_model.pt)
+2026-07-14 16:42:20,930 |   -> New best val loss: 3.4948 (saved best_model.pt)
+2026-07-14 16:42:25,361 |   -> New best val loss: 3.4940 (saved best_model.pt)
+2026-07-14 16:42:27,094 |   -> New best val loss: 3.4670 (saved best_model.pt)
+2026-07-14 16:42:29,160 |   -> New best val loss: 3.4611 (saved best_model.pt)
+2026-07-14 16:42:33,694 | Epoch  650/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.9334 (recon=2.0376, kl_g0=0.0101, kl_u=1.0045, cls=0.6778) | val=3.4542 | lr=1.00e-04
+2026-07-14 16:42:33,726 |   -> New best val loss: 3.4542 (saved best_model.pt)
+2026-07-14 16:42:35,812 |   -> New best val loss: 3.4491 (saved best_model.pt)
+2026-07-14 16:42:38,264 |   -> New best val loss: 3.4312 (saved best_model.pt)
+2026-07-14 16:42:40,760 |   -> New best val loss: 3.4285 (saved best_model.pt)
+2026-07-14 16:42:42,911 |   -> New best val loss: 3.4084 (saved best_model.pt)
+2026-07-14 16:42:47,841 |   -> New best val loss: 3.3975 (saved best_model.pt)
+2026-07-14 16:42:51,052 |   -> New best val loss: 3.3838 (saved best_model.pt)
+2026-07-14 16:42:53,184 |   -> New best val loss: 3.3791 (saved best_model.pt)
+2026-07-14 16:42:55,166 | Epoch  660/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.8716 (recon=1.9757, kl_g0=0.0101, kl_u=1.0011, cls=0.6798) | val=3.3812 | lr=1.00e-04
+2026-07-14 16:42:57,325 |   -> New best val loss: 3.3721 (saved best_model.pt)
+2026-07-14 16:43:00,061 |   -> New best val loss: 3.3568 (saved best_model.pt)
+2026-07-14 16:43:02,419 |   -> New best val loss: 3.3465 (saved best_model.pt)
+2026-07-14 16:43:04,948 |   -> New best val loss: 3.3455 (saved best_model.pt)
+2026-07-14 16:43:07,633 |   -> New best val loss: 3.3394 (saved best_model.pt)
+2026-07-14 16:43:09,545 |   -> New best val loss: 3.3318 (saved best_model.pt)
+2026-07-14 16:43:11,872 |   -> New best val loss: 3.3178 (saved best_model.pt)
+2026-07-14 16:43:13,498 |   -> New best val loss: 3.3132 (saved best_model.pt)
+2026-07-14 16:43:15,827 |   -> New best val loss: 3.3025 (saved best_model.pt)
+2026-07-14 16:43:18,452 | Epoch  670/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.8105 (recon=1.9145, kl_g0=0.0101, kl_u=0.9981, cls=0.6769) | val=3.2991 | lr=1.00e-04
+2026-07-14 16:43:18,485 |   -> New best val loss: 3.2991 (saved best_model.pt)
+2026-07-14 16:43:20,766 |   -> New best val loss: 3.2941 (saved best_model.pt)
+2026-07-14 16:43:23,029 |   -> New best val loss: 3.2880 (saved best_model.pt)
+2026-07-14 16:43:25,082 |   -> New best val loss: 3.2674 (saved best_model.pt)
+2026-07-14 16:43:28,837 |   -> New best val loss: 3.2628 (saved best_model.pt)
+2026-07-14 16:43:30,849 |   -> New best val loss: 3.2432 (saved best_model.pt)
+2026-07-14 16:43:36,211 |   -> New best val loss: 3.2385 (saved best_model.pt)
+2026-07-14 16:43:38,577 |   -> New best val loss: 3.2327 (saved best_model.pt)
+2026-07-14 16:43:41,234 | Epoch  680/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.7468 (recon=1.8519, kl_g0=0.0101, kl_u=0.9938, cls=0.6756) | val=3.2195 | lr=1.00e-04
+2026-07-14 16:43:41,264 |   -> New best val loss: 3.2195 (saved best_model.pt)
+2026-07-14 16:43:43,975 |   -> New best val loss: 3.2133 (saved best_model.pt)
+2026-07-14 16:43:46,626 |   -> New best val loss: 3.2037 (saved best_model.pt)
+2026-07-14 16:43:49,201 |   -> New best val loss: 3.1956 (saved best_model.pt)
+2026-07-14 16:43:54,597 |   -> New best val loss: 3.1928 (saved best_model.pt)
+2026-07-14 16:43:56,793 |   -> New best val loss: 3.1761 (saved best_model.pt)
+2026-07-14 16:43:59,439 |   -> New best val loss: 3.1612 (saved best_model.pt)
+2026-07-14 16:44:04,081 |   -> New best val loss: 3.1574 (saved best_model.pt)
+2026-07-14 16:44:06,385 | Epoch  690/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.7012 (recon=1.8069, kl_g0=0.0102, kl_u=0.9907, cls=0.6762) | val=3.1456 | lr=1.00e-04
+2026-07-14 16:44:06,403 |   -> New best val loss: 3.1456 (saved best_model.pt)
+2026-07-14 16:44:08,564 |   -> New best val loss: 3.1328 (saved best_model.pt)
+2026-07-14 16:44:11,879 |   -> New best val loss: 3.1323 (saved best_model.pt)
+2026-07-14 16:44:14,577 |   -> New best val loss: 3.1170 (saved best_model.pt)
+2026-07-14 16:44:17,146 |   -> New best val loss: 3.1096 (saved best_model.pt)
+2026-07-14 16:44:19,786 |   -> New best val loss: 3.1037 (saved best_model.pt)
+2026-07-14 16:44:22,264 |   -> New best val loss: 3.0990 (saved best_model.pt)
+2026-07-14 16:44:24,409 |   -> New best val loss: 3.0891 (saved best_model.pt)
+2026-07-14 16:44:26,166 |   -> New best val loss: 3.0716 (saved best_model.pt)
+2026-07-14 16:44:28,217 | Epoch  700/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.6398 (recon=1.7469, kl_g0=0.0102, kl_u=0.9861, cls=0.6776) | val=3.0798 | lr=1.00e-04
+2026-07-14 16:44:31,882 |   -> New best val loss: 3.0643 (saved best_model.pt)
+2026-07-14 16:44:33,584 |   -> New best val loss: 3.0571 (saved best_model.pt)
+2026-07-14 16:44:36,062 |   -> New best val loss: 3.0437 (saved best_model.pt)
+2026-07-14 16:44:38,741 |   -> New best val loss: 3.0367 (saved best_model.pt)
+2026-07-14 16:44:43,868 |   -> New best val loss: 3.0364 (saved best_model.pt)
+2026-07-14 16:44:46,415 |   -> New best val loss: 3.0245 (saved best_model.pt)
+2026-07-14 16:44:49,028 |   -> New best val loss: 3.0150 (saved best_model.pt)
+2026-07-14 16:44:51,703 | Epoch  710/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.5901 (recon=1.6979, kl_g0=0.0102, kl_u=0.9827, cls=0.6760) | val=3.0071 | lr=1.00e-04
+2026-07-14 16:44:51,734 |   -> New best val loss: 3.0071 (saved best_model.pt)
+2026-07-14 16:44:54,345 |   -> New best val loss: 2.9953 (saved best_model.pt)
+2026-07-14 16:44:56,839 |   -> New best val loss: 2.9932 (saved best_model.pt)
+2026-07-14 16:44:59,283 |   -> New best val loss: 2.9838 (saved best_model.pt)
+2026-07-14 16:45:01,793 |   -> New best val loss: 2.9828 (saved best_model.pt)
+2026-07-14 16:45:04,002 |   -> New best val loss: 2.9705 (saved best_model.pt)
+2026-07-14 16:45:07,285 |   -> New best val loss: 2.9637 (saved best_model.pt)
+2026-07-14 16:45:09,674 |   -> New best val loss: 2.9522 (saved best_model.pt)
+2026-07-14 16:45:11,595 |   -> New best val loss: 2.9389 (saved best_model.pt)
+2026-07-14 16:45:13,264 | Epoch  720/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.5293 (recon=1.6352, kl_g0=0.0102, kl_u=0.9816, cls=0.6744) | val=2.9359 | lr=1.00e-04
+2026-07-14 16:45:13,282 |   -> New best val loss: 2.9359 (saved best_model.pt)
+2026-07-14 16:45:14,891 |   -> New best val loss: 2.9331 (saved best_model.pt)
+2026-07-14 16:45:17,370 |   -> New best val loss: 2.9213 (saved best_model.pt)
+2026-07-14 16:45:21,157 |   -> New best val loss: 2.8922 (saved best_model.pt)
+2026-07-14 16:45:27,807 |   -> New best val loss: 2.8766 (saved best_model.pt)
+2026-07-14 16:45:31,443 | Epoch  730/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.4783 (recon=1.5842, kl_g0=0.0102, kl_u=0.9789, cls=0.6744) | val=2.8712 | lr=1.00e-04
+2026-07-14 16:45:31,472 |   -> New best val loss: 2.8712 (saved best_model.pt)
+2026-07-14 16:45:33,081 |   -> New best val loss: 2.8545 (saved best_model.pt)
+2026-07-14 16:45:40,131 |   -> New best val loss: 2.8485 (saved best_model.pt)
+2026-07-14 16:45:41,953 |   -> New best val loss: 2.8351 (saved best_model.pt)
+2026-07-14 16:45:46,928 |   -> New best val loss: 2.8237 (saved best_model.pt)
+2026-07-14 16:45:49,060 |   -> New best val loss: 2.8177 (saved best_model.pt)
+2026-07-14 16:45:51,166 | Epoch  740/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.4305 (recon=1.5361, kl_g0=0.0102, kl_u=0.9765, cls=0.6752) | val=2.8075 | lr=1.00e-04
+2026-07-14 16:45:51,198 |   -> New best val loss: 2.8075 (saved best_model.pt)
+2026-07-14 16:45:56,244 |   -> New best val loss: 2.8058 (saved best_model.pt)
+2026-07-14 16:45:58,942 |   -> New best val loss: 2.7906 (saved best_model.pt)
+2026-07-14 16:46:01,396 |   -> New best val loss: 2.7860 (saved best_model.pt)
+2026-07-14 16:46:06,430 |   -> New best val loss: 2.7762 (saved best_model.pt)
+2026-07-14 16:46:09,129 |   -> New best val loss: 2.7696 (saved best_model.pt)
+2026-07-14 16:46:11,529 |   -> New best val loss: 2.7573 (saved best_model.pt)
+2026-07-14 16:46:13,274 |   -> New best val loss: 2.7550 (saved best_model.pt)
+2026-07-14 16:46:15,345 | Epoch  750/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.3813 (recon=1.4860, kl_g0=0.0102, kl_u=0.9750, cls=0.6736) | val=2.7533 | lr=1.00e-04
+2026-07-14 16:46:15,362 |   -> New best val loss: 2.7533 (saved best_model.pt)
+2026-07-14 16:46:16,986 |   -> New best val loss: 2.7436 (saved best_model.pt)
+2026-07-14 16:46:19,031 |   -> New best val loss: 2.7289 (saved best_model.pt)
+2026-07-14 16:46:20,870 |   -> New best val loss: 2.7265 (saved best_model.pt)
+2026-07-14 16:46:22,517 |   -> New best val loss: 2.7221 (saved best_model.pt)
+2026-07-14 16:46:24,289 |   -> New best val loss: 2.7198 (saved best_model.pt)
+2026-07-14 16:46:26,887 |   -> New best val loss: 2.7176 (saved best_model.pt)
+2026-07-14 16:46:28,699 |   -> New best val loss: 2.7050 (saved best_model.pt)
+2026-07-14 16:46:30,967 |   -> New best val loss: 2.7042 (saved best_model.pt)
+2026-07-14 16:46:33,224 |   -> New best val loss: 2.6873 (saved best_model.pt)
+2026-07-14 16:46:35,575 | Epoch  760/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.3382 (recon=1.4436, kl_g0=0.0102, kl_u=0.9721, cls=0.6709) | val=2.6922 | lr=1.00e-04
+2026-07-14 16:46:38,281 |   -> New best val loss: 2.6781 (saved best_model.pt)
+2026-07-14 16:46:42,288 |   -> New best val loss: 2.6671 (saved best_model.pt)
+2026-07-14 16:46:44,130 |   -> New best val loss: 2.6636 (saved best_model.pt)
+2026-07-14 16:46:46,059 |   -> New best val loss: 2.6532 (saved best_model.pt)
+2026-07-14 16:46:49,406 |   -> New best val loss: 2.6456 (saved best_model.pt)
+2026-07-14 16:46:51,985 |   -> New best val loss: 2.6414 (saved best_model.pt)
+2026-07-14 16:46:53,664 |   -> New best val loss: 2.6331 (saved best_model.pt)
+2026-07-14 16:46:55,965 | Epoch  770/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.2904 (recon=1.3967, kl_g0=0.0102, kl_u=0.9687, cls=0.6712) | val=2.6272 | lr=1.00e-04
+2026-07-14 16:46:55,980 |   -> New best val loss: 2.6272 (saved best_model.pt)
+2026-07-14 16:46:58,586 |   -> New best val loss: 2.6207 (saved best_model.pt)
+2026-07-14 16:47:01,206 |   -> New best val loss: 2.6146 (saved best_model.pt)
+2026-07-14 16:47:03,292 |   -> New best val loss: 2.6110 (saved best_model.pt)
+2026-07-14 16:47:05,690 |   -> New best val loss: 2.6096 (saved best_model.pt)
+2026-07-14 16:47:07,310 |   -> New best val loss: 2.6074 (saved best_model.pt)
+2026-07-14 16:47:09,399 |   -> New best val loss: 2.5926 (saved best_model.pt)
+2026-07-14 16:47:11,614 |   -> New best val loss: 2.5801 (saved best_model.pt)
+2026-07-14 16:47:16,245 |   -> New best val loss: 2.5776 (saved best_model.pt)
+2026-07-14 16:47:18,437 | Epoch  780/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.2486 (recon=1.3545, kl_g0=0.0102, kl_u=0.9669, cls=0.6705) | val=2.5788 | lr=1.00e-04
+2026-07-14 16:47:21,136 |   -> New best val loss: 2.5587 (saved best_model.pt)
+2026-07-14 16:47:23,815 |   -> New best val loss: 2.5466 (saved best_model.pt)
+2026-07-14 16:47:28,218 |   -> New best val loss: 2.5410 (saved best_model.pt)
+2026-07-14 16:47:30,342 |   -> New best val loss: 2.5395 (saved best_model.pt)
+2026-07-14 16:47:32,657 |   -> New best val loss: 2.5367 (saved best_model.pt)
+2026-07-14 16:47:36,112 |   -> New best val loss: 2.5267 (saved best_model.pt)
+2026-07-14 16:47:37,687 |   -> New best val loss: 2.5075 (saved best_model.pt)
+2026-07-14 16:47:39,238 | Epoch  790/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.2099 (recon=1.3163, kl_g0=0.0103, kl_u=0.9644, cls=0.6699) | val=2.5081 | lr=1.00e-04
+2026-07-14 16:47:40,918 |   -> New best val loss: 2.5059 (saved best_model.pt)
+2026-07-14 16:47:42,554 |   -> New best val loss: 2.5013 (saved best_model.pt)
+2026-07-14 16:47:44,153 |   -> New best val loss: 2.5004 (saved best_model.pt)
+2026-07-14 16:47:46,821 |   -> New best val loss: 2.4939 (saved best_model.pt)
+2026-07-14 16:47:48,446 |   -> New best val loss: 2.4874 (saved best_model.pt)
+2026-07-14 16:47:50,079 |   -> New best val loss: 2.4741 (saved best_model.pt)
+2026-07-14 16:47:57,628 |   -> New best val loss: 2.4732 (saved best_model.pt)
+2026-07-14 16:47:59,459 | Epoch  800/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.1602 (recon=1.2642, kl_g0=0.0103, kl_u=0.9642, cls=0.6688) | val=2.4585 | lr=1.00e-04
+2026-07-14 16:47:59,532 |   -> New best val loss: 2.4585 (saved best_model.pt)
+2026-07-14 16:48:02,046 |   -> New best val loss: 2.4515 (saved best_model.pt)
+2026-07-14 16:48:03,860 |   -> New best val loss: 2.4488 (saved best_model.pt)
+2026-07-14 16:48:05,652 |   -> New best val loss: 2.4426 (saved best_model.pt)
+2026-07-14 16:48:07,845 |   -> New best val loss: 2.4359 (saved best_model.pt)
+2026-07-14 16:48:12,066 |   -> New best val loss: 2.4291 (saved best_model.pt)
+2026-07-14 16:48:13,851 |   -> New best val loss: 2.4226 (saved best_model.pt)
+2026-07-14 16:48:16,506 |   -> New best val loss: 2.4110 (saved best_model.pt)
+2026-07-14 16:48:21,344 | Epoch  810/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.1243 (recon=1.2274, kl_g0=0.0103, kl_u=0.9632, cls=0.6682) | val=2.4096 | lr=1.00e-04
+2026-07-14 16:48:21,376 |   -> New best val loss: 2.4096 (saved best_model.pt)
+2026-07-14 16:48:24,066 |   -> New best val loss: 2.4017 (saved best_model.pt)
+2026-07-14 16:48:25,722 |   -> New best val loss: 2.3970 (saved best_model.pt)
+2026-07-14 16:48:28,237 |   -> New best val loss: 2.3924 (saved best_model.pt)
+2026-07-14 16:48:31,508 |   -> New best val loss: 2.3741 (saved best_model.pt)
+2026-07-14 16:48:35,887 |   -> New best val loss: 2.3687 (saved best_model.pt)
+2026-07-14 16:48:38,302 |   -> New best val loss: 2.3585 (saved best_model.pt)
+2026-07-14 16:48:42,578 | Epoch  820/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.0884 (recon=1.1915, kl_g0=0.0103, kl_u=0.9614, cls=0.6673) | val=2.3657 | lr=1.00e-04
+2026-07-14 16:48:44,425 |   -> New best val loss: 2.3499 (saved best_model.pt)
+2026-07-14 16:48:51,128 |   -> New best val loss: 2.3428 (saved best_model.pt)
+2026-07-14 16:48:55,382 |   -> New best val loss: 2.3386 (saved best_model.pt)
+2026-07-14 16:48:57,200 |   -> New best val loss: 2.3298 (saved best_model.pt)
+2026-07-14 16:49:00,885 |   -> New best val loss: 2.3283 (saved best_model.pt)
+2026-07-14 16:49:02,631 | Epoch  830/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.0511 (recon=1.1531, kl_g0=0.0103, kl_u=0.9606, cls=0.6668) | val=2.3167 | lr=1.00e-04
+2026-07-14 16:49:02,648 |   -> New best val loss: 2.3167 (saved best_model.pt)
+2026-07-14 16:49:06,527 |   -> New best val loss: 2.3103 (saved best_model.pt)
+2026-07-14 16:49:09,004 |   -> New best val loss: 2.3038 (saved best_model.pt)
+2026-07-14 16:49:11,620 |   -> New best val loss: 2.2943 (saved best_model.pt)
+2026-07-14 16:49:14,820 |   -> New best val loss: 2.2892 (saved best_model.pt)
+2026-07-14 16:49:16,939 |   -> New best val loss: 2.2827 (saved best_model.pt)
+2026-07-14 16:49:19,101 |   -> New best val loss: 2.2791 (saved best_model.pt)
+2026-07-14 16:49:21,250 |   -> New best val loss: 2.2627 (saved best_model.pt)
+2026-07-14 16:49:23,892 | Epoch  840/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=2.0174 (recon=1.1187, kl_g0=0.0103, kl_u=0.9596, cls=0.6648) | val=2.2655 | lr=1.00e-04
+2026-07-14 16:49:28,510 |   -> New best val loss: 2.2582 (saved best_model.pt)
+2026-07-14 16:49:31,211 |   -> New best val loss: 2.2534 (saved best_model.pt)
+2026-07-14 16:49:32,912 |   -> New best val loss: 2.2493 (saved best_model.pt)
+2026-07-14 16:49:36,923 |   -> New best val loss: 2.2412 (saved best_model.pt)
+2026-07-14 16:49:39,317 |   -> New best val loss: 2.2365 (saved best_model.pt)
+2026-07-14 16:49:41,490 |   -> New best val loss: 2.2307 (saved best_model.pt)
+2026-07-14 16:49:43,499 |   -> New best val loss: 2.2297 (saved best_model.pt)
+2026-07-14 16:49:45,691 | Epoch  850/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.9838 (recon=1.0844, kl_g0=0.0103, kl_u=0.9586, cls=0.6626) | val=2.2216 | lr=1.00e-04
+2026-07-14 16:49:45,708 |   -> New best val loss: 2.2216 (saved best_model.pt)
+2026-07-14 16:49:47,549 |   -> New best val loss: 2.2174 (saved best_model.pt)
+2026-07-14 16:49:49,173 |   -> New best val loss: 2.2173 (saved best_model.pt)
+2026-07-14 16:49:51,715 |   -> New best val loss: 2.2021 (saved best_model.pt)
+2026-07-14 16:49:56,512 |   -> New best val loss: 2.2017 (saved best_model.pt)
+2026-07-14 16:49:58,567 |   -> New best val loss: 2.1981 (saved best_model.pt)
+2026-07-14 16:50:00,680 |   -> New best val loss: 2.1897 (saved best_model.pt)
+2026-07-14 16:50:04,214 |   -> New best val loss: 2.1815 (saved best_model.pt)
+2026-07-14 16:50:05,961 | Epoch  860/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.9528 (recon=1.0522, kl_g0=0.0103, kl_u=0.9582, cls=0.6633) | val=2.1758 | lr=1.00e-04
+2026-07-14 16:50:05,979 |   -> New best val loss: 2.1758 (saved best_model.pt)
+2026-07-14 16:50:07,917 |   -> New best val loss: 2.1745 (saved best_model.pt)
+2026-07-14 16:50:09,549 |   -> New best val loss: 2.1645 (saved best_model.pt)
+2026-07-14 16:50:13,646 |   -> New best val loss: 2.1611 (saved best_model.pt)
+2026-07-14 16:50:16,302 |   -> New best val loss: 2.1587 (saved best_model.pt)
+2026-07-14 16:50:18,994 |   -> New best val loss: 2.1542 (saved best_model.pt)
+2026-07-14 16:50:22,312 |   -> New best val loss: 2.1468 (saved best_model.pt)
+2026-07-14 16:50:27,252 | Epoch  870/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.9194 (recon=1.0185, kl_g0=0.0103, kl_u=0.9568, cls=0.6617) | val=2.1393 | lr=1.00e-04
+2026-07-14 16:50:27,282 |   -> New best val loss: 2.1393 (saved best_model.pt)
+2026-07-14 16:50:30,011 |   -> New best val loss: 2.1383 (saved best_model.pt)
+2026-07-14 16:50:32,625 |   -> New best val loss: 2.1290 (saved best_model.pt)
+2026-07-14 16:50:35,300 |   -> New best val loss: 2.1278 (saved best_model.pt)
+2026-07-14 16:50:38,012 |   -> New best val loss: 2.1238 (saved best_model.pt)
+2026-07-14 16:50:40,695 |   -> New best val loss: 2.1237 (saved best_model.pt)
+2026-07-14 16:50:43,361 |   -> New best val loss: 2.1185 (saved best_model.pt)
+2026-07-14 16:50:45,298 |   -> New best val loss: 2.1163 (saved best_model.pt)
+2026-07-14 16:50:46,925 |   -> New best val loss: 2.1110 (saved best_model.pt)
+2026-07-14 16:50:48,657 |   -> New best val loss: 2.1026 (saved best_model.pt)
+2026-07-14 16:50:51,226 | Epoch  880/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.8925 (recon=0.9928, kl_g0=0.0103, kl_u=0.9545, cls=0.6560) | val=2.0974 | lr=1.00e-04
+2026-07-14 16:50:51,259 |   -> New best val loss: 2.0974 (saved best_model.pt)
+2026-07-14 16:50:56,735 |   -> New best val loss: 2.0952 (saved best_model.pt)
+2026-07-14 16:50:59,434 |   -> New best val loss: 2.0919 (saved best_model.pt)
+2026-07-14 16:51:02,152 |   -> New best val loss: 2.0800 (saved best_model.pt)
+2026-07-14 16:51:09,128 |   -> New best val loss: 2.0729 (saved best_model.pt)
+2026-07-14 16:51:11,804 |   -> New best val loss: 2.0679 (saved best_model.pt)
+2026-07-14 16:51:14,394 |   -> New best val loss: 2.0665 (saved best_model.pt)
+2026-07-14 16:51:16,596 | Epoch  890/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.8689 (recon=0.9680, kl_g0=0.0103, kl_u=0.9544, cls=0.6569) | val=2.0580 | lr=1.00e-04
+2026-07-14 16:51:16,628 |   -> New best val loss: 2.0580 (saved best_model.pt)
+2026-07-14 16:51:21,361 |   -> New best val loss: 2.0549 (saved best_model.pt)
+2026-07-14 16:51:24,024 |   -> New best val loss: 2.0535 (saved best_model.pt)
+2026-07-14 16:51:26,744 |   -> New best val loss: 2.0394 (saved best_model.pt)
+2026-07-14 16:51:33,216 |   -> New best val loss: 2.0380 (saved best_model.pt)
+2026-07-14 16:51:34,980 |   -> New best val loss: 2.0327 (saved best_model.pt)
+2026-07-14 16:51:38,730 | Epoch  900/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.8380 (recon=0.9360, kl_g0=0.0103, kl_u=0.9541, cls=0.6544) | val=2.0284 | lr=1.00e-04
+2026-07-14 16:51:38,749 |   -> New best val loss: 2.0284 (saved best_model.pt)
+2026-07-14 16:51:40,874 |   -> New best val loss: 2.0251 (saved best_model.pt)
+2026-07-14 16:51:43,283 |   -> New best val loss: 2.0167 (saved best_model.pt)
+2026-07-14 16:51:45,186 |   -> New best val loss: 2.0144 (saved best_model.pt)
+2026-07-14 16:51:46,754 |   -> New best val loss: 2.0125 (saved best_model.pt)
+2026-07-14 16:51:48,384 |   -> New best val loss: 2.0061 (saved best_model.pt)
+2026-07-14 16:51:50,076 |   -> New best val loss: 1.9991 (saved best_model.pt)
+2026-07-14 16:51:55,950 |   -> New best val loss: 1.9903 (saved best_model.pt)
+2026-07-14 16:51:57,661 | Epoch  910/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.8116 (recon=0.9100, kl_g0=0.0103, kl_u=0.9523, cls=0.6521) | val=1.9917 | lr=1.00e-04
+2026-07-14 16:52:00,346 |   -> New best val loss: 1.9892 (saved best_model.pt)
+2026-07-14 16:52:02,272 |   -> New best val loss: 1.9806 (saved best_model.pt)
+2026-07-14 16:52:04,375 |   -> New best val loss: 1.9749 (saved best_model.pt)
+2026-07-14 16:52:05,997 |   -> New best val loss: 1.9665 (saved best_model.pt)
+2026-07-14 16:52:10,752 |   -> New best val loss: 1.9625 (saved best_model.pt)
+2026-07-14 16:52:15,649 |   -> New best val loss: 1.9622 (saved best_model.pt)
+2026-07-14 16:52:18,209 |   -> New best val loss: 1.9528 (saved best_model.pt)
+2026-07-14 16:52:20,098 | Epoch  920/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.7888 (recon=0.8873, kl_g0=0.0103, kl_u=0.9510, cls=0.6510) | val=1.9582 | lr=1.00e-04
+2026-07-14 16:52:22,669 |   -> New best val loss: 1.9494 (saved best_model.pt)
+2026-07-14 16:52:24,315 |   -> New best val loss: 1.9430 (saved best_model.pt)
+2026-07-14 16:52:29,703 |   -> New best val loss: 1.9329 (saved best_model.pt)
+2026-07-14 16:52:35,095 |   -> New best val loss: 1.9253 (saved best_model.pt)
+2026-07-14 16:52:39,708 | Epoch  930/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.7635 (recon=0.8600, kl_g0=0.0103, kl_u=0.9517, cls=0.6494) | val=1.9205 | lr=1.00e-04
+2026-07-14 16:52:39,727 |   -> New best val loss: 1.9205 (saved best_model.pt)
+2026-07-14 16:52:42,477 |   -> New best val loss: 1.9184 (saved best_model.pt)
+2026-07-14 16:52:45,066 |   -> New best val loss: 1.9100 (saved best_model.pt)
+2026-07-14 16:52:49,674 |   -> New best val loss: 1.9051 (saved best_model.pt)
+2026-07-14 16:52:51,911 |   -> New best val loss: 1.8973 (saved best_model.pt)
+2026-07-14 16:52:56,249 |   -> New best val loss: 1.8952 (saved best_model.pt)
+2026-07-14 16:52:58,532 |   -> New best val loss: 1.8920 (saved best_model.pt)
+2026-07-14 16:53:02,761 | Epoch  940/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.7391 (recon=0.8361, kl_g0=0.0103, kl_u=0.9502, cls=0.6457) | val=1.8941 | lr=1.00e-04
+2026-07-14 16:53:05,194 |   -> New best val loss: 1.8832 (saved best_model.pt)
+2026-07-14 16:53:10,510 |   -> New best val loss: 1.8770 (saved best_model.pt)
+2026-07-14 16:53:13,154 |   -> New best val loss: 1.8697 (saved best_model.pt)
+2026-07-14 16:53:17,732 |   -> New best val loss: 1.8674 (saved best_model.pt)
+2026-07-14 16:53:19,566 |   -> New best val loss: 1.8648 (saved best_model.pt)
+2026-07-14 16:53:21,596 |   -> New best val loss: 1.8613 (saved best_model.pt)
+2026-07-14 16:53:23,721 |   -> New best val loss: 1.8587 (saved best_model.pt)
+2026-07-14 16:53:25,528 | Epoch  950/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.7169 (recon=0.8150, kl_g0=0.0103, kl_u=0.9480, cls=0.6435) | val=1.8560 | lr=1.00e-04
+2026-07-14 16:53:25,543 |   -> New best val loss: 1.8560 (saved best_model.pt)
+2026-07-14 16:53:27,782 |   -> New best val loss: 1.8531 (saved best_model.pt)
+2026-07-14 16:53:30,440 |   -> New best val loss: 1.8520 (saved best_model.pt)
+2026-07-14 16:53:32,012 |   -> New best val loss: 1.8481 (saved best_model.pt)
+2026-07-14 16:53:33,667 |   -> New best val loss: 1.8481 (saved best_model.pt)
+2026-07-14 16:53:36,048 |   -> New best val loss: 1.8422 (saved best_model.pt)
+2026-07-14 16:53:38,658 |   -> New best val loss: 1.8328 (saved best_model.pt)
+2026-07-14 16:53:43,019 |   -> New best val loss: 1.8239 (saved best_model.pt)
+2026-07-14 16:53:44,885 |   -> New best val loss: 1.8226 (saved best_model.pt)
+2026-07-14 16:53:47,126 | Epoch  960/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.6946 (recon=0.7917, kl_g0=0.0103, kl_u=0.9479, cls=0.6430) | val=1.8224 | lr=1.00e-04
+2026-07-14 16:53:47,144 |   -> New best val loss: 1.8224 (saved best_model.pt)
+2026-07-14 16:53:49,022 |   -> New best val loss: 1.8204 (saved best_model.pt)
+2026-07-14 16:53:51,346 |   -> New best val loss: 1.8157 (saved best_model.pt)
+2026-07-14 16:53:58,020 |   -> New best val loss: 1.8032 (saved best_model.pt)
+2026-07-14 16:54:00,679 |   -> New best val loss: 1.7990 (saved best_model.pt)
+2026-07-14 16:54:07,804 | Epoch  970/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.6761 (recon=0.7737, kl_g0=0.0103, kl_u=0.9467, cls=0.6361) | val=1.7984 | lr=1.00e-04
+2026-07-14 16:54:07,819 |   -> New best val loss: 1.7984 (saved best_model.pt)
+2026-07-14 16:54:10,506 |   -> New best val loss: 1.7831 (saved best_model.pt)
+2026-07-14 16:54:15,403 |   -> New joint-best cls loss: val=0.6598, train=0.6334
+2026-07-14 16:54:19,863 |   -> New best val loss: 1.7831 (saved best_model.pt)
+2026-07-14 16:54:22,216 |   -> New best val loss: 1.7797 (saved best_model.pt)
+2026-07-14 16:54:24,207 |   -> New best val loss: 1.7788 (saved best_model.pt)
+2026-07-14 16:54:24,220 |   -> New joint-best cls loss: val=0.6587, train=0.6324
+2026-07-14 16:54:26,159 |   -> New best val loss: 1.7709 (saved best_model.pt)
+2026-07-14 16:54:26,175 |   -> New joint-best cls loss: val=0.6587, train=0.6316
+2026-07-14 16:54:30,081 | Epoch  980/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.6554 (recon=0.7523, kl_g0=0.0103, kl_u=0.9466, cls=0.6325) | val=1.7649 | lr=1.00e-04
+2026-07-14 16:54:30,098 |   -> New best val loss: 1.7649 (saved best_model.pt)
+2026-07-14 16:54:32,094 |   -> New best val loss: 1.7648 (saved best_model.pt)
+2026-07-14 16:54:32,107 |   -> New joint-best cls loss: val=0.6580, train=0.6307
+2026-07-14 16:54:34,835 |   -> New best val loss: 1.7590 (saved best_model.pt)
+2026-07-14 16:54:37,536 |   -> New best val loss: 1.7548 (saved best_model.pt)
+2026-07-14 16:54:37,549 |   -> New joint-best cls loss: val=0.6574, train=0.6297
+2026-07-14 16:54:40,012 |   -> New best val loss: 1.7510 (saved best_model.pt)
+2026-07-14 16:54:40,026 |   -> New joint-best cls loss: val=0.6569, train=0.6284
+2026-07-14 16:54:42,372 |   -> New joint-best cls loss: val=0.6569, train=0.6282
+2026-07-14 16:54:48,648 |   -> New best val loss: 1.7436 (saved best_model.pt)
+2026-07-14 16:54:48,661 |   -> New joint-best cls loss: val=0.6558, train=0.6281
+2026-07-14 16:54:50,797 |   -> New best val loss: 1.7426 (saved best_model.pt)
+2026-07-14 16:54:50,810 |   -> New joint-best cls loss: val=0.6551, train=0.6267
+2026-07-14 16:54:52,428 | Epoch  990/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.6355 (recon=0.7339, kl_g0=0.0104, kl_u=0.9442, cls=0.6280) | val=1.7369 | lr=1.00e-04
+2026-07-14 16:54:52,445 |   -> New best val loss: 1.7369 (saved best_model.pt)
+2026-07-14 16:54:55,071 |   -> New joint-best cls loss: val=0.6540, train=0.6251
+2026-07-14 16:54:57,787 |   -> New best val loss: 1.7359 (saved best_model.pt)
+2026-07-14 16:54:57,801 |   -> New joint-best cls loss: val=0.6537, train=0.6247
+2026-07-14 16:55:00,021 |   -> New best val loss: 1.7276 (saved best_model.pt)
+2026-07-14 16:55:01,804 |   -> New joint-best cls loss: val=0.6535, train=0.6239
+2026-07-14 16:55:05,688 |   -> New best val loss: 1.7243 (saved best_model.pt)
+2026-07-14 16:55:08,008 |   -> New joint-best cls loss: val=0.6533, train=0.6234
+2026-07-14 16:55:10,729 |   -> New best val loss: 1.7132 (saved best_model.pt)
+2026-07-14 16:55:10,742 |   -> New joint-best cls loss: val=0.6525, train=0.6211
+2026-07-14 16:55:15,412 | Epoch 1000/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.6149 (recon=0.7130, kl_g0=0.0104, kl_u=0.9437, cls=0.6231) | val=1.7129 | lr=1.00e-04
+2026-07-14 16:55:15,444 |   -> New best val loss: 1.7129 (saved best_model.pt)
+2026-07-14 16:55:18,019 |   -> New best val loss: 1.7065 (saved best_model.pt)
+2026-07-14 16:55:18,032 |   -> New joint-best cls loss: val=0.6520, train=0.6176
+2026-07-14 16:55:22,643 |   -> New best val loss: 1.7016 (saved best_model.pt)
+2026-07-14 16:55:24,904 |   -> New joint-best cls loss: val=0.6503, train=0.6169
+2026-07-14 16:55:27,038 |   -> New best val loss: 1.6962 (saved best_model.pt)
+2026-07-14 16:55:29,179 |   -> New best val loss: 1.6913 (saved best_model.pt)
+2026-07-14 16:55:30,836 |   -> New joint-best cls loss: val=0.6493, train=0.6139
+2026-07-14 16:55:32,452 |   -> New best val loss: 1.6902 (saved best_model.pt)
+2026-07-14 16:55:37,496 | Epoch 1010/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.5970 (recon=0.6972, kl_g0=0.0104, kl_u=0.9411, cls=0.6144) | val=1.6858 | lr=1.00e-04
+2026-07-14 16:55:37,528 |   -> New best val loss: 1.6858 (saved best_model.pt)
+2026-07-14 16:55:39,571 |   -> New best val loss: 1.6811 (saved best_model.pt)
+2026-07-14 16:55:41,618 |   -> New best val loss: 1.6752 (saved best_model.pt)
+2026-07-14 16:55:43,594 |   -> New best val loss: 1.6735 (saved best_model.pt)
+2026-07-14 16:55:43,607 |   -> New joint-best cls loss: val=0.6449, train=0.6113
+2026-07-14 16:55:49,442 |   -> New best val loss: 1.6696 (saved best_model.pt)
+2026-07-14 16:55:54,104 |   -> New best val loss: 1.6643 (saved best_model.pt)
+2026-07-14 16:55:54,117 |   -> New joint-best cls loss: val=0.6431, train=0.6089
+2026-07-14 16:55:56,598 |   -> New best val loss: 1.6589 (saved best_model.pt)
+2026-07-14 16:55:56,615 |   -> New joint-best cls loss: val=0.6426, train=0.6060
+2026-07-14 16:55:58,448 | Epoch 1020/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.5764 (recon=0.6772, kl_g0=0.0104, kl_u=0.9396, cls=0.6125) | val=1.6577 | lr=1.00e-04
+2026-07-14 16:55:58,463 |   -> New best val loss: 1.6577 (saved best_model.pt)
+2026-07-14 16:56:01,130 |   -> New best val loss: 1.6562 (saved best_model.pt)
+2026-07-14 16:56:01,143 |   -> New joint-best cls loss: val=0.6405, train=0.6060
+2026-07-14 16:56:03,312 |   -> New best val loss: 1.6557 (saved best_model.pt)
+2026-07-14 16:56:03,386 |   -> New joint-best cls loss: val=0.6401, train=0.6043
+2026-07-14 16:56:05,353 |   -> New best val loss: 1.6514 (saved best_model.pt)
+2026-07-14 16:56:05,368 |   -> New joint-best cls loss: val=0.6396, train=0.6043
+2026-07-14 16:56:07,445 |   -> New best val loss: 1.6424 (saved best_model.pt)
+2026-07-14 16:56:12,881 |   -> New best val loss: 1.6378 (saved best_model.pt)
+2026-07-14 16:56:12,894 |   -> New joint-best cls loss: val=0.6364, train=0.6001
+2026-07-14 16:56:15,619 |   -> New best val loss: 1.6362 (saved best_model.pt)
+2026-07-14 16:56:18,288 |   -> New best val loss: 1.6333 (saved best_model.pt)
+2026-07-14 16:56:20,994 | Epoch 1030/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.5576 (recon=0.6593, kl_g0=0.0104, kl_u=0.9383, cls=0.6010) | val=1.6357 | lr=1.00e-04
+2026-07-14 16:56:22,691 |   -> New best val loss: 1.6255 (saved best_model.pt)
+2026-07-14 16:56:22,707 |   -> New joint-best cls loss: val=0.6349, train=0.5968
+2026-07-14 16:56:27,565 |   -> New best val loss: 1.6244 (saved best_model.pt)
+2026-07-14 16:56:27,578 |   -> New joint-best cls loss: val=0.6332, train=0.5942
+2026-07-14 16:56:32,791 |   -> New best val loss: 1.6214 (saved best_model.pt)
+2026-07-14 16:56:32,806 |   -> New joint-best cls loss: val=0.6306, train=0.5911
+2026-07-14 16:56:34,417 |   -> New best val loss: 1.6205 (saved best_model.pt)
+2026-07-14 16:56:34,430 |   -> New joint-best cls loss: val=0.6296, train=0.5887
+2026-07-14 16:56:36,745 |   -> New best val loss: 1.6172 (saved best_model.pt)
+2026-07-14 16:56:38,976 |   -> New best val loss: 1.6128 (saved best_model.pt)
+2026-07-14 16:56:38,990 |   -> New joint-best cls loss: val=0.6279, train=0.5871
+2026-07-14 16:56:40,973 |   -> New joint-best cls loss: val=0.6260, train=0.5853
+2026-07-14 16:56:42,583 | Epoch 1040/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.5444 (recon=0.6480, kl_g0=0.0104, kl_u=0.9361, cls=0.5943) | val=1.6105 | lr=1.00e-04
+2026-07-14 16:56:42,600 |   -> New best val loss: 1.6105 (saved best_model.pt)
+2026-07-14 16:56:44,236 |   -> New joint-best cls loss: val=0.6256, train=0.5837
+2026-07-14 16:56:46,141 |   -> New best val loss: 1.6065 (saved best_model.pt)
+2026-07-14 16:56:46,157 |   -> New joint-best cls loss: val=0.6240, train=0.5834
+2026-07-14 16:56:48,336 |   -> New best val loss: 1.6002 (saved best_model.pt)
+2026-07-14 16:56:48,350 |   -> New joint-best cls loss: val=0.6223, train=0.5790
+2026-07-14 16:56:50,325 |   -> New best val loss: 1.5922 (saved best_model.pt)
+2026-07-14 16:56:54,820 |   -> New best val loss: 1.5862 (saved best_model.pt)
+2026-07-14 16:56:54,836 |   -> New joint-best cls loss: val=0.6194, train=0.5782
+2026-07-14 16:56:58,234 |   -> New best val loss: 1.5789 (saved best_model.pt)
+2026-07-14 16:57:00,420 |   -> New joint-best cls loss: val=0.6174, train=0.5740
+2026-07-14 16:57:02,548 | Epoch 1050/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.5266 (recon=0.6326, kl_g0=0.0104, kl_u=0.9337, cls=0.5754) | val=1.5877 | lr=1.00e-04
+2026-07-14 16:57:04,681 |   -> New best val loss: 1.5747 (saved best_model.pt)
+2026-07-14 16:57:04,694 |   -> New joint-best cls loss: val=0.6143, train=0.5685
+2026-07-14 16:57:07,384 |   -> New joint-best cls loss: val=0.6139, train=0.5683
+2026-07-14 16:57:09,705 |   -> New joint-best cls loss: val=0.6133, train=0.5675
+2026-07-14 16:57:12,379 |   -> New best val loss: 1.5720 (saved best_model.pt)
+2026-07-14 16:57:12,393 |   -> New joint-best cls loss: val=0.6102, train=0.5636
+2026-07-14 16:57:15,091 |   -> New best val loss: 1.5702 (saved best_model.pt)
+2026-07-14 16:57:15,103 |   -> New joint-best cls loss: val=0.6090, train=0.5629
+2026-07-14 16:57:17,495 |   -> New best val loss: 1.5660 (saved best_model.pt)
+2026-07-14 16:57:20,072 |   -> New best val loss: 1.5546 (saved best_model.pt)
+2026-07-14 16:57:20,087 |   -> New joint-best cls loss: val=0.6068, train=0.5555
+2026-07-14 16:57:26,780 | Epoch 1060/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.5089 (recon=0.6205, kl_g0=0.0104, kl_u=0.9284, cls=0.5521) | val=1.5600 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 16:57:26,809 |   -> New joint-best cls loss: val=0.6040, train=0.5521
+2026-07-14 16:57:30,769 |   -> New best val loss: 1.5461 (saved best_model.pt)
+2026-07-14 16:57:32,713 |   -> New best val loss: 1.5449 (saved best_model.pt)
+2026-07-14 16:57:32,733 |   -> New joint-best cls loss: val=0.5980, train=0.5488
+2026-07-14 16:57:34,890 |   -> New best val loss: 1.5441 (saved best_model.pt)
+2026-07-14 16:57:34,905 |   -> New joint-best cls loss: val=0.5958, train=0.5409
+2026-07-14 16:57:42,135 |   -> New best val loss: 1.5374 (saved best_model.pt)
+2026-07-14 16:57:42,150 |   -> New joint-best cls loss: val=0.5915, train=0.5353
+2026-07-14 16:57:44,954 |   -> New joint-best cls loss: val=0.5881, train=0.5337
+2026-07-14 16:57:47,544 |   -> New joint-best cls loss: val=0.5865, train=0.5330
+2026-07-14 16:57:50,191 | Epoch 1070/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.4890 (recon=0.6032, kl_g0=0.0104, kl_u=0.9259, cls=0.5293) | val=1.5355 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 16:57:50,220 |   -> New best val loss: 1.5355 (saved best_model.pt)
+2026-07-14 16:57:50,233 |   -> New joint-best cls loss: val=0.5860, train=0.5293
+2026-07-14 16:57:52,004 |   -> New best val loss: 1.5347 (saved best_model.pt)
+2026-07-14 16:57:52,020 |   -> New joint-best cls loss: val=0.5838, train=0.5288
+2026-07-14 16:57:54,392 |   -> New best val loss: 1.5293 (saved best_model.pt)
+2026-07-14 16:57:54,407 |   -> New joint-best cls loss: val=0.5813, train=0.5278
+2026-07-14 16:57:56,621 |   -> New best val loss: 1.5272 (saved best_model.pt)
+2026-07-14 16:57:58,917 |   -> New joint-best cls loss: val=0.5776, train=0.5152
+2026-07-14 16:58:01,194 |   -> New best val loss: 1.5160 (saved best_model.pt)
+2026-07-14 16:58:03,337 |   -> New best val loss: 1.5155 (saved best_model.pt)
+2026-07-14 16:58:03,349 |   -> New joint-best cls loss: val=0.5732, train=0.5133
+2026-07-14 16:58:06,063 |   -> New best val loss: 1.5145 (saved best_model.pt)
+2026-07-14 16:58:11,100 |   -> New best val loss: 1.5066 (saved best_model.pt)
+2026-07-14 16:58:11,113 |   -> New joint-best cls loss: val=0.5670, train=0.5034
+2026-07-14 16:58:13,785 | Epoch 1080/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.4729 (recon=0.5908, kl_g0=0.0104, kl_u=0.9226, cls=0.5061) | val=1.5099 | lr=1.00e-04
+2026-07-14 16:58:16,345 |   -> New best val loss: 1.5059 (saved best_model.pt)
+2026-07-14 16:58:16,358 |   -> New joint-best cls loss: val=0.5622, train=0.4994
+2026-07-14 16:58:18,440 |   -> New best val loss: 1.5034 (saved best_model.pt)
+2026-07-14 16:58:18,453 |   -> New joint-best cls loss: val=0.5597, train=0.4975
+2026-07-14 16:58:20,117 |   -> New best val loss: 1.4992 (saved best_model.pt)
+2026-07-14 16:58:20,132 |   -> New joint-best cls loss: val=0.5582, train=0.4954
+2026-07-14 16:58:24,088 |   -> New best val loss: 1.4984 (saved best_model.pt)
+2026-07-14 16:58:24,118 |   -> New joint-best cls loss: val=0.5544, train=0.4865
+2026-07-14 16:58:26,845 |   -> New best val loss: 1.4928 (saved best_model.pt)
+2026-07-14 16:58:26,859 |   -> New joint-best cls loss: val=0.5502, train=0.4864
+2026-07-14 16:58:29,108 |   -> New best val loss: 1.4927 (saved best_model.pt)
+2026-07-14 16:58:29,123 |   -> New joint-best cls loss: val=0.5492, train=0.4813
+2026-07-14 16:58:30,938 |   -> New joint-best cls loss: val=0.5467, train=0.4787
+2026-07-14 16:58:32,819 |   -> New best val loss: 1.4875 (saved best_model.pt)
+2026-07-14 16:58:32,832 |   -> New joint-best cls loss: val=0.5442, train=0.4762
+2026-07-14 16:58:34,873 | Epoch 1090/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.4605 (recon=0.5807, kl_g0=0.0104, kl_u=0.9217, cls=0.4677) | val=1.4909 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 16:58:34,894 |   -> New joint-best cls loss: val=0.5411, train=0.4677
+2026-07-14 16:58:36,553 |   -> New joint-best cls loss: val=0.5406, train=0.4670
+2026-07-14 16:58:39,037 |   -> New best val loss: 1.4828 (saved best_model.pt)
+2026-07-14 16:58:39,049 |   -> New joint-best cls loss: val=0.5350, train=0.4590
+2026-07-14 16:58:41,791 |   -> New best val loss: 1.4824 (saved best_model.pt)
+2026-07-14 16:58:41,805 |   -> New joint-best cls loss: val=0.5317, train=0.4581
+2026-07-14 16:58:44,140 |   -> New best val loss: 1.4787 (saved best_model.pt)
+2026-07-14 16:58:44,155 |   -> New joint-best cls loss: val=0.5290, train=0.4533
+2026-07-14 16:58:50,356 |   -> New best val loss: 1.4725 (saved best_model.pt)
+2026-07-14 16:58:52,544 |   -> New best val loss: 1.4707 (saved best_model.pt)
+2026-07-14 16:58:52,556 |   -> New joint-best cls loss: val=0.5182, train=0.4467
+2026-07-14 16:58:54,449 |   -> New best val loss: 1.4609 (saved best_model.pt)
+2026-07-14 16:58:56,541 | Epoch 1100/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.4412 (recon=0.5651, kl_g0=0.0104, kl_u=0.9185, cls=0.4397) | val=1.4625 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 16:58:56,572 |   -> New joint-best cls loss: val=0.5104, train=0.4397
+2026-07-14 16:58:58,670 |   -> New joint-best cls loss: val=0.5081, train=0.4312
+2026-07-14 16:59:01,131 |   -> New best val loss: 1.4546 (saved best_model.pt)
+2026-07-14 16:59:01,146 |   -> New joint-best cls loss: val=0.5068, train=0.4279
+2026-07-14 16:59:03,300 |   -> New joint-best cls loss: val=0.5053, train=0.4200
+2026-07-14 16:59:05,516 |   -> New best val loss: 1.4536 (saved best_model.pt)
+2026-07-14 16:59:05,529 |   -> New joint-best cls loss: val=0.5049, train=0.4187
+2026-07-14 16:59:07,745 |   -> New best val loss: 1.4518 (saved best_model.pt)
+2026-07-14 16:59:07,760 |   -> New joint-best cls loss: val=0.4987, train=0.4102
+2026-07-14 16:59:11,278 |   -> New joint-best cls loss: val=0.4927, train=0.4012
+2026-07-14 16:59:13,622 |   -> New best val loss: 1.4484 (saved best_model.pt)
+2026-07-14 16:59:13,635 |   -> New joint-best cls loss: val=0.4926, train=0.3983
+2026-07-14 16:59:18,712 | Epoch 1110/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.4258 (recon=0.5551, kl_g0=0.0104, kl_u=0.9151, cls=0.3847) | val=1.4415 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 16:59:18,744 |   -> New best val loss: 1.4415 (saved best_model.pt)
+2026-07-14 16:59:18,757 |   -> New joint-best cls loss: val=0.4823, train=0.3847
+2026-07-14 16:59:20,998 |   -> New best val loss: 1.4368 (saved best_model.pt)
+2026-07-14 16:59:22,820 |   -> New joint-best cls loss: val=0.4797, train=0.3797
+2026-07-14 16:59:24,504 |   -> New joint-best cls loss: val=0.4776, train=0.3703
+2026-07-14 16:59:26,641 |   -> New best val loss: 1.4349 (saved best_model.pt)
+2026-07-14 16:59:26,654 |   -> New joint-best cls loss: val=0.4728, train=0.3635
+2026-07-14 16:59:32,077 |   -> New best val loss: 1.4292 (saved best_model.pt)
+2026-07-14 16:59:32,092 |   -> New joint-best cls loss: val=0.4675, train=0.3596
+2026-07-14 16:59:34,268 |   -> New best val loss: 1.4267 (saved best_model.pt)
+2026-07-14 16:59:38,840 |   -> New best val loss: 1.4246 (saved best_model.pt)
+2026-07-14 16:59:40,663 | Epoch 1120/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.4062 (recon=0.5417, kl_g0=0.0104, kl_u=0.9102, cls=0.3423) | val=1.4258 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 16:59:40,684 |   -> New joint-best cls loss: val=0.4598, train=0.3423
+2026-07-14 16:59:43,303 |   -> New best val loss: 1.4145 (saved best_model.pt)
+2026-07-14 16:59:45,008 |   -> New joint-best cls loss: val=0.4561, train=0.3346
+2026-07-14 16:59:46,601 |   -> New best val loss: 1.4113 (saved best_model.pt)
+2026-07-14 16:59:46,613 |   -> New joint-best cls loss: val=0.4559, train=0.3258
+2026-07-14 16:59:49,209 |   -> New best val loss: 1.4095 (saved best_model.pt)
+2026-07-14 16:59:51,859 |   -> New joint-best cls loss: val=0.4484, train=0.3232
+2026-07-14 16:59:54,129 |   -> New best val loss: 1.4058 (saved best_model.pt)
+2026-07-14 16:59:54,146 |   -> New joint-best cls loss: val=0.4464, train=0.3159
+2026-07-14 17:00:00,492 |   -> New best val loss: 1.4054 (saved best_model.pt)
+2026-07-14 17:00:00,508 |   -> New joint-best cls loss: val=0.4372, train=0.3042
+2026-07-14 17:00:02,594 | Epoch 1130/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.3904 (recon=0.5284, kl_g0=0.0104, kl_u=0.9089, cls=0.3019) | val=1.4033 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 17:00:02,628 |   -> New best val loss: 1.4033 (saved best_model.pt)
+2026-07-14 17:00:02,647 |   -> New joint-best cls loss: val=0.4331, train=0.3019
+2026-07-14 17:00:05,395 |   -> New best val loss: 1.4026 (saved best_model.pt)
+2026-07-14 17:00:07,552 |   -> New best val loss: 1.3985 (saved best_model.pt)
+2026-07-14 17:00:09,409 |   -> New best val loss: 1.3984 (saved best_model.pt)
+2026-07-14 17:00:09,424 |   -> New joint-best cls loss: val=0.4301, train=0.2876
+2026-07-14 17:00:13,226 |   -> New best val loss: 1.3964 (saved best_model.pt)
+2026-07-14 17:00:15,582 |   -> New best val loss: 1.3932 (saved best_model.pt)
+2026-07-14 17:00:17,334 |   -> New best val loss: 1.3847 (saved best_model.pt)
+2026-07-14 17:00:17,346 |   -> New joint-best cls loss: val=0.4255, train=0.2775
+2026-07-14 17:00:19,052 |   -> New joint-best cls loss: val=0.4224, train=0.2691
+2026-07-14 17:00:21,135 |   -> New best val loss: 1.3802 (saved best_model.pt)
+2026-07-14 17:00:23,271 | Epoch 1140/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.3805 (recon=0.5233, kl_g0=0.0104, kl_u=0.9058, cls=0.2604) | val=1.3814 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 17:00:23,295 |   -> New joint-best cls loss: val=0.4192, train=0.2604
+2026-07-14 17:00:27,827 |   -> New best val loss: 1.3795 (saved best_model.pt)
+2026-07-14 17:00:27,843 |   -> New joint-best cls loss: val=0.4130, train=0.2529
+2026-07-14 17:00:30,583 |   -> New best val loss: 1.3763 (saved best_model.pt)
+2026-07-14 17:00:30,596 |   -> New joint-best cls loss: val=0.4106, train=0.2446
+2026-07-14 17:00:32,784 |   -> New best val loss: 1.3687 (saved best_model.pt)
+2026-07-14 17:00:37,863 |   -> New best val loss: 1.3671 (saved best_model.pt)
+2026-07-14 17:00:44,696 |   -> New best val loss: 1.3616 (saved best_model.pt)
+2026-07-14 17:00:46,266 | Epoch 1150/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.3656 (recon=0.5143, kl_g0=0.0104, kl_u=0.9001, cls=0.2409) | val=1.3594 | lr=1.00e-04
+2026-07-14 17:00:46,284 |   -> New best val loss: 1.3594 (saved best_model.pt)
+2026-07-14 17:00:48,689 |   -> New best val loss: 1.3571 (saved best_model.pt)
+2026-07-14 17:00:52,924 |   -> New best val loss: 1.3548 (saved best_model.pt)
+2026-07-14 17:00:52,939 |   -> New joint-best cls loss: val=0.4098, train=0.2203
+2026-07-14 17:00:54,605 |   -> New best val loss: 1.3508 (saved best_model.pt)
+2026-07-14 17:00:56,880 |   -> New best val loss: 1.3477 (saved best_model.pt)
+2026-07-14 17:00:56,893 |   -> New joint-best cls loss: val=0.4045, train=0.2183
+2026-07-14 17:00:58,524 |   -> New best val loss: 1.3463 (saved best_model.pt)
+2026-07-14 17:01:00,145 |   -> New joint-best cls loss: val=0.4007, train=0.2165
+2026-07-14 17:01:06,841 | Epoch 1160/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.3503 (recon=0.5061, kl_g0=0.0104, kl_u=0.8945, cls=0.1987) | val=1.3439 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 17:01:06,870 |   -> New best val loss: 1.3439 (saved best_model.pt)
+2026-07-14 17:01:06,882 |   -> New joint-best cls loss: val=0.3969, train=0.1987
+2026-07-14 17:01:11,720 |   -> New best val loss: 1.3401 (saved best_model.pt)
+2026-07-14 17:01:17,046 |   -> New best val loss: 1.3358 (saved best_model.pt)
+2026-07-14 17:01:18,650 |   -> New best val loss: 1.3347 (saved best_model.pt)
+2026-07-14 17:01:20,215 |   -> New best val loss: 1.3330 (saved best_model.pt)
+2026-07-14 17:01:22,642 |   -> New best val loss: 1.3282 (saved best_model.pt)
+2026-07-14 17:01:24,527 |   -> New joint-best cls loss: val=0.3946, train=0.1779
+2026-07-14 17:01:26,695 |   -> New best val loss: 1.3253 (saved best_model.pt)
+2026-07-14 17:01:26,711 |   -> New joint-best cls loss: val=0.3921, train=0.1776
+2026-07-14 17:01:28,872 | Epoch 1170/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.3279 (recon=0.4923, kl_g0=0.0104, kl_u=0.8853, cls=0.1862) | val=1.3239 | lr=1.00e-04
+2026-07-14 17:01:28,891 |   -> New best val loss: 1.3239 (saved best_model.pt)
+2026-07-14 17:01:34,032 |   -> New best val loss: 1.3122 (saved best_model.pt)
+2026-07-14 17:01:42,042 |   -> New best val loss: 1.3091 (saved best_model.pt)
+2026-07-14 17:01:46,689 |   -> New best val loss: 1.3090 (saved best_model.pt)
+2026-07-14 17:01:50,347 | Epoch 1180/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.3113 (recon=0.4796, kl_g0=0.0104, kl_u=0.8814, cls=0.1698) | val=1.3020 | lr=1.00e-04
+2026-07-14 17:01:50,377 |   -> New best val loss: 1.3020 (saved best_model.pt)
+2026-07-14 17:01:52,786 |   -> New best val loss: 1.3017 (saved best_model.pt)
+2026-07-14 17:01:55,508 |   -> New best val loss: 1.2985 (saved best_model.pt)
+2026-07-14 17:01:57,741 |   -> New best val loss: 1.2960 (saved best_model.pt)
+2026-07-14 17:02:00,378 |   -> New best val loss: 1.2915 (saved best_model.pt)
+2026-07-14 17:02:00,393 |   -> New joint-best cls loss: val=0.3903, train=0.1648
+2026-07-14 17:02:04,383 |   -> New best val loss: 1.2895 (saved best_model.pt)
+2026-07-14 17:02:06,736 |   -> New best val loss: 1.2867 (saved best_model.pt)
+2026-07-14 17:02:09,359 |   -> New best val loss: 1.2827 (saved best_model.pt)
+2026-07-14 17:02:14,075 | Epoch 1190/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.3031 (recon=0.4734, kl_g0=0.0104, kl_u=0.8800, cls=0.1488) | val=1.2895 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 17:02:14,105 |   -> New joint-best cls loss: val=0.3867, train=0.1488
+2026-07-14 17:02:17,963 |   -> New best val loss: 1.2813 (saved best_model.pt)
+2026-07-14 17:02:20,049 |   -> New best val loss: 1.2792 (saved best_model.pt)
+2026-07-14 17:02:20,062 |   -> New joint-best cls loss: val=0.3844, train=0.1438
+2026-07-14 17:02:25,307 |   -> New best val loss: 1.2778 (saved best_model.pt)
+2026-07-14 17:02:28,001 |   -> New best val loss: 1.2763 (saved best_model.pt)
+2026-07-14 17:02:28,014 |   -> New joint-best cls loss: val=0.3837, train=0.1420
+2026-07-14 17:02:31,962 |   -> New best val loss: 1.2738 (saved best_model.pt)
+2026-07-14 17:02:34,000 |   -> New best val loss: 1.2694 (saved best_model.pt)
+2026-07-14 17:02:36,137 | Epoch 1200/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2907 (recon=0.4623, kl_g0=0.0104, kl_u=0.8785, cls=0.1419) | val=1.2669 | lr=1.00e-04
+2026-07-14 17:02:36,169 |   -> New best val loss: 1.2669 (saved best_model.pt)
+2026-07-14 17:02:45,926 |   -> New best val loss: 1.2650 (saved best_model.pt)
+2026-07-14 17:02:47,609 |   -> New best val loss: 1.2645 (saved best_model.pt)
+2026-07-14 17:02:49,334 |   -> New best val loss: 1.2602 (saved best_model.pt)
+2026-07-14 17:02:51,045 |   -> New best val loss: 1.2589 (saved best_model.pt)
+2026-07-14 17:02:52,770 |   -> New best val loss: 1.2586 (saved best_model.pt)
+2026-07-14 17:02:52,785 |   -> New joint-best cls loss: val=0.3835, train=0.1311
+2026-07-14 17:02:56,070 | Epoch 1210/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2774 (recon=0.4500, kl_g0=0.0104, kl_u=0.8775, cls=0.1288) | val=1.2554 | lr=1.00e-04
+2026-07-14 17:02:56,087 |   -> New best val loss: 1.2554 (saved best_model.pt)
+2026-07-14 17:03:00,221 |   -> New best val loss: 1.2495 (saved best_model.pt)
+2026-07-14 17:03:02,712 |   -> New best val loss: 1.2481 (saved best_model.pt)
+2026-07-14 17:03:02,725 |   -> New joint-best cls loss: val=0.3793, train=0.1232
+2026-07-14 17:03:04,992 |   -> New best val loss: 1.2459 (saved best_model.pt)
+2026-07-14 17:03:08,761 |   -> New best val loss: 1.2386 (saved best_model.pt)
+2026-07-14 17:03:16,228 |   -> New best val loss: 1.2357 (saved best_model.pt)
+2026-07-14 17:03:18,314 | Epoch 1220/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2673 (recon=0.4421, kl_g0=0.0104, kl_u=0.8757, cls=0.1112) | val=1.2377 | lr=1.00e-04
+2026-07-14 17:03:26,741 |   -> New best val loss: 1.2290 (saved best_model.pt)
+2026-07-14 17:03:29,532 |   -> New best val loss: 1.2284 (saved best_model.pt)
+2026-07-14 17:03:40,793 | Epoch 1230/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2575 (recon=0.4315, kl_g0=0.0104, kl_u=0.8761, cls=0.1085) | val=1.2304 | lr=1.00e-04
+2026-07-14 17:03:42,821 |   -> New best val loss: 1.2256 (saved best_model.pt)
+2026-07-14 17:03:46,463 |   -> New best val loss: 1.2251 (saved best_model.pt)
+2026-07-14 17:03:50,282 |   -> New best val loss: 1.2202 (saved best_model.pt)
+2026-07-14 17:03:55,204 |   -> New best val loss: 1.2108 (saved best_model.pt)
+2026-07-14 17:03:55,216 |   -> New joint-best cls loss: val=0.3758, train=0.1122
+2026-07-14 17:03:57,936 |   -> New joint-best cls loss: val=0.3748, train=0.1060
+2026-07-14 17:04:00,379 | Epoch 1240/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2502 (recon=0.4252, kl_g0=0.0104, kl_u=0.8750, cls=0.1017) | val=1.2148 | lr=1.00e-04
+2026-07-14 17:04:05,199 |   -> New best val loss: 1.2076 (saved best_model.pt)
+2026-07-14 17:04:18,949 |   -> New best val loss: 1.2048 (saved best_model.pt)
+2026-07-14 17:04:21,710 |   -> New best val loss: 1.1981 (saved best_model.pt)
+2026-07-14 17:04:27,303 | Epoch 1250/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2376 (recon=0.4131, kl_g0=0.0104, kl_u=0.8744, cls=0.0942) | val=1.2058 | lr=1.00e-04
+2026-07-14 17:04:39,777 |   -> New best val loss: 1.1936 (saved best_model.pt)
+2026-07-14 17:04:47,402 |   -> New best val loss: 1.1935 (saved best_model.pt)
+2026-07-14 17:04:49,150 |   -> New best val loss: 1.1928 (saved best_model.pt)
+2026-07-14 17:04:51,025 | Epoch 1260/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2336 (recon=0.4107, kl_g0=0.0104, kl_u=0.8729, cls=0.0856) | val=1.1908 | lr=1.00e-04 [PREOVERFIT-UPDATE]
+2026-07-14 17:04:51,042 |   -> New best val loss: 1.1908 (saved best_model.pt)
+2026-07-14 17:04:51,057 |   -> New joint-best cls loss: val=0.3741, train=0.0856
+2026-07-14 17:04:52,689 |   -> New best val loss: 1.1901 (saved best_model.pt)
+2026-07-14 17:04:54,798 |   -> New best val loss: 1.1897 (saved best_model.pt)
+2026-07-14 17:04:59,001 |   -> New best val loss: 1.1875 (saved best_model.pt)
+2026-07-14 17:05:02,483 |   -> New best val loss: 1.1865 (saved best_model.pt)
+2026-07-14 17:05:07,253 |   -> New best val loss: 1.1793 (saved best_model.pt)
+2026-07-14 17:05:08,942 |   -> New best val loss: 1.1789 (saved best_model.pt)
+2026-07-14 17:05:11,258 | Epoch 1270/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2240 (recon=0.4004, kl_g0=0.0104, kl_u=0.8733, cls=0.0844) | val=1.1814 | lr=1.00e-04
+2026-07-14 17:05:17,191 |   -> New best val loss: 1.1768 (saved best_model.pt)
+2026-07-14 17:05:22,265 |   -> New best val loss: 1.1753 (saved best_model.pt)
+2026-07-14 17:05:25,099 |   -> New best val loss: 1.1731 (saved best_model.pt)
+2026-07-14 17:05:28,893 |   -> New best val loss: 1.1681 (saved best_model.pt)
+2026-07-14 17:05:33,835 | Epoch 1280/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2169 (recon=0.3931, kl_g0=0.0104, kl_u=0.8732, cls=0.0789) | val=1.1655 | lr=1.00e-04
+2026-07-14 17:05:33,867 |   -> New best val loss: 1.1655 (saved best_model.pt)
+2026-07-14 17:05:42,937 |   -> New best val loss: 1.1628 (saved best_model.pt)
+2026-07-14 17:05:47,123 |   -> New best val loss: 1.1628 (saved best_model.pt)
+2026-07-14 17:05:49,368 |   -> New best val loss: 1.1570 (saved best_model.pt)
+2026-07-14 17:05:56,922 | Epoch 1290/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2103 (recon=0.3893, kl_g0=0.0104, kl_u=0.8702, cls=0.0781) | val=1.1629 | lr=1.00e-04
+2026-07-14 17:06:03,672 |   -> New best val loss: 1.1541 (saved best_model.pt)
+2026-07-14 17:06:06,462 |   -> New best val loss: 1.1539 (saved best_model.pt)
+2026-07-14 17:06:11,403 |   -> New best val loss: 1.1526 (saved best_model.pt)
+2026-07-14 17:06:21,513 | Epoch 1300/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.2023 (recon=0.3813, kl_g0=0.0104, kl_u=0.8701, cls=0.0717) | val=1.1520 | lr=1.00e-04
+2026-07-14 17:06:21,544 |   -> New best val loss: 1.1520 (saved best_model.pt)
+2026-07-14 17:06:24,408 |   -> New best val loss: 1.1477 (saved best_model.pt)
+2026-07-14 17:06:29,016 |   -> New best val loss: 1.1474 (saved best_model.pt)
+2026-07-14 17:06:34,351 |   -> New best val loss: 1.1429 (saved best_model.pt)
+2026-07-14 17:06:45,878 | Epoch 1310/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1954 (recon=0.3749, kl_g0=0.0104, kl_u=0.8694, cls=0.0704) | val=1.1447 | lr=1.00e-04
+2026-07-14 17:06:48,631 |   -> New best val loss: 1.1413 (saved best_model.pt)
+2026-07-14 17:06:54,965 |   -> New best val loss: 1.1392 (saved best_model.pt)
+2026-07-14 17:06:57,210 |   -> New best val loss: 1.1385 (saved best_model.pt)
+2026-07-14 17:06:59,488 |   -> New best val loss: 1.1366 (saved best_model.pt)
+2026-07-14 17:07:03,021 |   -> New best val loss: 1.1365 (saved best_model.pt)
+2026-07-14 17:07:08,608 | Epoch 1320/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1877 (recon=0.3678, kl_g0=0.0104, kl_u=0.8684, cls=0.0680) | val=1.1344 | lr=1.00e-04
+2026-07-14 17:07:08,640 |   -> New best val loss: 1.1344 (saved best_model.pt)
+2026-07-14 17:07:14,173 |   -> New best val loss: 1.1330 (saved best_model.pt)
+2026-07-14 17:07:18,696 |   -> New best val loss: 1.1291 (saved best_model.pt)
+2026-07-14 17:07:24,661 |   -> New best val loss: 1.1282 (saved best_model.pt)
+2026-07-14 17:07:27,417 |   -> New best val loss: 1.1281 (saved best_model.pt)
+2026-07-14 17:07:30,853 | Epoch 1330/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1855 (recon=0.3664, kl_g0=0.0104, kl_u=0.8678, cls=0.0632) | val=1.1310 | lr=1.00e-04
+2026-07-14 17:07:32,569 |   -> New best val loss: 1.1195 (saved best_model.pt)
+2026-07-14 17:07:43,813 |   -> New best val loss: 1.1151 (saved best_model.pt)
+2026-07-14 17:07:53,185 | Epoch 1340/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1795 (recon=0.3623, kl_g0=0.0104, kl_u=0.8657, cls=0.0608) | val=1.1233 | lr=1.00e-04
+2026-07-14 17:07:58,119 |   -> New best val loss: 1.1107 (saved best_model.pt)
+2026-07-14 17:08:16,187 | Epoch 1350/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1733 (recon=0.3557, kl_g0=0.0104, kl_u=0.8657, cls=0.0626) | val=1.1173 | lr=1.00e-04
+2026-07-14 17:08:22,486 |   -> New best val loss: 1.1074 (saved best_model.pt)
+2026-07-14 17:08:24,139 |   -> New best val loss: 1.1062 (saved best_model.pt)
+2026-07-14 17:08:33,274 |   -> New best val loss: 1.1022 (saved best_model.pt)
+2026-07-14 17:08:38,923 | Epoch 1360/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1692 (recon=0.3525, kl_g0=0.0104, kl_u=0.8648, cls=0.0589) | val=1.1022 | lr=1.00e-04
+2026-07-14 17:08:38,957 |   -> New best val loss: 1.1022 (saved best_model.pt)
+2026-07-14 17:08:49,826 |   -> New best val loss: 1.0982 (saved best_model.pt)
+2026-07-14 17:09:02,872 | Epoch 1370/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1609 (recon=0.3460, kl_g0=0.0104, kl_u=0.8627, cls=0.0553) | val=1.1003 | lr=1.00e-04
+2026-07-14 17:09:04,790 |   -> New best val loss: 1.0957 (saved best_model.pt)
+2026-07-14 17:09:08,953 |   -> New best val loss: 1.0948 (saved best_model.pt)
+2026-07-14 17:09:15,182 |   -> New best val loss: 1.0922 (saved best_model.pt)
+2026-07-14 17:09:16,821 |   -> New best val loss: 1.0874 (saved best_model.pt)
+2026-07-14 17:09:21,599 | Epoch 1380/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1591 (recon=0.3442, kl_g0=0.0104, kl_u=0.8629, cls=0.0510) | val=1.0880 | lr=1.00e-04
+2026-07-14 17:09:25,032 |   -> New best val loss: 1.0847 (saved best_model.pt)
+2026-07-14 17:09:37,234 |   -> New best val loss: 1.0822 (saved best_model.pt)
+2026-07-14 17:09:39,926 |   -> New best val loss: 1.0795 (saved best_model.pt)
+2026-07-14 17:09:43,585 | Epoch 1390/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1540 (recon=0.3409, kl_g0=0.0104, kl_u=0.8605, cls=0.0559) | val=1.0809 | lr=1.00e-04
+2026-07-14 17:09:57,934 |   -> New best val loss: 1.0740 (saved best_model.pt)
+2026-07-14 17:10:03,688 | Epoch 1400/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1472 (recon=0.3375, kl_g0=0.0103, kl_u=0.8571, cls=0.0510) | val=1.0782 | lr=1.00e-04
+2026-07-14 17:10:09,315 |   -> New best val loss: 1.0728 (saved best_model.pt)
+2026-07-14 17:10:15,991 |   -> New best val loss: 1.0674 (saved best_model.pt)
+2026-07-14 17:10:26,870 | Epoch 1410/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1411 (recon=0.3367, kl_g0=0.0103, kl_u=0.8515, cls=0.0484) | val=1.0702 | lr=1.00e-04
+2026-07-14 17:10:29,675 |   -> New best val loss: 1.0653 (saved best_model.pt)
+2026-07-14 17:10:31,571 |   -> New best val loss: 1.0626 (saved best_model.pt)
+2026-07-14 17:10:40,191 |   -> New best val loss: 1.0589 (saved best_model.pt)
+2026-07-14 17:10:49,682 | Epoch 1420/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1300 (recon=0.3281, kl_g0=0.0102, kl_u=0.8489, cls=0.0438) | val=1.0557 | lr=1.00e-04
+2026-07-14 17:10:49,697 |   -> New best val loss: 1.0557 (saved best_model.pt)
+2026-07-14 17:10:54,561 |   -> New best val loss: 1.0543 (saved best_model.pt)
+2026-07-14 17:11:01,803 |   -> New best val loss: 1.0539 (saved best_model.pt)
+2026-07-14 17:11:06,305 |   -> New best val loss: 1.0504 (saved best_model.pt)
+2026-07-14 17:11:13,662 | Epoch 1430/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1268 (recon=0.3260, kl_g0=0.0102, kl_u=0.8476, cls=0.0438) | val=1.0527 | lr=1.00e-04
+2026-07-14 17:11:28,709 |   -> New best val loss: 1.0470 (saved best_model.pt)
+2026-07-14 17:11:37,651 | Epoch 1440/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1226 (recon=0.3230, kl_g0=0.0102, kl_u=0.8462, cls=0.0437) | val=1.0460 | lr=1.00e-04
+2026-07-14 17:11:37,666 |   -> New best val loss: 1.0460 (saved best_model.pt)
+2026-07-14 17:11:39,658 |   -> New best val loss: 1.0438 (saved best_model.pt)
+2026-07-14 17:11:43,853 |   -> New best val loss: 1.0420 (saved best_model.pt)
+2026-07-14 17:11:46,868 |   -> New best val loss: 1.0387 (saved best_model.pt)
+2026-07-14 17:11:53,847 |   -> New best val loss: 1.0311 (saved best_model.pt)
+2026-07-14 17:12:01,042 | Epoch 1450/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1161 (recon=0.3174, kl_g0=0.0102, kl_u=0.8452, cls=0.0402) | val=1.0444 | lr=1.00e-04
+2026-07-14 17:12:27,202 | Epoch 1460/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1126 (recon=0.3160, kl_g0=0.0101, kl_u=0.8427, cls=0.0445) | val=1.0297 | lr=1.00e-04
+2026-07-14 17:12:27,218 |   -> New best val loss: 1.0297 (saved best_model.pt)
+2026-07-14 17:12:41,315 |   -> New best val loss: 1.0296 (saved best_model.pt)
+2026-07-14 17:12:46,417 |   -> New best val loss: 1.0238 (saved best_model.pt)
+2026-07-14 17:12:50,506 | Epoch 1470/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1117 (recon=0.3172, kl_g0=0.0101, kl_u=0.8409, cls=0.0384) | val=1.0268 | lr=1.00e-04
+2026-07-14 17:12:57,579 |   -> New best val loss: 1.0196 (saved best_model.pt)
+2026-07-14 17:13:13,773 | Epoch 1480/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.1044 (recon=0.3150, kl_g0=0.0101, kl_u=0.8356, cls=0.0369) | val=1.0200 | lr=1.00e-04
+2026-07-14 17:13:16,418 |   -> New best val loss: 1.0153 (saved best_model.pt)
+2026-07-14 17:13:22,148 |   -> New best val loss: 1.0129 (saved best_model.pt)
+2026-07-14 17:13:24,377 |   -> New best val loss: 1.0124 (saved best_model.pt)
+2026-07-14 17:13:33,189 |   -> New best val loss: 1.0047 (saved best_model.pt)
+2026-07-14 17:13:38,854 | Epoch 1490/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0970 (recon=0.3133, kl_g0=0.0100, kl_u=0.8295, cls=0.0370) | val=1.0093 | lr=1.00e-04
+2026-07-14 17:14:06,180 | Epoch 1500/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0913 (recon=0.3113, kl_g0=0.0099, kl_u=0.8257, cls=0.0344) | val=1.0062 | lr=1.00e-04
+2026-07-14 17:14:09,117 |   -> New best val loss: 0.9963 (saved best_model.pt)
+2026-07-14 17:14:18,106 |   -> New best val loss: 0.9950 (saved best_model.pt)
+2026-07-14 17:14:29,096 |   -> New best val loss: 0.9911 (saved best_model.pt)
+2026-07-14 17:14:31,816 | Epoch 1510/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0823 (recon=0.3068, kl_g0=0.0097, kl_u=0.8209, cls=0.0349) | val=0.9944 | lr=1.00e-04
+2026-07-14 17:14:45,886 |   -> New best val loss: 0.9884 (saved best_model.pt)
+2026-07-14 17:14:57,655 | Epoch 1520/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0772 (recon=0.3051, kl_g0=0.0096, kl_u=0.8174, cls=0.0346) | val=1.0018 | lr=1.00e-04
+2026-07-14 17:15:00,513 |   -> New best val loss: 0.9841 (saved best_model.pt)
+2026-07-14 17:15:03,373 |   -> New best val loss: 0.9820 (saved best_model.pt)
+2026-07-14 17:15:11,123 |   -> New best val loss: 0.9803 (saved best_model.pt)
+2026-07-14 17:15:24,417 | Epoch 1530/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0720 (recon=0.3023, kl_g0=0.0095, kl_u=0.8148, cls=0.0353) | val=0.9839 | lr=1.00e-04
+2026-07-14 17:15:26,051 |   -> New best val loss: 0.9772 (saved best_model.pt)
+2026-07-14 17:15:43,336 |   -> New best val loss: 0.9767 (saved best_model.pt)
+2026-07-14 17:15:45,642 | Epoch 1540/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0661 (recon=0.2981, kl_g0=0.0095, kl_u=0.8127, cls=0.0373) | val=0.9769 | lr=1.00e-04
+2026-07-14 17:15:47,608 |   -> New best val loss: 0.9748 (saved best_model.pt)
+2026-07-14 17:15:51,742 |   -> New best val loss: 0.9747 (saved best_model.pt)
+2026-07-14 17:15:54,639 |   -> New best val loss: 0.9694 (saved best_model.pt)
+2026-07-14 17:16:05,741 |   -> New best val loss: 0.9678 (saved best_model.pt)
+2026-07-14 17:16:08,626 |   -> New best val loss: 0.9654 (saved best_model.pt)
+2026-07-14 17:16:10,306 | Epoch 1550/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0623 (recon=0.2971, kl_g0=0.0094, kl_u=0.8100, cls=0.0338) | val=0.9722 | lr=1.00e-04
+2026-07-14 17:16:19,269 |   -> New best val loss: 0.9654 (saved best_model.pt)
+2026-07-14 17:16:24,224 |   -> New best val loss: 0.9634 (saved best_model.pt)
+2026-07-14 17:16:29,860 |   -> New best val loss: 0.9633 (saved best_model.pt)
+2026-07-14 17:16:34,451 | Epoch 1560/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0551 (recon=0.2961, kl_g0=0.0093, kl_u=0.8036, cls=0.0314) | val=0.9616 | lr=1.00e-04
+2026-07-14 17:16:34,483 |   -> New best val loss: 0.9616 (saved best_model.pt)
+2026-07-14 17:16:41,827 |   -> New best val loss: 0.9539 (saved best_model.pt)
+2026-07-14 17:16:57,041 |   -> New best val loss: 0.9517 (saved best_model.pt)
+2026-07-14 17:16:59,514 | Epoch 1570/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0473 (recon=0.2898, kl_g0=0.0092, kl_u=0.8019, cls=0.0290) | val=0.9518 | lr=1.00e-04
+2026-07-14 17:17:12,885 |   -> New best val loss: 0.9509 (saved best_model.pt)
+2026-07-14 17:17:24,416 | Epoch 1580/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0431 (recon=0.2865, kl_g0=0.0091, kl_u=0.8009, cls=0.0289) | val=0.9528 | lr=1.00e-04
+2026-07-14 17:17:30,304 |   -> New best val loss: 0.9492 (saved best_model.pt)
+2026-07-14 17:17:42,215 |   -> New best val loss: 0.9488 (saved best_model.pt)
+2026-07-14 17:17:48,819 | Epoch 1590/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0395 (recon=0.2840, kl_g0=0.0089, kl_u=0.7997, cls=0.0284) | val=0.9484 | lr=1.00e-04
+2026-07-14 17:17:48,834 |   -> New best val loss: 0.9484 (saved best_model.pt)
+2026-07-14 17:17:50,920 |   -> New best val loss: 0.9476 (saved best_model.pt)
+2026-07-14 17:17:54,411 |   -> New best val loss: 0.9471 (saved best_model.pt)
+2026-07-14 17:17:56,448 |   -> New best val loss: 0.9438 (saved best_model.pt)
+2026-07-14 17:18:05,000 |   -> New best val loss: 0.9395 (saved best_model.pt)
+2026-07-14 17:18:07,799 |   -> New best val loss: 0.9377 (saved best_model.pt)
+2026-07-14 17:18:09,802 | Epoch 1600/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0347 (recon=0.2803, kl_g0=0.0089, kl_u=0.7985, cls=0.0277) | val=0.9450 | lr=1.00e-04
+2026-07-14 17:18:25,424 |   -> New best val loss: 0.9350 (saved best_model.pt)
+2026-07-14 17:18:30,743 | Epoch 1610/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0333 (recon=0.2789, kl_g0=0.0089, kl_u=0.7986, cls=0.0254) | val=0.9477 | lr=1.00e-04
+2026-07-14 17:18:36,574 |   -> New best val loss: 0.9285 (saved best_model.pt)
+2026-07-14 17:18:55,492 | Epoch 1620/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0288 (recon=0.2765, kl_g0=0.0087, kl_u=0.7965, cls=0.0256) | val=0.9359 | lr=1.00e-04
+2026-07-14 17:19:18,131 | Epoch 1630/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0250 (recon=0.2726, kl_g0=0.0087, kl_u=0.7964, cls=0.0252) | val=0.9292 | lr=5.00e-05
+2026-07-14 17:19:27,996 |   -> New best val loss: 0.9269 (saved best_model.pt)
+2026-07-14 17:19:30,004 |   -> New best val loss: 0.9265 (saved best_model.pt)
+2026-07-14 17:19:39,266 | Epoch 1640/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0231 (recon=0.2709, kl_g0=0.0086, kl_u=0.7961, cls=0.0247) | val=0.9300 | lr=5.00e-05
+2026-07-14 17:19:50,877 |   -> New best val loss: 0.9243 (saved best_model.pt)
+2026-07-14 17:20:05,676 | Epoch 1650/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0189 (recon=0.2682, kl_g0=0.0086, kl_u=0.7944, cls=0.0245) | val=0.9247 | lr=5.00e-05
+2026-07-14 17:20:14,361 |   -> New best val loss: 0.9211 (saved best_model.pt)
+2026-07-14 17:20:30,018 | Epoch 1660/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0187 (recon=0.2686, kl_g0=0.0085, kl_u=0.7940, cls=0.0232) | val=0.9224 | lr=5.00e-05
+2026-07-14 17:20:44,288 |   -> New best val loss: 0.9208 (saved best_model.pt)
+2026-07-14 17:20:47,890 |   -> New best val loss: 0.9193 (saved best_model.pt)
+2026-07-14 17:20:51,638 | Epoch 1670/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0163 (recon=0.2669, kl_g0=0.0084, kl_u=0.7933, cls=0.0223) | val=0.9214 | lr=5.00e-05
+2026-07-14 17:21:18,059 | Epoch 1680/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0156 (recon=0.2673, kl_g0=0.0085, kl_u=0.7921, cls=0.0237) | val=0.9258 | lr=5.00e-05
+2026-07-14 17:21:34,421 |   -> New best val loss: 0.9186 (saved best_model.pt)
+2026-07-14 17:21:40,172 |   -> New best val loss: 0.9176 (saved best_model.pt)
+2026-07-14 17:21:42,466 | Epoch 1690/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0115 (recon=0.2648, kl_g0=0.0085, kl_u=0.7902, cls=0.0232) | val=0.9169 | lr=2.50e-05
+2026-07-14 17:21:42,496 |   -> New best val loss: 0.9169 (saved best_model.pt)
+2026-07-14 17:22:05,291 |   -> New best val loss: 0.9166 (saved best_model.pt)
+2026-07-14 17:22:06,893 | Epoch 1700/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0101 (recon=0.2653, kl_g0=0.0084, kl_u=0.7883, cls=0.0222) | val=0.9175 | lr=2.50e-05
+2026-07-14 17:22:08,826 |   -> New best val loss: 0.9163 (saved best_model.pt)
+2026-07-14 17:22:18,728 |   -> New best val loss: 0.9161 (saved best_model.pt)
+2026-07-14 17:22:25,868 |   -> New best val loss: 0.9157 (saved best_model.pt)
+2026-07-14 17:22:30,529 | Epoch 1710/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0081 (recon=0.2663, kl_g0=0.0084, kl_u=0.7854, cls=0.0212) | val=0.9154 | lr=2.50e-05
+2026-07-14 17:22:30,544 |   -> New best val loss: 0.9154 (saved best_model.pt)
+2026-07-14 17:22:35,630 |   -> New best val loss: 0.9150 (saved best_model.pt)
+2026-07-14 17:22:37,335 |   -> New best val loss: 0.9125 (saved best_model.pt)
+2026-07-14 17:22:41,426 |   -> New best val loss: 0.9123 (saved best_model.pt)
+2026-07-14 17:22:46,677 |   -> New best val loss: 0.9118 (saved best_model.pt)
+2026-07-14 17:22:49,034 |   -> New best val loss: 0.9095 (saved best_model.pt)
+2026-07-14 17:22:50,652 |   -> New best val loss: 0.9075 (saved best_model.pt)
+2026-07-14 17:22:52,307 | Epoch 1720/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0054 (recon=0.2662, kl_g0=0.0084, kl_u=0.7826, cls=0.0218) | val=0.9119 | lr=2.50e-05
+2026-07-14 17:23:17,451 | Epoch 1730/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0030 (recon=0.2637, kl_g0=0.0084, kl_u=0.7826, cls=0.0218) | val=0.9098 | lr=2.50e-05
+2026-07-14 17:23:32,625 |   -> New best val loss: 0.9074 (saved best_model.pt)
+2026-07-14 17:23:42,108 | Epoch 1740/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9995 (recon=0.2599, kl_g0=0.0083, kl_u=0.7827, cls=0.0212) | val=0.9085 | lr=1.25e-05
+2026-07-14 17:23:47,995 |   -> New best val loss: 0.9074 (saved best_model.pt)
+2026-07-14 17:24:05,225 |   -> New best val loss: 0.9070 (saved best_model.pt)
+2026-07-14 17:24:10,642 | Epoch 1750/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9984 (recon=0.2596, kl_g0=0.0084, kl_u=0.7820, cls=0.0208) | val=0.9089 | lr=1.25e-05
+2026-07-14 17:24:28,944 |   -> New best val loss: 0.9055 (saved best_model.pt)
+2026-07-14 17:24:31,552 |   -> New best val loss: 0.9054 (saved best_model.pt)
+2026-07-14 17:24:34,011 | Epoch 1760/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=1.0000 (recon=0.2614, kl_g0=0.0083, kl_u=0.7818, cls=0.0210) | val=0.9048 | lr=1.25e-05
+2026-07-14 17:24:34,030 |   -> New best val loss: 0.9048 (saved best_model.pt)
+2026-07-14 17:24:44,280 |   -> New best val loss: 0.9047 (saved best_model.pt)
+2026-07-14 17:24:46,548 |   -> New best val loss: 0.9046 (saved best_model.pt)
+2026-07-14 17:24:53,844 |   -> New best val loss: 0.9042 (saved best_model.pt)
+2026-07-14 17:24:58,700 | Epoch 1770/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9971 (recon=0.2583, kl_g0=0.0083, kl_u=0.7818, cls=0.0210) | val=0.9043 | lr=1.25e-05
+2026-07-14 17:25:03,898 |   -> New best val loss: 0.9037 (saved best_model.pt)
+2026-07-14 17:25:05,544 |   -> New best val loss: 0.9034 (saved best_model.pt)
+2026-07-14 17:25:23,434 | Epoch 1780/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9991 (recon=0.2604, kl_g0=0.0083, kl_u=0.7818, cls=0.0211) | val=0.9065 | lr=1.25e-05
+2026-07-14 17:25:41,607 | Epoch 1790/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9974 (recon=0.2591, kl_g0=0.0083, kl_u=0.7814, cls=0.0207) | val=0.9035 | lr=6.25e-06
+2026-07-14 17:26:06,084 | Epoch 1800/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9983 (recon=0.2601, kl_g0=0.0083, kl_u=0.7813, cls=0.0210) | val=0.9040 | lr=6.25e-06
+2026-07-14 17:26:33,412 | Epoch 1810/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9959 (recon=0.2573, kl_g0=0.0083, kl_u=0.7816, cls=0.0210) | val=0.9051 | lr=3.13e-06
+2026-07-14 17:26:46,998 |   -> New best val loss: 0.9030 (saved best_model.pt)
+2026-07-14 17:26:59,857 | Epoch 1820/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9970 (recon=0.2588, kl_g0=0.0083, kl_u=0.7814, cls=0.0208) | val=0.9046 | lr=3.13e-06
+2026-07-14 17:27:26,166 | Epoch 1830/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9956 (recon=0.2574, kl_g0=0.0083, kl_u=0.7812, cls=0.0210) | val=0.9036 | lr=3.13e-06
+2026-07-14 17:27:28,168 |   -> New best val loss: 0.9028 (saved best_model.pt)
+2026-07-14 17:27:52,329 | Epoch 1840/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9967 (recon=0.2584, kl_g0=0.0083, kl_u=0.7814, cls=0.0207) | val=0.9035 | lr=3.13e-06
+2026-07-14 17:28:02,236 |   -> New best val loss: 0.9021 (saved best_model.pt)
+2026-07-14 17:28:23,291 | Epoch 1850/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9958 (recon=0.2577, kl_g0=0.0083, kl_u=0.7811, cls=0.0206) | val=0.9036 | lr=3.13e-06
+2026-07-14 17:28:47,738 | Epoch 1860/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9956 (recon=0.2574, kl_g0=0.0083, kl_u=0.7812, cls=0.0204) | val=0.9033 | lr=1.56e-06
+2026-07-14 17:29:15,995 | Epoch 1870/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9968 (recon=0.2590, kl_g0=0.0083, kl_u=0.7809, cls=0.0208) | val=0.9013 | lr=1.56e-06
+2026-07-14 17:29:16,025 |   -> New best val loss: 0.9013 (saved best_model.pt)
+2026-07-14 17:29:39,610 | Epoch 1880/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9942 (recon=0.2562, kl_g0=0.0083, kl_u=0.7810, cls=0.0205) | val=0.9026 | lr=1.56e-06
+2026-07-14 17:30:06,778 | Epoch 1890/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9971 (recon=0.2592, kl_g0=0.0083, kl_u=0.7810, cls=0.0208) | val=0.9021 | lr=1.00e-06
+2026-07-14 17:30:32,940 | Epoch 1900/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9950 (recon=0.2570, kl_g0=0.0083, kl_u=0.7810, cls=0.0207) | val=0.9030 | lr=1.00e-06
+2026-07-14 17:31:02,977 | Epoch 1910/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9945 (recon=0.2564, kl_g0=0.0083, kl_u=0.7810, cls=0.0203) | val=0.9024 | lr=1.00e-06
+2026-07-14 17:31:25,070 | Epoch 1920/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9961 (recon=0.2581, kl_g0=0.0083, kl_u=0.7811, cls=0.0209) | val=0.9021 | lr=1.00e-06
+2026-07-14 17:31:50,300 | Epoch 1930/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9948 (recon=0.2568, kl_g0=0.0083, kl_u=0.7811, cls=0.0203) | val=0.9021 | lr=1.00e-06
+2026-07-14 17:32:14,947 | Epoch 1940/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9958 (recon=0.2578, kl_g0=0.0083, kl_u=0.7811, cls=0.0204) | val=0.9024 | lr=1.00e-06
+2026-07-14 17:32:40,314 | Epoch 1950/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9953 (recon=0.2572, kl_g0=0.0083, kl_u=0.7811, cls=0.0208) | val=0.9023 | lr=1.00e-06
+2026-07-14 17:33:11,886 | Epoch 1960/2700 | kl_g0_w=1.00 kl_u_w=1.00 | train=0.9958 (recon=0.2579, kl_g0=0.0083, kl_u=0.7810, cls=0.0200) | val=0.9025 | lr=1.00e-06
+2026-07-14 17:33:38,402 | Early stopping at epoch 1969 -- no improvement for 100 epochs.
+2026-07-14 17:33:38,433 | Final model saved to /home/nadegeo/LIFUS-BRICK/results/training/sweep_3_seeds/sweep_SPLIT_SEED_123/final_model.pt
+2026-07-14 17:33:38,433 | Best val loss: 0.9013
+2026-07-14 17:33:38,433 | Best joint-best cls loss: val=0.3741, train=0.0856
+2026-07-14 17:33:38,433 | Training complete.

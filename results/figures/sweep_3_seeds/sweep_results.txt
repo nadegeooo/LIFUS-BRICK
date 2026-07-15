@@ -1,0 +1,11 @@
+Param                Value      Best Val Recon     Best Val Cls   
+-----------------------------------------------------------------
+TRAIN_SEED           42         0.0537             0.6022         
+TRAIN_SEED           123        0.0537             0.5881         
+TRAIN_SEED           2024       0.0508             0.6176         
+  range                         0.0029             0.0295         
+
+SPLIT_SEED           42         0.0537             0.6022         
+SPLIT_SEED           123        0.1299             0.3741         
+SPLIT_SEED           2024       0.0916             0.5027         
+  range                         0.0762             0.2280         
