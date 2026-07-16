@@ -6,7 +6,7 @@ For a given sweep (e.g. "sweep_1", "sweep_2"), this script:
   1. Plots per-run training curves (total, recon, KL_g0, KL_u, cls) with
      dotted vertical lines marking:
         - best epoch by val total loss           (best_model.pt)               -> red
-        - best epoch by joint val/train cls loss  (best_model_cls_preoverfit.pt) -> purple
+        - best epoch by joint val/train cls loss  (best_model_cls.pt) -> purple
      Saved into each run's own results folder.
   2. Builds a sweep_summary table (best val total/recon/cls loss per run)
      saved to results/training/<SWEEP_NAME>/sweep_summary.csv and .txt
@@ -74,7 +74,7 @@ def load_best_epoch(csv_path: Path, checkpoint_name: str = "best_model.pt") -> i
     """
     Load the epoch recorded in a given checkpoint file in the same directory
     as csv_path. Generalized from the original best_model.pt-only version so
-    it can also load best_model_cls_preoverfit.pt (or any other checkpoint
+    it can also load best_model_cls.pt (or any other checkpoint
     that stores an 'epoch' key).
     """
     checkpoint_path = csv_path.parent / checkpoint_name
@@ -87,7 +87,7 @@ def load_best_epoch(csv_path: Path, checkpoint_name: str = "best_model.pt") -> i
     return None
 
 
-def load_val_metrics_at_checkpoint(csv_path: Path, checkpoint_name: str = "best_model_cls_preoverfit.pt") -> dict | None:
+def load_val_metrics_at_checkpoint(csv_path: Path, checkpoint_name: str = "best_model_cls.pt") -> dict | None:
     """
     Return val_total, val_recon, val_cls all taken from the SAME epoch —
     the epoch recorded in the given checkpoint file. This ensures the three
@@ -161,7 +161,7 @@ def build_sweep_summary(csv_files: list, sweep_dir: Path):
     rows = []
     skipped = []
     for csv_path in csv_files:
-        metrics = load_val_metrics_at_checkpoint(csv_path, "best_model_cls_preoverfit.pt")
+        metrics = load_val_metrics_at_checkpoint(csv_path, "best_model_cls.pt")
         if metrics is None:
             skipped.append(csv_path.parent.name)
             continue
@@ -176,7 +176,7 @@ def build_sweep_summary(csv_files: list, sweep_dir: Path):
     rows.sort(key=lambda r: r["run_name"])
 
     if skipped:
-        print(f"\n[warn] Skipped {len(skipped)} run(s) with no best_model_cls_preoverfit.pt: {skipped}")
+        print(f"\n[warn] Skipped {len(skipped)} run(s) with no best_model_cls.pt: {skipped}")
 
     # --- text table ---
     lines = []
@@ -224,7 +224,7 @@ def main():
 
         data = load_csv(csv_path)
         best_epoch_total = load_best_epoch(csv_path, "best_model.pt")
-        best_epoch_cls_preoverfit = load_best_epoch(csv_path, "best_model_cls_preoverfit.pt")
+        best_epoch_cls_preoverfit = load_best_epoch(csv_path, "best_model_cls.pt")
 
         out_path = run_dir / f"training_curves_{run_dir.name}.png"
         plot_curves(data, best_epoch_total, best_epoch_cls_preoverfit, run_dir.name, out_path)

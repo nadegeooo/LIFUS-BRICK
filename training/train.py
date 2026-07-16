@@ -23,11 +23,15 @@ Description:
         - Validation uses true ELBO (apply_free_bits=False) for honest evaluation
 
     Outputs saved to results/training/{run_name}/:
-        - best_model.pt      — checkpoint with lowest validation loss
-        - final_model.pt     — checkpoint after last epoch / early stop
-        - loss_history.csv   — per-epoch logging of all loss components
-        - split.json         — subject IDs for each split
-
+        - best_model_recon.pt — checkpoint with lowest validation loss
+                                 (renamed from best_model.pt)
+        - best_model_cls.pt   — checkpoint with joint val+train classification
+                                 loss improvement (renamed from
+                                 best_model_cls_preoverfit.pt)
+        - final_model.pt      — checkpoint after last epoch / early stop
+        - loss_history.csv    — per-epoch logging of all loss components
+        - split.json          — subject IDs for each split
+ 
 Usage:
     python training/train.py
     python training/train.py --epochs 100   # pilot run
@@ -43,7 +47,6 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 import random
-
 import numpy as np
 import torch
 import torch.optim as optim
@@ -289,8 +292,8 @@ def train(
         writer.writeheader()
 
     # --- Training loop ---
-    best_val_loss               = float("inf")   # best_model.pt: val-only
-    best_val_loss_cls_preoverfit   = float("inf")   # best_model_cls_preoverfit.pt: joint val+train (cls)
+    best_val_loss               = float("inf")   # best_model_recon.pt: val-only
+    best_val_loss_cls_preoverfit   = float("inf")   # best_model_cls.pt: joint val+train (cls)
     best_train_loss_cls_preoverfit = float("inf")
     epochs_no_improve = 0
     log.info("Starting training...")
@@ -368,8 +371,8 @@ def train(
                 "use_ic":               use_ic,
                 "h":                    model.h,
                 "m":                    model.m,
-            }, results_dir / "best_model.pt")
-            log.info(f"  -> New best val loss: {val_total:.4f} (saved best_model.pt)")
+            }, results_dir / "best_model_recon.pt")
+            log.info(f"  -> New best val loss: {val_total:.4f} (saved best_model_recon.pt)")
 
         # --- Save best pre-overfit checkpoint (val AND train classification loss both improve) ---
         if val_cls_improved_joint and train_cls_improved_joint:
@@ -387,14 +390,14 @@ def train(
                 "use_ic":               use_ic,
                 "h":                    model.h,
                 "m":                    model.m,
-            }, results_dir / "best_model_cls_preoverfit.pt")
+            }, results_dir / "best_model_cls.pt")
             log.info(f"  -> New joint-best cls loss: "
                      f"val={best_val_loss_cls_preoverfit:.4f}, train={best_train_loss_cls_preoverfit:.4f}")
             
         else:
             epochs_no_improve += 1
 
-        # --- Early stopping (tied to best_model_cls_preoverfit.pt only) ---
+        # --- Early stopping (tied to best_model_cls.pt only) ---
         if epochs_no_improve >= PATIENCE:
             log.info(
                 f"Early stopping at epoch {epoch} -- "

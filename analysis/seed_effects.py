@@ -11,7 +11,7 @@ under results/seed_effects/cache/, independent of compare_pre_post.py's and
 compare_batch_size.py's output paths.
 
 ASSUMPTION (edit find_checkpoint() if wrong): checkpoints live under
-    results/training/sweep_3_seeds/sweep_{SEED_TYPE}_{value}/best_model_cls_preoverfit.pt
+    results/training/sweep_3_seeds/sweep_{SEED_TYPE}_{value}/best_model_cls.pt
 e.g. sweep_3_seeds/sweep_TRAIN_SEED_42/, sweep_3_seeds/sweep_SPLIT_SEED_123/, etc.
 
 TRAIN_SEED and SPLIT_SEED are treated as two independent sweep axes (each
@@ -76,7 +76,7 @@ def find_checkpoint(seed_type: str, seed_value: int) -> Path:
     Looks under results/training/sweep_3_seeds/sweep_{SEED_TYPE}_{value}/ only.
     EDIT THIS if the actual folder naming under sweep_3_seeds differs.
     """
-    pattern = f"sweep_3_seeds/sweep_{seed_type}_{seed_value}/best_model_cls_preoverfit.pt"
+    pattern = f"sweep_3_seeds/sweep_{seed_type}_{seed_value}/best_model_cls.pt"
     candidates = sorted((ROOT_DIR / "results" / "training").glob(pattern))
     if not candidates:
         raise FileNotFoundError(

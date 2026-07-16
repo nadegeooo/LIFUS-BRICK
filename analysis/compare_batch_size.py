@@ -13,7 +13,7 @@ computation, ROI projection, paired FDR tests, brain-space consistency check)
 and manages its own caching under results/batch_size/cache/, independent of
 compare_pre_post.py's output paths.
 
-For each batch size in BATCH_SIZES, locates best_model_cls_preoverfit.pt
+For each batch size in BATCH_SIZES, locates best_model_cls.pt
 under results/training/sweep_*/sweep_BATCH_SIZE_{n}/. If cached results
 already exist for that checkpoint under results/batch_size/cache/, loads them
 directly. Otherwise runs the analysis once and caches it.
@@ -85,7 +85,7 @@ def find_checkpoint(batch_size: int) -> Path:
     Deliberately does NOT match ablation_2_batch_size_1 or any other
     ablation_* folder -- those are a different experiment type.
     """
-    pattern = f"sweep_*/sweep_BATCH_SIZE_{batch_size}/best_model_cls_preoverfit.pt"
+    pattern = f"sweep_*/sweep_BATCH_SIZE_{batch_size}/best_model_cls.pt"
     candidates = sorted((ROOT_DIR / "results" / "training").glob(pattern))
     if not candidates:
         raise FileNotFoundError(
