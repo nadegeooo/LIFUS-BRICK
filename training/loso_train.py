@@ -81,7 +81,7 @@ from models.brick import BRICK
 from training.dataset import BRICKDataset
 from training.train import (
     run_epoch, get_kl_weights, safe_save, setup_logging, CSV_COLUMNS,
-    N_EPOCHS, LR, SEED, DATA_DIR,
+    LR, SEED, DATA_DIR,
 )
 from config import PATIENCE
 import config
@@ -89,6 +89,10 @@ import config
 RESULTS_DIR = ROOT_DIR / "results" / "loso_19_fold"
 LOSO_SPLIT_SEED = 42     # fixed seed for val-subject draws; state advances across folds (see docstring)
 N_VAL_SUBJECTS = 2
+LOSO_N_EPOCHS = 2700     # max epochs per fold; set explicitly rather than inheriting train.py's
+                         # own N_EPOCHS default (1000), which is separate from --epochs overrides
+                         # used on other runs. Early stopping (PATIENCE from config.py) will
+                         # almost always trigger well before this cap.
 
 
 def train_one_fold(ds, held_out_subject, val_rng, all_subject_ids, n_epochs, log_manifest_row):
@@ -220,7 +224,7 @@ def train_one_fold(ds, held_out_subject, val_rng, all_subject_ids, n_epochs, log
     return best_val_loss
 
 
-def main(n_epochs: int = N_EPOCHS, subjects=None):
+def main(n_epochs: int = LOSO_N_EPOCHS, subjects=None):
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     ds = BRICKDataset(DATA_DIR)
     all_indices = list(range(len(ds)))
@@ -272,7 +276,7 @@ def main(n_epochs: int = N_EPOCHS, subjects=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LOSO 19-fold BRICK training")
-    parser.add_argument("--epochs", type=int, default=N_EPOCHS)
+    parser.add_argument("--epochs", type=int, default=LOSO_N_EPOCHS)
     parser.add_argument("--subjects", type=str, nargs="+", default=None,
                         help="Only run these held-out subject IDs (testing/resuming); default = all 19")
     args = parser.parse_args()
