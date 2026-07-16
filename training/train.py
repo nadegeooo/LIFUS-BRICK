@@ -22,7 +22,9 @@ Description:
         - Free bits applied during training only (apply_free_bits=True)
         - Validation uses true ELBO (apply_free_bits=False) for honest evaluation
 
-    Outputs saved to results/training/{run_name}/:
+    Outputs saved to {base_results_dir}/{run_name}/ (base_results_dir defaults
+    to results/training/, but can be overridden e.g. by loso_study.py to
+    write to results/loso_19_fold/fold_{subject}/):
         - best_model_recon.pt — checkpoint with lowest validation loss
                                  (renamed from best_model.pt)
         - best_model_cls.pt   — checkpoint with joint val+train classification
@@ -31,7 +33,14 @@ Description:
         - final_model.pt      — checkpoint after last epoch / early stop
         - loss_history.csv    — per-epoch logging of all loss components
         - split.json          — subject IDs for each split
- 
+
+    Split modes:
+        - Default: split_dataset(ds, seed=split_seed) does a random 7:1:2
+          subject-level split (no session leakage).
+        - Explicit: pass subject_split={"train": [...], "val": [...],
+          "test": [...]} (subject IDs) to bypass the seed-based split
+          entirely, e.g. for LOSO cross-validation. See loso_study.py.
+
 Usage:
     python training/train.py
     python training/train.py --epochs 100   # pilot run
@@ -50,6 +59,7 @@ import random
 import numpy as np
 import torch
 import torch.optim as optim
+from torch.utils.data import Subset
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
@@ -66,7 +76,7 @@ import config
 # ================================================================================
 # DEFAULTS
 # ================================================================================
-N_EPOCHS        = 1000
+N_EPOCHS        = 2700
 LR              = 1e-4
 SEED            = 42
 DATA_DIR        = ROOT_DIR / "data" / "preprocessed_data"
@@ -88,8 +98,11 @@ CSV_COLUMNS = [
 # ================================================================================
 def setup_logging(results_dir: Path, run_name: str) -> logging.Logger:
     results_dir.mkdir(parents=True, exist_ok=True)
-    log_filename = Path(run_name).name  # takes only "sweep_LAMBDA_NOISE_0.001"
-    log_path = results_dir / f"{log_filename}.log"
+    # run_name may contain "/" (e.g. "loso_19_fold/fold_sub-01") -- use a
+    # logger name that's unique per run and a flattened filename so it
+    # doesn't try to create subdirectories under a .log path.
+    log_filename = run_name.replace("/", "__")
+    log_path = results_dir / f"{Path(log_filename).name}.log"
 
     logger = logging.getLogger(run_name)
     logger.setLevel(logging.INFO)
@@ -102,6 +115,47 @@ def setup_logging(results_dir: Path, run_name: str) -> logging.Logger:
     logger.addHandler(fh); logger.addHandler(sh)
 
     return logger
+
+
+# ================================================================================
+# SUBJECT-LEVEL SPLIT (explicit, non-seed-based)
+# ================================================================================
+def split_dataset_by_subjects(ds, train_subjects, val_subjects, test_subjects):
+    """
+    Build train/val/test Subsets from explicit subject ID lists, rather than
+    the random seed-based split_dataset(). Used for LOSO-style studies where
+    the caller controls exactly which subjects land in which split.
+
+    Args:
+        ds:              BRICKDataset instance
+        train_subjects:  list of subject IDs for training
+        val_subjects:    list of subject IDs for validation
+        test_subjects:   list of subject IDs for testing
+
+    Returns:
+        (train_ds, val_ds, test_ds): torch.utils.data.Subset objects, same
+        type returned by split_dataset(), so downstream code (run_epoch,
+        split.json logging via .indices) works unchanged.
+    """
+    train_set = set(train_subjects)
+    val_set   = set(val_subjects)
+    test_set  = set(test_subjects)
+
+    overlap = (train_set & val_set) | (train_set & test_set) | (val_set & test_set)
+    if overlap:
+        raise ValueError(f"subject_split has overlapping subjects across splits: {sorted(overlap)}")
+
+    train_idx, val_idx, test_idx = [], [], []
+    for i in range(len(ds)):
+        sid = ds[i]["subject_id"]
+        if sid in train_set:
+            train_idx.append(i)
+        elif sid in val_set:
+            val_idx.append(i)
+        elif sid in test_set:
+            test_idx.append(i)
+
+    return Subset(ds, train_idx), Subset(ds, val_idx), Subset(ds, test_idx)
 
 
 # ================================================================================
@@ -165,9 +219,9 @@ def run_epoch(
     Returns:
         dict of mean loss components over the epoch
     """
-    
+
     _batch_size = batch_size if batch_size is not None else config.BATCH_SIZE
-    
+
     model.train(train)
 
     totals = {
@@ -226,21 +280,25 @@ def train(
     lambda_noise: float = None,
     weight_decay: float = None,
     batch_size:   int   = None,
-    beta:         float = None,   
+    beta:         float = None,
     epsilon:      float = None,
-    train_seed:   int   = None,   # NEW: overrides SEED for model init/training stochasticity
-    split_seed:   int   = None,   # NEW: overrides SEED for train/val/test split   
+    train_seed:   int   = None,   # overrides SEED for model init/training stochasticity
+    split_seed:   int   = None,   # overrides SEED for train/val/test split (ignored if subject_split given)
+    subject_split: dict = None,   # {"train": [...], "val": [...], "test": [...]} of subject IDs;
+                                   # if provided, bypasses split_dataset()/split_seed entirely
+    base_results_dir: Path = None,  # overrides RESULTS_DIR (e.g. for results/loso_19_fold/)
 ):
     _lambda_noise = lambda_noise if lambda_noise is not None else config.LAMBDA_NOISE
     _weight_decay = weight_decay if weight_decay is not None else config.WEIGHT_DECAY
     _batch_size   = batch_size   if batch_size   is not None else config.BATCH_SIZE
-    _beta         = beta         if beta         is not None else config.BETA       
-    _epsilon      = epsilon      if epsilon      is not None else config.EPSILON     
+    _beta         = beta         if beta         is not None else config.BETA
+    _epsilon      = epsilon      if epsilon      is not None else config.EPSILON
     _train_seed   = train_seed   if train_seed   is not None else SEED
     _split_seed   = split_seed   if split_seed   is not None else SEED
+    _base_results_dir = base_results_dir if base_results_dir is not None else RESULTS_DIR
 
     random.seed(_train_seed); np.random.seed(_train_seed); torch.manual_seed(_train_seed)
-    results_dir = RESULTS_DIR / run_name
+    results_dir = _base_results_dir / run_name
     log = setup_logging(results_dir, run_name)
 
     log.info("=" * 60)
@@ -248,16 +306,27 @@ def train(
     log.info(f"N_ROIS={N_ROIS}, M={M}, H={H}, T={T_DATA}")
     log.info(f"Epochs={n_epochs}, LR={LR}, WD={_weight_decay}, "
              f"LAMBDA_NOISE={_lambda_noise}, BATCH_SIZE={_batch_size}, "
-             f"BETA={_beta}, EPSILON={_epsilon}")    
+             f"BETA={_beta}, EPSILON={_epsilon}")
     log.info(f"Patience={PATIENCE}, use_control={use_control}, use_ic={use_ic}")
     log.info(f"KL annealing: g0 over {KL_G0_ANNEAL_EPOCHS} epochs, "
              f"u delayed {KL_U_DELAY_EPOCHS} then over {KL_U_ANNEAL_EPOCHS} epochs")
+    if subject_split is not None:
+        log.info("Split mode: EXPLICIT subject_split (split_seed ignored)")
+    else:
+        log.info(f"Split mode: random split_dataset(seed={_split_seed})")
     log.info("=" * 60)
 
     # --- Data ---
     log.info("Loading dataset...")
     ds = BRICKDataset(DATA_DIR)
-    train_ds, val_ds, test_ds = split_dataset(ds, seed=_split_seed)
+
+    if subject_split is not None:
+        train_ds, val_ds, test_ds = split_dataset_by_subjects(
+            ds, subject_split["train"], subject_split["val"], subject_split["test"]
+        )
+    else:
+        train_ds, val_ds, test_ds = split_dataset(ds, seed=_split_seed)
+
     log.info(
         f"Split: {len(train_ds)} train | {len(val_ds)} val | "
         f"{len(test_ds)} test items"
@@ -268,7 +337,8 @@ def train(
         "train": sorted(set(ds[i]["subject_id"] for i in train_ds.indices)),
         "val":   sorted(set(ds[i]["subject_id"] for i in val_ds.indices)),
         "test":  sorted(set(ds[i]["subject_id"] for i in test_ds.indices)),
-        "seed":  SEED,
+        "split_mode": "explicit_subject_split" if subject_split is not None else "seed_random",
+        "seed":  None if subject_split is not None else _split_seed,
     }
     with open(results_dir / "split.json", "w") as f:
         json.dump(split_info, f, indent=2)
@@ -393,7 +463,7 @@ def train(
             }, results_dir / "best_model_cls.pt")
             log.info(f"  -> New joint-best cls loss: "
                      f"val={best_val_loss_cls_preoverfit:.4f}, train={best_train_loss_cls_preoverfit:.4f}")
-            
+
         else:
             epochs_no_improve += 1
 
