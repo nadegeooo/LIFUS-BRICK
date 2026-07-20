@@ -1,28 +1,29 @@
 {
   "train": [
+    "sub-fuspd01",
     "sub-fuspd03",
-    "sub-fuspd07",
+    "sub-fuspd04",
+    "sub-fuspd06",
     "sub-fuspd08",
-    "sub-fuspd09",
+    "sub-fuspd12",
     "sub-fuspd13",
     "sub-fuspd15",
     "sub-fuspd16",
     "sub-fuspd18",
-    "sub-fuspd19",
     "sub-fuspd20",
-    "sub-fuspd22",
-    "sub-fuspd23",
-    "sub-fuspd24"
-  ],
-  "val": [
-    "sub-fuspd04"
-  ],
-  "test": [
-    "sub-fuspd01",
-    "sub-fuspd06",
-    "sub-fuspd11",
-    "sub-fuspd12",
+    "sub-fuspd24",
     "sub-fuspd26"
   ],
-  "seed": 42
+  "val": [
+    "sub-fuspd09",
+    "sub-fuspd11",
+    "sub-fuspd19",
+    "sub-fuspd22",
+    "sub-fuspd23"
+  ],
+  "test": [
+    "sub-fuspd07"
+  ],
+  "split_mode": "explicit_subject_split",
+  "seed": null
 }
