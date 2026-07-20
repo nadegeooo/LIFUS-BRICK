@@ -13,7 +13,9 @@ Description:
     Training protocol (Zhou et al. 2025):
         - Optimizer:  AdamW, lr=1e-3, weight_decay=1e-3
         - Scheduler:  ReduceLROnPlateau(mode='min', factor=0.5, patience=15, min_lr=1e-6) - changed
-        - Early stop: patience=50 epochs on total validation loss
+        - Early stop: stops once val classification loss regresses more than
+          cls_regression_threshold (default 0.2) above the best val cls loss
+          seen so far (i.e. the value that produced best_model_cls.pt)
         - Split:      7:1:2 by subject (no session leakage)
 
     KL Annealing (training stabilization for N=19, not in original BRICK):
@@ -69,7 +71,6 @@ from training.dataset import BRICKDataset, split_dataset
 from config import (
     M, N_ROIS, H, T as T_DATA,
     KL_G0_ANNEAL_EPOCHS, KL_G0_DELAY_EPOCHS, KL_U_DELAY_EPOCHS, KL_U_ANNEAL_EPOCHS,
-    PATIENCE
 )
 import config
 
@@ -287,6 +288,9 @@ def train(
     subject_split: dict = None,   # {"train": [...], "val": [...], "test": [...]} of subject IDs;
                                    # if provided, bypasses split_dataset()/split_seed entirely
     base_results_dir: Path = None,  # overrides RESULTS_DIR (e.g. for results/loso_19_fold/)
+    cls_regression_threshold: float = 0.2,  # stop once val_loss_cls exceeds the best
+                                             # best_model_cls.pt value seen so far by
+                                             # more than this amount
 ):
     _lambda_noise = lambda_noise if lambda_noise is not None else config.LAMBDA_NOISE
     _weight_decay = weight_decay if weight_decay is not None else config.WEIGHT_DECAY
@@ -307,7 +311,7 @@ def train(
     log.info(f"Epochs={n_epochs}, LR={LR}, WD={_weight_decay}, "
              f"LAMBDA_NOISE={_lambda_noise}, BATCH_SIZE={_batch_size}, "
              f"BETA={_beta}, EPSILON={_epsilon}")
-    log.info(f"Patience={PATIENCE}, use_control={use_control}, use_ic={use_ic}")
+    log.info(f"cls_regression_threshold={cls_regression_threshold}, use_control={use_control}, use_ic={use_ic}")
     log.info(f"KL annealing: g0 over {KL_G0_ANNEAL_EPOCHS} epochs, "
              f"u delayed {KL_U_DELAY_EPOCHS} then over {KL_U_ANNEAL_EPOCHS} epochs")
     if subject_split is not None:
@@ -365,7 +369,6 @@ def train(
     best_val_loss               = float("inf")   # best_model_recon.pt: val-only
     best_val_loss_cls_preoverfit   = float("inf")   # best_model_cls.pt: joint val+train (cls)
     best_train_loss_cls_preoverfit = float("inf")
-    epochs_no_improve = 0
     log.info("Starting training...")
 
     for epoch in range(1, n_epochs + 1):
@@ -430,7 +433,6 @@ def train(
         val_total = val_losses["loss_total"]
         if val_total < best_val_loss:
             best_val_loss = val_total
-            epochs_no_improve = 0
             safe_save({
                 "epoch":                epoch,
                 "model_state_dict":     model.state_dict(),
@@ -464,14 +466,16 @@ def train(
             log.info(f"  -> New joint-best cls loss: "
                      f"val={best_val_loss_cls_preoverfit:.4f}, train={best_train_loss_cls_preoverfit:.4f}")
 
-        else:
-            epochs_no_improve += 1
-
-        # --- Early stopping (tied to best_model_cls.pt only) ---
-        if epochs_no_improve >= PATIENCE:
+        # --- Early stopping (cls regression threshold) ---
+        # Stop as soon as val cls loss regresses more than cls_regression_threshold
+        # above the best best_model_cls.pt value seen so far. On the epoch that
+        # sets a new best, val_losses["loss_cls"] == best_val_loss_cls_preoverfit,
+        # so this never fires on an improving epoch.
+        if val_losses["loss_cls"] > best_val_loss_cls_preoverfit + cls_regression_threshold:
             log.info(
-                f"Early stopping at epoch {epoch} -- "
-                f"no improvement for {PATIENCE} epochs."
+                f"Stopping at epoch {epoch} -- val cls loss {val_losses['loss_cls']:.4f} "
+                f"exceeds best {best_val_loss_cls_preoverfit:.4f} by more than "
+                f"{cls_regression_threshold} (cls_regression_threshold)."
             )
             break
 

@@ -44,7 +44,7 @@ sys.path.insert(0, str(ROOT_DIR))
 from training.train import train, DATA_DIR, N_EPOCHS, SEED
 from training.dataset import BRICKDataset
 
-LOSO_RESULTS_DIR      = ROOT_DIR / "results" / "loso_19_fold"
+LOSO_RESULTS_DIR      = ROOT_DIR / "results" / "training" / "loso_19_fold_beta_0.2"
 N_VAL_SUBJECTS_DEFAULT = 5
 
 

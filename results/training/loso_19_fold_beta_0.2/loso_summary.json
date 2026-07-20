@@ -1,0 +1,543 @@
+{
+  "n_val_subjects": 5,
+  "split_seed": 42,
+  "train_seed": 42,
+  "use_control": true,
+  "use_ic": true,
+  "fold_splits": {
+    "sub-fuspd01": {
+      "train": [
+        "sub-fuspd03",
+        "sub-fuspd07",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd18",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd23",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd01"
+      ]
+    },
+    "sub-fuspd03": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd23"
+      ],
+      "val": [
+        "sub-fuspd07",
+        "sub-fuspd11",
+        "sub-fuspd18",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd03"
+      ]
+    },
+    "sub-fuspd04": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd18",
+        "sub-fuspd19",
+        "sub-fuspd23",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd03",
+        "sub-fuspd07",
+        "sub-fuspd16",
+        "sub-fuspd20",
+        "sub-fuspd22"
+      ],
+      "test": [
+        "sub-fuspd04"
+      ]
+    },
+    "sub-fuspd06": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd04",
+        "sub-fuspd07",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd03",
+        "sub-fuspd08",
+        "sub-fuspd18",
+        "sub-fuspd19",
+        "sub-fuspd23"
+      ],
+      "test": [
+        "sub-fuspd06"
+      ]
+    },
+    "sub-fuspd07": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd18",
+        "sub-fuspd20",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd19",
+        "sub-fuspd22",
+        "sub-fuspd23"
+      ],
+      "test": [
+        "sub-fuspd07"
+      ]
+    },
+    "sub-fuspd08": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd11",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd18",
+        "sub-fuspd19",
+        "sub-fuspd22",
+        "sub-fuspd23",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd04",
+        "sub-fuspd09",
+        "sub-fuspd12",
+        "sub-fuspd16",
+        "sub-fuspd20"
+      ],
+      "test": [
+        "sub-fuspd08"
+      ]
+    },
+    "sub-fuspd09": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd16",
+        "sub-fuspd18",
+        "sub-fuspd22",
+        "sub-fuspd23",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd04",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd19",
+        "sub-fuspd20"
+      ],
+      "test": [
+        "sub-fuspd09"
+      ]
+    },
+    "sub-fuspd11": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd16",
+        "sub-fuspd18",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd03",
+        "sub-fuspd07",
+        "sub-fuspd15",
+        "sub-fuspd23",
+        "sub-fuspd24"
+      ],
+      "test": [
+        "sub-fuspd11"
+      ]
+    },
+    "sub-fuspd12": {
+      "train": [
+        "sub-fuspd03",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd23",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd01",
+        "sub-fuspd04",
+        "sub-fuspd18",
+        "sub-fuspd20",
+        "sub-fuspd22"
+      ],
+      "test": [
+        "sub-fuspd12"
+      ]
+    },
+    "sub-fuspd13": {
+      "train": [
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd01",
+        "sub-fuspd07",
+        "sub-fuspd18",
+        "sub-fuspd23",
+        "sub-fuspd24"
+      ],
+      "test": [
+        "sub-fuspd13"
+      ]
+    },
+    "sub-fuspd15": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd18",
+        "sub-fuspd20",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd22",
+        "sub-fuspd23",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd15"
+      ]
+    },
+    "sub-fuspd16": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd23",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd06",
+        "sub-fuspd09",
+        "sub-fuspd18",
+        "sub-fuspd22",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd16"
+      ]
+    },
+    "sub-fuspd18": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd23",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd08",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd18"
+      ]
+    },
+    "sub-fuspd19": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd18",
+        "sub-fuspd20",
+        "sub-fuspd22"
+      ],
+      "val": [
+        "sub-fuspd03",
+        "sub-fuspd16",
+        "sub-fuspd23",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd19"
+      ]
+    },
+    "sub-fuspd20": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd22",
+        "sub-fuspd23"
+      ],
+      "val": [
+        "sub-fuspd07",
+        "sub-fuspd13",
+        "sub-fuspd18",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd20"
+      ]
+    },
+    "sub-fuspd22": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd12",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd23",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd07",
+        "sub-fuspd11",
+        "sub-fuspd13",
+        "sub-fuspd18",
+        "sub-fuspd24"
+      ],
+      "test": [
+        "sub-fuspd22"
+      ]
+    },
+    "sub-fuspd23": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd18",
+        "sub-fuspd19"
+      ],
+      "test": [
+        "sub-fuspd23"
+      ]
+    },
+    "sub-fuspd24": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd09",
+        "sub-fuspd13",
+        "sub-fuspd16",
+        "sub-fuspd18",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd08",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd15",
+        "sub-fuspd23"
+      ],
+      "test": [
+        "sub-fuspd24"
+      ]
+    },
+    "sub-fuspd26": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd06",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd04",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd18",
+        "sub-fuspd23"
+      ],
+      "test": [
+        "sub-fuspd26"
+      ]
+    }
+  },
+  "fold_best_val_loss": {
+    "sub-fuspd01": 2.5702765822410583,
+    "sub-fuspd03": 1.930447030067444,
+    "sub-fuspd04": 2.8241426825523375,
+    "sub-fuspd06": 3.8288151621818542,
+    "sub-fuspd07": 3.4725032567977907,
+    "sub-fuspd08": 3.170148992538452,
+    "sub-fuspd09": 4.072782421112061,
+    "sub-fuspd11": 3.683910775184631,
+    "sub-fuspd12": 2.710464286804199,
+    "sub-fuspd13": 3.398589587211609,
+    "sub-fuspd15": 3.2847598075866697,
+    "sub-fuspd16": 2.4896067440509797,
+    "sub-fuspd18": 2.7788561820983886,
+    "sub-fuspd19": 3.7640545845031737,
+    "sub-fuspd20": 2.64837983250618,
+    "sub-fuspd22": 2.958064544200897,
+    "sub-fuspd23": 3.0691574811935425,
+    "sub-fuspd24": 4.259159672260284,
+    "sub-fuspd26": 3.0859997987747194
+  }
+}

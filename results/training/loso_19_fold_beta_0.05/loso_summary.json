@@ -1,0 +1,291 @@
+{
+  "n_val_subjects": 5,
+  "split_seed": 42,
+  "train_seed": 42,
+  "use_control": true,
+  "use_ic": true,
+  "fold_splits": {
+    "sub-fuspd13": {
+      "train": [
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd01",
+        "sub-fuspd07",
+        "sub-fuspd18",
+        "sub-fuspd23",
+        "sub-fuspd24"
+      ],
+      "test": [
+        "sub-fuspd13"
+      ]
+    },
+    "sub-fuspd15": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd18",
+        "sub-fuspd20",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd22",
+        "sub-fuspd23",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd15"
+      ]
+    },
+    "sub-fuspd16": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd23",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd06",
+        "sub-fuspd09",
+        "sub-fuspd18",
+        "sub-fuspd22",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd16"
+      ]
+    },
+    "sub-fuspd18": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd23",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd08",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd18"
+      ]
+    },
+    "sub-fuspd19": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd18",
+        "sub-fuspd20",
+        "sub-fuspd22"
+      ],
+      "val": [
+        "sub-fuspd03",
+        "sub-fuspd16",
+        "sub-fuspd23",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd19"
+      ]
+    },
+    "sub-fuspd20": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd22",
+        "sub-fuspd23"
+      ],
+      "val": [
+        "sub-fuspd07",
+        "sub-fuspd13",
+        "sub-fuspd18",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "test": [
+        "sub-fuspd20"
+      ]
+    },
+    "sub-fuspd22": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd12",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd23",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd07",
+        "sub-fuspd11",
+        "sub-fuspd13",
+        "sub-fuspd18",
+        "sub-fuspd24"
+      ],
+      "test": [
+        "sub-fuspd22"
+      ]
+    },
+    "sub-fuspd23": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd08",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd24",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd18",
+        "sub-fuspd19"
+      ],
+      "test": [
+        "sub-fuspd23"
+      ]
+    },
+    "sub-fuspd24": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd04",
+        "sub-fuspd06",
+        "sub-fuspd07",
+        "sub-fuspd09",
+        "sub-fuspd13",
+        "sub-fuspd16",
+        "sub-fuspd18",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd26"
+      ],
+      "val": [
+        "sub-fuspd08",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd15",
+        "sub-fuspd23"
+      ],
+      "test": [
+        "sub-fuspd24"
+      ]
+    },
+    "sub-fuspd26": {
+      "train": [
+        "sub-fuspd01",
+        "sub-fuspd03",
+        "sub-fuspd06",
+        "sub-fuspd09",
+        "sub-fuspd11",
+        "sub-fuspd12",
+        "sub-fuspd13",
+        "sub-fuspd15",
+        "sub-fuspd16",
+        "sub-fuspd19",
+        "sub-fuspd20",
+        "sub-fuspd22",
+        "sub-fuspd24"
+      ],
+      "val": [
+        "sub-fuspd04",
+        "sub-fuspd07",
+        "sub-fuspd08",
+        "sub-fuspd18",
+        "sub-fuspd23"
+      ],
+      "test": [
+        "sub-fuspd26"
+      ]
+    }
+  },
+  "fold_best_val_loss": {
+    "sub-fuspd13": 1.3219092726707458,
+    "sub-fuspd15": 1.180988174676895,
+    "sub-fuspd16": 0.9423304975032807,
+    "sub-fuspd18": 1.235183095932007,
+    "sub-fuspd19": 1.6342513978481292,
+    "sub-fuspd20": 1.099886131286621,
+    "sub-fuspd22": 1.2195189893245697,
+    "sub-fuspd23": 1.09111590385437,
+    "sub-fuspd24": 1.6094218850135804,
+    "sub-fuspd26": 1.2001087963581085
+  }
+}

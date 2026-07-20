@@ -1,0 +1,29 @@
+{
+  "train": [
+    "sub-fuspd01",
+    "sub-fuspd03",
+    "sub-fuspd04",
+    "sub-fuspd06",
+    "sub-fuspd08",
+    "sub-fuspd09",
+    "sub-fuspd11",
+    "sub-fuspd12",
+    "sub-fuspd15",
+    "sub-fuspd16",
+    "sub-fuspd19",
+    "sub-fuspd22",
+    "sub-fuspd23"
+  ],
+  "val": [
+    "sub-fuspd07",
+    "sub-fuspd13",
+    "sub-fuspd18",
+    "sub-fuspd24",
+    "sub-fuspd26"
+  ],
+  "test": [
+    "sub-fuspd20"
+  ],
+  "split_mode": "explicit_subject_split",
+  "seed": null
+}
