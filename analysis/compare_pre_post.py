@@ -45,16 +45,20 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import torch
 from pathlib import Path
-from scipy import stats
-from statsmodels.stats.multitest import multipletests
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from config import M, N_ROIS, H
-from models.brick import BRICK
 from models.koopman_utils import compute_lambda
 from preprocessing.load_preprocessed_data import load_all, TARGET_ROIS
+from analysis.analysis_helper_functions import (
+    load_model, znorm, verify_roi_consistency, compute_K,
+    compute_roi_projection_weights, project_to_roi,
+    paired_tests_per_coordinate, paired_tests_per_roi, norm_omnibus,
+    extract_all_C, reconstruct_C_dict,
+    check_per_subject_consistency_brain_space, report_consistency_brain_space,
+)
 
 FINAL_MODEL_PATH = ROOT_DIR / "results" / "final_model" / "best_model_cls.pt"
 RESULTS_DIR      = ROOT_DIR / "results" / "final_model"
@@ -66,14 +70,9 @@ NYQUIST_HZ = 1.0 / (2 * TR)    # 0.25 Hz
 
 
 # ================================================================================
-# UTILITIES
+# UTILITIES (local to this file only)
 # ================================================================================
- 
-def znorm(x: torch.Tensor) -> torch.Tensor:
-    """Per-ROI z-score over time. Matches the training-time normalization."""
-    return (x - x.mean(dim=0)) / (x.std(dim=0) + 1e-8)
- 
- 
+
 def eig_units(Lambda: np.ndarray) -> dict:
     """Convert complex eigenvalues to interpretable physical quantities."""
     mag    = np.abs(Lambda)
@@ -85,193 +84,11 @@ def eig_units(Lambda: np.ndarray) -> dict:
         tau_s = np.where(mag < 1.0, -TR / np.log(mag), np.inf)
     return {"mag": mag, "phase": phase, "freq_hz": freq_hz,
             "period_s": period_s, "tau_s": tau_s}
- 
- 
-def verify_roi_consistency(subjects):
-    """
-    Every subject's ROI order must be byte-identical to TARGET_ROIS. If not,
-    row i meant a different region for some subject during training and every
-    spatial readout below is invalid. Fail loudly rather than silently mislabel.
-    """
-    target = list(TARGET_ROIS)
-    for s in subjects:
-        if list(s["roi_names"]) != target:
-            raise ValueError(
-                f"ROI order mismatch for {s['subject_id']}/{s['target']}: "
-                f"subject roi_names != TARGET_ROIS. Spatial labels would be wrong."
-            )
-    print(f"ROI order verified consistent across {len(subjects)} subject-sessions.")
- 
- 
-def compute_roi_projection_weights(W_bar_x: np.ndarray) -> np.ndarray:
-    """
-    Real, non-negative (N_ROIS, M) weights derived from the decoder, used to
-    project any g-space diagonal vector (e.g. diag(C)) onto ROIs:
- 
-        weight[i, m] = |W_bar_x[i, m]|^2 / sum_m' |W_bar_x[i, m']|^2
- 
-    This is diag(W diag(v) W^H) expressed as a row-normalized weighted AVERAGE
-    rather than a weighted sum, so the projected quantity stays in the same
-    units as v (a control gain) instead of being scaled by each ROI's total
-    spectral power in the readout. This is the only valid way to attach a
-    g-space diagonal vector to ROIs when the vector's own coordinates were
-    never architecturally anchored to ROIs (true for diag(C); see module
-    docstring).
-    """
-    power = np.abs(W_bar_x) ** 2                    # (N_ROIS, M) real, >=0
-    row_sum = power.sum(axis=1, keepdims=True)
-    row_sum = np.where(row_sum > 1e-12, row_sum, 1.0)
-    return power / row_sum
- 
- 
-def project_to_roi(diag_arr: np.ndarray, roi_weights: np.ndarray) -> np.ndarray:
-    """diag_arr: (n_subjects, M) -> (n_subjects, N_ROIS) via roi_weights."""
-    return diag_arr @ roi_weights.T
-
-
-def check_per_subject_consistency_brain_space(
-    C_dict: dict,
-    model:  BRICK,
-    target: str = "zi",
-) -> pd.DataFrame:
-    """
-    For each of the 24 ROIs, compute the sign of ΔC projected to brain space
-    per subject and report how many subjects agree on direction.
-
-    ΔC_brain = W_real @ (C_post - C_pre) @ W_real.T   (24, 24)
-    We take the diagonal: how much each ROI's self-control changes.
-
-    Args:
-        C_dict: dict from extract_C_matrices
-        model:  trained BRICK model (for W_bar_x)
-        target: 'vim' or 'zi'
-
-    Returns:
-        DataFrame with columns:
-            roi, n_positive, n_negative, n_consistent,
-            consistent_direction, consistency_fraction, mean_delta
-    """
-    from preprocessing.load_preprocessed_data import TARGET_ROIS
-
-    # Filter to target
-    keys = sorted([k for k in C_dict.keys() if k[1] == target])
-    n_subjects = len(keys)
-
-    if n_subjects == 0:
-        raise ValueError(f"No subjects found for target={target}")
-
-    print(f"  Checking brain-space consistency across {n_subjects} subjects for target={target}")
-
-    # Projection matrix
-    with torch.no_grad():
-        W_real = model.W_bar_x.real.cpu().numpy()  # (24, 96)
-
-    # Per-subject ΔC projected to brain space diagonal
-    delta_brain_diag = []
-    for k in keys:
-        C_pre  = C_dict[k]["pre"].numpy()   # (96, 96)
-        C_post = C_dict[k]["post"].numpy()  # (96, 96)
-        delta_C = C_post - C_pre            # (96, 96)
-
-        # Project to brain space
-        delta_C_brain = W_real @ delta_C @ W_real.T  # (24, 24)
-
-        # Take diagonal — self-control change per ROI
-        delta_brain_diag.append(np.diag(delta_C_brain))  # (24,)
-
-    delta_brain_diag = np.stack(delta_brain_diag)  # (n_subjects, 24)
-
-    # Count sign agreement per ROI
-    n_positive  = (delta_brain_diag > 0).sum(axis=0)   # (24,)
-    n_negative  = (delta_brain_diag < 0).sum(axis=0)   # (24,)
-    n_consistent = np.maximum(n_positive, n_negative)
-    consistent_direction = np.where(
-        n_positive >= n_negative, "increase", "decrease"
-    )
-    consistency_fraction = n_consistent / n_subjects
-    mean_delta = delta_brain_diag.mean(axis=0)          # (24,)
-
-    df = pd.DataFrame({
-        "roi":                   TARGET_ROIS,
-        "n_positive":            n_positive,
-        "n_negative":            n_negative,
-        "n_consistent":          n_consistent,
-        "consistent_direction":  consistent_direction,
-        "consistency_fraction":  consistency_fraction,
-        "mean_delta":            mean_delta,
-    })
-
-    df = df.sort_values("n_consistent", ascending=False).reset_index(drop=True)
-
-    return df
-
-
-def report_consistency_brain_space(
-    consistency_df: pd.DataFrame,
-    n_subjects:     int,
-    threshold:      int = 15,
-):
-    """Print brain-space consistency report."""
-    print(f"\n{'='*60}")
-    print(f"Brain-space ΔC consistency (threshold: {threshold}/{n_subjects})")
-    print(f"{'='*60}")
-
-    consistent = consistency_df[consistency_df["n_consistent"] >= threshold]
-
-    if len(consistent) == 0:
-        print(f"No ROIs show consistent direction in {threshold}+ subjects.")
-    else:
-        print(f"ROIs with consistent direction in {threshold}+ subjects: {len(consistent)}")
-        for _, row in consistent.iterrows():
-            print(
-                f"  {row['roi']:<35} "
-                f"{int(row['n_consistent'])}/{n_subjects} subjects "
-                f"{row['consistent_direction']} | "
-                f"mean ΔC = {row['mean_delta']:+.4f}"
-            )
-
-    print(f"\nAll ROIs ranked by consistency:")
-    print(f"{'ROI':<35} {'n_agree':>8} {'direction':>12} {'mean_delta':>12}")
-    print("-" * 70)
-    for _, row in consistency_df.iterrows():
-        print(
-            f"{row['roi']:<35} "
-            f"{int(row['n_consistent']):>5}/{n_subjects:<3} "
-            f"{row['consistent_direction']:>12} "
-            f"{row['mean_delta']:>+12.4f}"
-        )
-
-
-# ================================================================================
-# 1. LOAD MODEL
-# ================================================================================
-
-def load_model(checkpoint_path: Path = FINAL_MODEL_PATH) -> BRICK:
-    if not checkpoint_path.exists():
-        raise FileNotFoundError(f"No checkpoint found at {checkpoint_path}")
-    ckpt = torch.load(checkpoint_path, map_location="cpu")
-    model = BRICK(use_control=ckpt["use_control"], use_ic=ckpt["use_ic"],
-                  h=ckpt["h"], m=ckpt["m"])
-    model.load_state_dict(ckpt["model_state_dict"])
-    model.eval()
-    print(f"Loaded model from {checkpoint_path}")
-    return model
 
 
 # ================================================================================
 # 2. K (GLOBAL, DESCRIPTIVE — NO STATISTICS)
 # ================================================================================
-
-def compute_K(model: BRICK):
-    """Reconstruct the shared operator K, its spectrum, and the mode readout."""
-    with torch.no_grad():
-        Lambda  = compute_lambda(model.nu_log, model.theta_log)   # (M,) complex
-        P_inv   = model.P_inv                                      # (M, M) complex
-        P       = torch.linalg.inv(P_inv)
-        K       = P @ torch.diag(Lambda) @ P_inv                   # (M, M) complex
-        W_bar_x = model.W_bar_x                                    # (N_ROIS, M) complex
-    return K.detach().cpu().numpy(), Lambda.detach().cpu().numpy(), W_bar_x.detach().cpu().numpy()
-
 
 def eigenvalue_table(Lambda: np.ndarray) -> pd.DataFrame:
     u = eig_units(Lambda)
@@ -329,12 +146,12 @@ def plot_spectrum(Lambda: np.ndarray, out_path: Path):
 
 
 def plot_mode_maps(
-    W_bar_x: np.ndarray, 
+    W_bar_x: np.ndarray,
     Lambda: np.ndarray,
-    roi_names, 
-    out_path: Path, 
-    top_k: int = M,                     
-    resting_band: tuple = (0.01, 0.1),    # Added to avoid global scope crashes
+    roi_names,
+    out_path: Path,
+    top_k: int = M,
+    resting_band: tuple = (0.01, 0.1),
 ):
     """
     Heatmap: modes (rows) x ROIs (columns), color = |loading|.
@@ -371,7 +188,6 @@ def plot_mode_maps(
     roi_names_list = list(roi_names)
     n_rois = len(roi_names_list)
 
-    # Build ROI order grouped by network
     roi_order = []
     roi_network_labels = []
     for net_name, net_rois in NETWORKS.items():
@@ -379,8 +195,7 @@ def plot_mode_maps(
             if r in roi_names_list:
                 roi_order.append(roi_names_list.index(r))
                 roi_network_labels.append(net_name)
-                
-    # Append any ROIs not in any network group at the end
+
     ungrouped = [i for i in range(n_rois) if i not in roi_order]
     for i in ungrouped:
         roi_order.append(i)
@@ -389,12 +204,10 @@ def plot_mode_maps(
     W_abs = np.abs(W_bar_x)
     loading = W_abs.T  # (M, n_rois)
 
-    # Sort modes by eigenvalue magnitude (persistence)
     u = eig_units(Lambda)
     mode_order = np.argsort(u["mag"])[::-1]
-    
     mode_order = mode_order[:top_k]
-        
+
     M_display = len(mode_order)
     loading_sorted = loading[mode_order, :]
     loading_grouped = loading_sorted[:, roi_order]
@@ -404,13 +217,11 @@ def plot_mode_maps(
     im = ax.imshow(loading_grouped, aspect="auto", cmap="hot", interpolation="nearest")
     plt.colorbar(im, ax=ax, fraction=0.02, pad=0.03, label="|loading|")
 
-    # ROI labels on x-axis grouped by network
     ordered_roi_names = [roi_names_list[i] for i in roi_order]
     ax.set_xticks(range(len(roi_order)))
     ax.set_xticklabels(ordered_roi_names, rotation=90, fontsize=8)
     ax.set_xlabel("Brain Region (grouped by network)", fontsize=10)
 
-    # Mode labels on y-axis
     mode_labels = [
         f"M{mode_order[i]}  |λ|={u['mag'][mode_order[i]]:.2f}  {u['freq_hz'][mode_order[i]]:.3f}Hz"
         for i in range(M_display)
@@ -419,7 +230,6 @@ def plot_mode_maps(
     ax.set_yticklabels(mode_labels, fontsize=7)
     ax.set_ylabel("Koopman Mode (sorted by persistence)", fontsize=10)
 
-    # Fixed: Safe text placement using blended transform to prevent clipping above plot
     boundary = 0
     for net_name, net_rois in NETWORKS.items():
         n_in_network = sum(1 for r in net_rois if r in roi_names_list)
@@ -427,8 +237,7 @@ def plot_mode_maps(
             continue
         if boundary > 0:
             ax.axvline(boundary - 0.5, color="white", lw=1.5, ls="--")
-            
-        # Transform ensures y position (1.02) is dynamically scaled just above plot bounds
+
         ax.text(boundary + n_in_network / 2 - 0.5, 1.02,
                 net_name, ha="center", va="bottom",
                 fontsize=9, fontweight="bold",
@@ -436,10 +245,9 @@ def plot_mode_maps(
                 transform=ax.get_xaxis_transform())
         boundary += n_in_network
 
-    # Highlight resting-band frequencies directly on the text labels
     freq_ordered = u["freq_hz"][mode_order]
     yticklabels = ax.get_yticklabels()
-    
+
     for idx, freq in enumerate(freq_ordered):
         if resting_band[0] <= freq <= resting_band[1]:
             yticklabels[idx].set_color("darkcyan")
@@ -448,7 +256,7 @@ def plot_mode_maps(
     ax.set_title(
         "Koopman Mode Spatial Loadings\n"
         f"rows = top {M_display} modes sorted by persistence  |  columns = brain regions grouped by network",
-        fontsize=11, pad=25  # Added padding to give network labels room to breathe
+        fontsize=11, pad=25
     )
 
     plt.tight_layout()
@@ -491,121 +299,26 @@ def plot_block_coupling(B: np.ndarray, roi_names, out_path: Path):
     plt.close(fig)
 
 
+def run_K_descriptives(model, top_k):
+    print("\n--- K (global, descriptive) ---")
+    K, Lambda, W_bar_x = compute_K(model)
+
+    eig_df = eigenvalue_table(Lambda)
+    eig_path = RESULTS_DIR / "koopman_eigenvalues.csv"
+    eig_df.to_csv(eig_path, index=False)
+    print(f"Saved {eig_path}")
+    print(f"  Persistent modes (|\u039b|>0.9): {(np.abs(Lambda) > 0.9).sum()} / {len(Lambda)}")
+
+    plot_spectrum(Lambda, FIGURES_DIR / "koopman_spectrum.png")
+    plot_mode_maps(W_bar_x, Lambda, TARGET_ROIS,
+                   FIGURES_DIR / "koopman_mode_maps.png", top_k=top_k)
+    B = compute_block_norms(K, N_ROIS, H)
+    plot_block_coupling(B, TARGET_ROIS, FIGURES_DIR / "K_region_coupling.png")
+
+
 # ================================================================================
 # 3. C (PER TARGET, INFERENTIAL)
 # ================================================================================
-
-def extract_C_diagonals(model: BRICK, target: str):
-    """
-    Return (subject_ids, pre, post): (n_subjects, M) raw diag(C) arrays.
-    Raw g-space coordinates -- NOT ROI-labeled (see module docstring). One
-    target only, no pooling across targets.
-    """
-    subjects = load_all()
-    sids, pre, post = [], [], []
-    with torch.no_grad():
-        for s in subjects:
-            if s["target"] != target:
-                continue
-            x_pre  = znorm(torch.tensor(s["mpre"],  dtype=torch.float32))
-            x_post = znorm(torch.tensor(s["mpost"], dtype=torch.float32))
-            sids.append(s["subject_id"])
-            pre.append(np.real(model(x_pre)["C"].diag().cpu().numpy()))
-            post.append(np.real(model(x_post)["C"].diag().cpu().numpy()))
-    return sids, np.asarray(pre), np.asarray(post)
-
-
-def paired_tests_per_coordinate(pre, post, alpha=0.05) -> pd.DataFrame:
-    """
-    Per g-space coordinate: paired t-test pre vs post across subjects, plus
-    Wilcoxon signed-rank as a non-parametric companion (N is small, normality
-    is unverifiable). FDR-corrected across coordinates. The subject is the
-    unit of replication; coordinate m is the same latent direction for every
-    subject because the basis is global, which is what licenses averaging
-    across people.
-
-    NO roi_name/roi_index/channel columns: diag(C)'s raw coordinates carry no
-    ROI meaning (see module docstring). Use paired_tests_per_roi for spatial
-    localization.
-    """
-    N, Mc = pre.shape
-    diff = post - pre
-    t = np.zeros(Mc); p = np.ones(Mc); w = np.ones(Mc)
-    for m in range(Mc):
-        if np.allclose(diff[:, m], 0.0):
-            t[m], p[m] = 0.0, 1.0
-        else:
-            t[m], p[m] = stats.ttest_rel(post[:, m], pre[:, m])
-        try:
-            w[m] = stats.wilcoxon(post[:, m], pre[:, m]).pvalue
-        except ValueError:
-            w[m] = 1.0
-
-    _, p_fdr, _, _ = multipletests(p, method="fdr_bh")
-
-    return pd.DataFrame({
-        "coord_index": np.arange(Mc),
-        "mean_pre":    pre.mean(0),
-        "mean_post":   post.mean(0),
-        "delta":       diff.mean(0),
-        "t_statistic": t,
-        "p_value":     p,
-        "p_value_fdr": p_fdr,
-        "wilcoxon_p":  w,
-        "significant": p_fdr < alpha,
-    })
-
-
-def paired_tests_per_roi(pre_roi, post_roi, roi_names, alpha=0.05) -> pd.DataFrame:
-    """
-    Per ROI, on DECODER-PROJECTED values (see project_to_roi /
-    compute_roi_projection_weights), NOT a coordinate-index reshape. Same
-    paired t-test + Wilcoxon + FDR structure as the coordinate-level test,
-    but now the ROI label is actually valid: pre_roi/post_roi were produced
-    by pushing diag(C) through the decoder's own weights.
-    """
-    N, n_rois = pre_roi.shape
-    diff = post_roi - pre_roi
-    t = np.zeros(n_rois); p = np.ones(n_rois); w = np.ones(n_rois)
-    for i in range(n_rois):
-        if np.allclose(diff[:, i], 0.0):
-            t[i], p[i] = 0.0, 1.0
-        else:
-            t[i], p[i] = stats.ttest_rel(post_roi[:, i], pre_roi[:, i])
-        try:
-            w[i] = stats.wilcoxon(post_roi[:, i], pre_roi[:, i]).pvalue
-        except ValueError:
-            w[i] = 1.0
-    _, p_fdr, _, _ = multipletests(p, method="fdr_bh")
-
-    return pd.DataFrame({
-        "roi_index":   np.arange(n_rois),
-        "roi_name":    list(roi_names),
-        "mean_pre":    pre_roi.mean(0),
-        "mean_post":   post_roi.mean(0),
-        "delta":       diff.mean(0),
-        "t_statistic": t,
-        "p_value":     p,
-        "p_value_fdr": p_fdr,
-        "wilcoxon_p":  w,
-        "significant": p_fdr < alpha,
-    })
-
-
-def norm_omnibus(pre, post):
-    """
-    Omnibus: paired t-test on ||C||_F. Since C is diagonal,
-    ||C||_F = sqrt(sum diag^2), a coarse single-number summary of the gains.
-    """
-    pre_norm  = np.sqrt((pre ** 2).sum(1))
-    post_norm = np.sqrt((post ** 2).sum(1))
-    t, p = stats.ttest_rel(post_norm, pre_norm)
-    try:
-        w = stats.wilcoxon(post_norm, pre_norm).pvalue
-    except ValueError:
-        w = 1.0
-    return float(t), float(p), float(w)
-
 
 def plot_delta_C_roi(roi_delta: np.ndarray, roi_names, out_path: Path, target: str,
                      vmax: float = None):
@@ -703,45 +416,25 @@ def plot_delta_C_coordinates(coord_delta: np.ndarray, out_path: Path, target: st
     plt.close(fig)
 
 
-# ================================================================================
-# 4. MAIN
-# ================================================================================
-
-def run_K_descriptives(model, top_k):
-    print("\n--- K (global, descriptive) ---")
-    K, Lambda, W_bar_x = compute_K(model)
-
-    eig_df = eigenvalue_table(Lambda)
-    eig_path = RESULTS_DIR / "koopman_eigenvalues.csv"
-    eig_df.to_csv(eig_path, index=False)
-    print(f"Saved {eig_path}")
-    print(f"  Persistent modes (|\u039b|>0.9): {(np.abs(Lambda) > 0.9).sum()} / {len(Lambda)}")
-
-    plot_spectrum(Lambda, FIGURES_DIR / "koopman_spectrum.png")
-    plot_mode_maps(W_bar_x, Lambda, TARGET_ROIS,
-                   FIGURES_DIR / "koopman_mode_maps.png", top_k=top_k)
-    B = compute_block_norms(K, N_ROIS, H)
-    plot_block_coupling(B, TARGET_ROIS, FIGURES_DIR / "K_region_coupling.png")
-
-
-def run_C_inference(model, W_bar_x, target, alpha):
+def run_C_inference(C_all, W_bar_x, target, alpha):
     """
     Returns (roi_df, coord_df), or (None, None) if skipped. Plotting of the
     per-target and comparison ROI bars is deferred to main() so the axis
     scale can be shared across targets.
     """
     print(f"\n--- C inference: target = {target.upper()} ---")
-    sids, pre, post = extract_C_diagonals(model, target)
+    sids = [sid for sid, d in C_all.items() if target in d]
     n = len(sids)
     print(f"  {n} subjects")
     if n < 2:
         print(f"  Skipping {target}: need >=2 subjects for a paired test.")
         return None, None
 
-    # Coordinate-level: valid stats, no ROI label.
+    pre  = np.stack([C_all[sid][target]["pre"]  for sid in sids])
+    post = np.stack([C_all[sid][target]["post"] for sid in sids])
+
     coord_df = paired_tests_per_coordinate(pre, post, alpha)
 
-    # ROI-level: decoder-projected, this is the spatially valid one.
     roi_weights = compute_roi_projection_weights(W_bar_x)
     pre_roi  = project_to_roi(pre,  roi_weights)
     post_roi = project_to_roi(post, roi_weights)
@@ -773,11 +466,8 @@ def run_C_inference(model, W_bar_x, target, alpha):
     plot_delta_C_coordinates(coord_df["delta"].values,
                              FIGURES_DIR / f"delta_C_coord_{target}.png", target)
 
-    # Cohen's d per ROI (paired): mean(diff) / std(diff)
-    diff_roi = post_roi - pre_roi                          # (N, N_ROIS)
-    cohens_d_per_roi = (
-        diff_roi.mean(axis=0) / (diff_roi.std(axis=0) + 1e-8)
-    )                                                      # (N_ROIS,)
+    diff_roi = post_roi - pre_roi
+    cohens_d_per_roi = diff_roi.mean(axis=0) / (diff_roi.std(axis=0) + 1e-8)
     median_cohens_d = float(np.median(np.abs(cohens_d_per_roi)))
 
     summary = {
@@ -788,13 +478,16 @@ def run_C_inference(model, W_bar_x, target, alpha):
         "omnibus_p":       p_n,
         "median_cohens_d": median_cohens_d,
     }
-    
     summary_path = RESULTS_DIR / f"brick_summary_{target}.csv"
     pd.DataFrame([summary]).to_csv(summary_path, index=False)
     print(f"  Saved {summary_path}")
 
     return roi_df, coord_df
 
+
+# ================================================================================
+# 4. MAIN
+# ================================================================================
 
 def main(targets, alpha=0.05, top_k=M):
     print("=" * 64)
@@ -805,14 +498,16 @@ def main(targets, alpha=0.05, top_k=M):
     subjects = load_all()
     verify_roi_consistency(subjects)
 
-    model = load_model()
+    model = load_model(FINAL_MODEL_PATH)
     K, Lambda, W_bar_x = compute_K(model)   # kept for run_C_inference's W_bar_x
 
     run_K_descriptives(model, top_k=top_k)  # recomputes K/Lambda/W_bar_x internally; cheap
 
+    C_all = extract_all_C(model)   # single extraction, reused below
+
     roi_dfs = {}
     for target in targets:
-        roi_df, _ = run_C_inference(model, W_bar_x, target, alpha)
+        roi_df, _ = run_C_inference(C_all, W_bar_x, target, alpha)
         if roi_df is not None:
             roi_dfs[target] = roi_df
 
@@ -827,30 +522,15 @@ def main(targets, alpha=0.05, top_k=M):
             plot_delta_C_roi_comparison(roi_dfs, TARGET_ROIS,
                                         FIGURES_DIR / "delta_C_roi_comparison.png",
                                         alpha=alpha)
-            
 
-    # --- Brain-space consistency check ---
-    # Build C_dict for consistency functions (keyed by (subject_id, target))
-    print("\n--- Per-subject ΔC consistency (brain space) ---")
-    C_dict = {}
-    with torch.no_grad():
-        for s in subjects:
-            if s["target"] not in targets:
-                continue
-            x_pre  = znorm(torch.tensor(s["mpre"],  dtype=torch.float32))
-            x_post = znorm(torch.tensor(s["mpost"], dtype=torch.float32))
-            key = (s["subject_id"], s["target"])
-            C_dict[key] = {
-                "pre":  model(x_pre)["C"],
-                "post": model(x_post)["C"],
-            }
-
+    print("\n--- Per-subject \u0394C consistency (brain space) ---")
     for target in targets:
         try:
+            C_dict = reconstruct_C_dict(C_all, target)
             brain_consistency_df = check_per_subject_consistency_brain_space(
                 C_dict, model, target=target
             )
-            n_subjects = len([k for k in C_dict.keys() if k[1] == target])
+            n_subjects = len(C_dict)
             report_consistency_brain_space(
                 brain_consistency_df,
                 n_subjects=n_subjects,

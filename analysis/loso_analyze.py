@@ -1,6 +1,6 @@
 """
 ================================================================================
-LOSO fold-specific ΔC (post - pre) by patient  —  reuses compare_pre_post.py
+LOSO fold-specific ΔC (post - pre) by patient
 ================================================================================
 
 For each completed LOSO fold in results/loso_19_fold/fold_{subject}/, loads
@@ -11,7 +11,7 @@ checkpoint was trained on.
 
 EXCLUDED FOLDS (see EXCLUDED_SUBJECTS below): sub-fuspd09 and sub-fuspd15
 had reconstruction loss ~50-100x every other fold (228.9 and 205.9 vs a
-1.5-9.7 range across the other 17), indicating those folds' models failed
+0.5-3 range across the other 17), indicating those folds' models failed
 to converge rather than genuinely fitting worse. Excluded by hand from all
 downstream aggregate plots/stats -- NOT from the raw per-fold cache or the
 loss table, so the convergence failure stays visible for diagnosis. Every
@@ -20,7 +20,7 @@ plot produced by this script states the exclusion explicitly in its title.
 THREE OUTPUTS:
     1. Per-patient ΔC grids (one figure per target, unchanged design from
        the original version) -- raw, unaggregated, one bar per patient.
-    2. NEW: pooled per-ROI statistical significance, split into 4 groups by
+    2. Pooled per-ROI statistical significance, split into 4 groups by
        (target x treatment order) -- see "STATISTICAL TEST" below.
     3. Held-out loss-per-patient table (unfiltered -- this is how the two
        excluded folds were identified in the first place).
@@ -63,22 +63,20 @@ CAUTION -- per-fold N=1, pooled N=17 (after exclusion): each individual
 fold only ever tells you ΔC for its one held-out patient; the statistical
 test is run on the POOLED table across all folds (each fold contributing
 exactly one patient's ΔC, computed from a model that never saw that
-patient), not per-fold. Confirmed against compare_pre_post.py's paired
-t-test + BH-FDR approach used everywhere else in this project, for
-consistency across all ΔC analyses.
+patient), not per-fold. Consistent with the paired t-test + BH-FDR
+approach used everywhere else in this project.
 
-REMAINING ASSUMPTIONS ABOUT compare_pre_post.py's PUBLIC API (still
-unconfirmed -- source file wasn't available to check directly):
-    - cpp.load_model(path) -> BRICK model, loaded + eval mode
-    - cpp.compute_K(model) -> (K, Lambda, W_bar_x)
-    - cpp.compute_roi_projection_weights(W_bar_x) -> roi_weights
-    - cpp.project_to_roi(diag_matrix, roi_weights) -> roi-projected values,
-      shape (n_items, len(TARGET_ROIS))
-    - cpp.TARGET_ROIS -> ordered list of the 24 ROI names
-    - model(x, label, kl_g0_weight=..., kl_u_weight=..., apply_free_bits=...)
-      returns a dict with "C" (full MxM matrix) and "losses" ->
-      {"loss_recon": ..., "loss_cls": ...} as scalar tensors, mirroring
-      train.py's run_epoch() usage
+SHARED DEPENDENCY: model loading, K computation, and decoder-based ROI
+projection are imported from analysis.analysis_helper_functions (the same
+functions used by compare_pre_post.py, compare_batch_size.py, and
+compare_seed_effects.py). evaluate_fold() below does its own C extraction
+rather than using analysis_helper_functions.extract_all_C, because it
+calls the model with a different signature --
+model(x, label, kl_g0_weight=..., kl_u_weight=..., apply_free_bits=...)
+via BRICKDataset items, returning a dict with "C" (full MxM matrix) and
+"losses" -> {"loss_recon": ..., "loss_cls": ...} -- mirroring train.py's
+run_epoch() usage rather than the plain model(x) call extract_all_C
+assumes.
 
 Usage:
     python analysis/loso_analyze.py
@@ -98,9 +96,11 @@ from scipy import stats as sstats
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
-sys.path.insert(0, str(Path(__file__).resolve().parent))  # so `import compare_pre_post` works
 
-import compare_pre_post as cpp
+from preprocessing.load_preprocessed_data import TARGET_ROIS
+from analysis.analysis_helper_functions import (
+    load_model, compute_K, compute_roi_projection_weights, project_to_roi,
+)
 from training.dataset import BRICKDataset
 from training.train import DATA_DIR
 
@@ -212,9 +212,9 @@ def evaluate_fold(subject_id: str, checkpoint_path: Path, all_items: list) -> li
               f"the ID format matches BRICKDataset exactly (e.g. 'sub-fuspd13').")
         return []
 
-    model = cpp.load_model(checkpoint_path)
-    K, Lambda, W_bar_x = cpp.compute_K(model)
-    roi_weights = cpp.compute_roi_projection_weights(W_bar_x)
+    model = load_model(checkpoint_path)
+    K, Lambda, W_bar_x = compute_K(model)
+    roi_weights = compute_roi_projection_weights(W_bar_x)
 
     rows = []
     with torch.no_grad():
@@ -241,7 +241,7 @@ def evaluate_fold(subject_id: str, checkpoint_path: Path, all_items: list) -> li
                 C_diag = torch.diagonal(C)
                 if C_diag.is_complex():
                     C_diag = C_diag.real
-                roi_c[session] = cpp.project_to_roi(C_diag.unsqueeze(0), roi_weights)[0]
+                roi_c[session] = project_to_roi(C_diag.unsqueeze(0), roi_weights)[0]
 
                 losses[session] = {
                     "loss_recon": out["losses"]["loss_recon"].item(),
@@ -250,7 +250,7 @@ def evaluate_fold(subject_id: str, checkpoint_path: Path, all_items: list) -> li
 
             delta = roi_c["post"] - roi_c["pre"]
 
-            for roi_idx, roi_name in enumerate(cpp.TARGET_ROIS):
+            for roi_idx, roi_name in enumerate(TARGET_ROIS):
                 rows.append({
                     "subject_id":       subject_id,
                     "target":           target,
@@ -377,7 +377,7 @@ def plot_delta_grid(df: pd.DataFrame, target: str, ylim: tuple, excluded_subject
         print(f"  No data for target={target}, skipping plot.")
         return
 
-    rois = list(cpp.TARGET_ROIS)
+    rois = list(TARGET_ROIS)
     first_group, second_group = order_patients(df, target)
     patients = first_group + second_group
     split_idx = len(first_group)
@@ -468,7 +468,7 @@ def compute_pooled_stats(df: pd.DataFrame, alpha: float = ALPHA) -> pd.DataFrame
     """One-sample t-test per ROI (H0: mean delta = 0), run separately within
     each of the 4 TREATMENT_GROUPS, with BH-FDR correction applied
     independently within each group across its 24 ROIs."""
-    rois = list(cpp.TARGET_ROIS)
+    rois = list(TARGET_ROIS)
     all_rows = []
 
     for label, target, group_str in TREATMENT_GROUPS:
@@ -517,10 +517,10 @@ def compute_pooled_stats(df: pd.DataFrame, alpha: float = ALPHA) -> pd.DataFrame
 
 
 # ================================================================================
-# PLOT 3 — pooled significance, 4 bars per ROI (NEW)
+# PLOT 3 — pooled significance, 4 bars per ROI
 # ================================================================================
 def plot_pooled_grid(stats_df: pd.DataFrame, ylim: tuple, excluded_subjects):
-    rois = list(cpp.TARGET_ROIS)
+    rois = list(TARGET_ROIS)
     labels_order = [g[0] for g in TREATMENT_GROUPS]
 
     ncols = 4
@@ -668,7 +668,7 @@ def main(force: bool = False):
     for target in TARGETS:
         plot_delta_grid(df, target, ylim=ylim, excluded_subjects=excluded_present)
 
-    # --- Plot 3: pooled significance by treatment group (NEW) ---
+    # --- Plot 3: pooled significance by treatment group ---
     stats_df = compute_pooled_stats(df)
     stats_csv = OUT_DIR / "loso_pooled_stats.csv"
     stats_df.to_csv(stats_csv, index=False)
