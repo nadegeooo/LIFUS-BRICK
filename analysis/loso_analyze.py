@@ -205,6 +205,10 @@ def evaluate_fold(subject_id: str, checkpoint_path: Path, all_items: list) -> li
     Load this fold's checkpoint and evaluate it ONLY on subject_id's own
     pre/post data, computing ΔC = post - pre per ROI for each target the
     subject has. Returns a list of row-dicts: one per (target, roi).
+    Each row carries both the decoder-projected pre/post values and their
+    delta, so downstream analyses can reconstruct either the paired
+    difference or the raw per-session trajectory without re-running the
+    model.
     """
     my_items = [it for it in all_items if it["subject_id"] == subject_id]
     if not my_items:
@@ -224,7 +228,7 @@ def evaluate_fold(subject_id: str, checkpoint_path: Path, all_items: list) -> li
             post_item = next((it for it in my_items
                                if it["target"] == target and it["session"] == "post"), None)
             if pre_item is None or post_item is None:
-                continue  # this subject doesn't have this target
+                continue
 
             if pre_item["group_str"] != post_item["group_str"]:
                 print(f"  WARNING: {subject_id}/{target} has mismatched group_str "
@@ -256,6 +260,8 @@ def evaluate_fold(subject_id: str, checkpoint_path: Path, all_items: list) -> li
                     "target":           target,
                     "group_str":        group_str,
                     "roi":              roi_name,
+                    "roi_c_pre":        float(roi_c["pre"][roi_idx]),
+                    "roi_c_post":       float(roi_c["post"][roi_idx]),
                     "delta":            float(delta[roi_idx]),
                     "loss_recon_pre":   losses["pre"]["loss_recon"],
                     "loss_recon_post":  losses["post"]["loss_recon"],
@@ -576,6 +582,323 @@ def plot_pooled_grid(stats_df: pd.DataFrame, ylim: tuple, excluded_subjects):
 
 
 # ================================================================================
+# PLOT 4 — held-out C timeline grid, one panel per ROI, EXCLUDED_SUBJECTS removed
+# ================================================================================
+
+C_STAGES = ["pre_tx1", "post_tx1", "pre_tx2", "post_tx2"]
+C_STAGE_LABELS_SHORT = ["Pre-1", "Post-1", "Pre-2", "Post-2"]
+C_GROUP_COLORS = {"vim_first": "#d62728", "zi_first": "#1f77b4"}
+
+# From the study's Methods (Visit 2): both sessions occur the same day,
+# separated by a mean of 3.8h (SD 0.2). Annotation only -- not used in
+# any numerical computation.
+INTER_SESSION_GAP_HOURS_MEAN = 3.8
+INTER_SESSION_GAP_HOURS_SD = 0.2
+
+
+def build_roi_timeline(df: pd.DataFrame) -> dict:
+    """
+    Reshape the (already exclusion-filtered) LOSO dataframe from
+    long (subject, target, roi) rows into per-subject 4-stage trajectories,
+    using each subject's group_str to determine which target was tx1 vs tx2.
+
+    Returns:
+        {
+          subject_id: {
+            "order": "vim_first" | "zi_first",
+            "pre_tx1": (N_ROIS,), "post_tx1": (N_ROIS,),
+            "pre_tx2": (N_ROIS,), "post_tx2": (N_ROIS,),
+          },
+          ...
+        }
+    Subjects missing either target, or with inconsistent group_str across
+    targets, are skipped with a warning.
+    """
+    rois = list(TARGET_ROIS)
+    out = {}
+
+    for sid, sub in df.groupby("subject_id"):
+        group_strs = sub["group_str"].unique()
+        if len(group_strs) > 1:
+            print(f"  WARNING: {sid} has inconsistent group_str across targets "
+                  f"{list(group_strs)} -- skipping.")
+            continue
+        group_str = group_strs[0]
+        if group_str not in TARGET_FIRST_LABEL.values():
+            print(f"  WARNING: {sid} has unrecognized group_str {group_str!r} -- skipping.")
+            continue
+
+        first = "vim" if group_str == TARGET_FIRST_LABEL["vim"] else "zi"
+        second = "zi" if first == "vim" else "vim"
+        order = f"{first}_first"
+
+        sub_first = sub[sub["target"] == first].set_index("roi")
+        sub_second = sub[sub["target"] == second].set_index("roi")
+        if len(sub_first) != len(rois) or len(sub_second) != len(rois):
+            print(f"  WARNING: {sid} missing ROI rows for one or both targets -- skipping.")
+            continue
+
+        out[sid] = {
+            "order":    order,
+            "pre_tx1":  sub_first.loc[rois, "roi_c_pre"].values.astype(float),
+            "post_tx1": sub_first.loc[rois, "roi_c_post"].values.astype(float),
+            "pre_tx2":  sub_second.loc[rois, "roi_c_pre"].values.astype(float),
+            "post_tx2": sub_second.loc[rois, "roi_c_post"].values.astype(float),
+        }
+
+    return out
+
+
+def plot_roi_timeline_grid(C_roi_all: dict, roi_names, out_path: Path, excluded_subjects):
+    """
+    24-panel grid, one panel per ROI: mean +/- SEM decoder-projected C at
+    pre-tx1/post-tx1/pre-tx2/post-tx2, one line per treatment order.
+    Each panel's y-axis is sized to its own data (mean +/- SEM across all
+    4 stages/both groups), but every panel uses the same axis SPAN, so
+    spread is visually comparable across ROIs without forcing 0 into view.
+    """
+    rois = list(roi_names)
+    n_rois = len(rois)
+    ncols = 4
+    nrows = int(np.ceil(n_rois / ncols))
+
+    group_stage_vals = {order: {s: [] for s in C_STAGES} for order in C_GROUP_COLORS}
+    group_n = {order: 0 for order in C_GROUP_COLORS}
+    for sid, d in C_roi_all.items():
+        order = d["order"]
+        if order not in group_stage_vals:
+            continue
+        for s in C_STAGES:
+            group_stage_vals[order][s].append(d[s])
+        group_n[order] += 1
+
+    for order in group_stage_vals:
+        for s in C_STAGES:
+            group_stage_vals[order][s] = (
+                np.stack(group_stage_vals[order][s]) if group_stage_vals[order][s] else None
+            )
+
+    per_roi_data = []
+    for idx in range(n_rois):
+        roi_data = {}
+        lo, hi = np.inf, -np.inf
+        for order in C_GROUP_COLORS:
+            n = group_n[order]
+            if n == 0:
+                continue
+            means, sems = [], []
+            for s in C_STAGES:
+                vals = group_stage_vals[order][s]
+                col = vals[:, idx]
+                m = col.mean()
+                e = col.std(ddof=1) / np.sqrt(n) if n > 1 else 0.0
+                means.append(m)
+                sems.append(e)
+                lo = min(lo, m - e)
+                hi = max(hi, m + e)
+            roi_data[order] = (means, sems, n)
+        roi_data["_range"] = (lo, hi)
+        per_roi_data.append(roi_data)
+
+    spans = [hi - lo for (lo, hi) in (d["_range"] for d in per_roi_data) if np.isfinite(hi - lo)]
+    max_span = (max(spans) if spans else 1.0) * 1.15
+
+    fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 3 * nrows), squeeze=False)
+
+    for idx, roi in enumerate(rois):
+        ax = axes[idx // ncols][idx % ncols]
+        roi_data = per_roi_data[idx]
+
+        for order, color in C_GROUP_COLORS.items():
+            if order not in roi_data:
+                continue
+            means, sems, n = roi_data[order]
+            ax.errorbar(range(4), means, yerr=sems, color=color, marker="o",
+                        capsize=3, lw=1.5, markersize=4,
+                        label=f"{order.split('_')[0].upper()}-first (n={n})")
+
+        lo, hi = roi_data["_range"]
+        if np.isfinite(lo) and np.isfinite(hi):
+            center = (lo + hi) / 2
+            ax.set_ylim(center - max_span / 2, center + max_span / 2)
+
+        ax.axhline(0, color="black", lw=0.5, zorder=0)
+        ax.set_xticks(range(4))
+        ax.set_xticklabels(C_STAGE_LABELS_SHORT, fontsize=7)
+        ax.set_title(roi, fontsize=9)
+        ax.tick_params(labelsize=7)
+        if idx % ncols == 0:
+            ax.set_ylabel("Mean held-out C (decoder-projected)", fontsize=8)
+
+    for idx in range(n_rois, nrows * ncols):
+        axes[idx // ncols][idx % ncols].axis("off")
+
+    handles, labels = axes[0][0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=2, fontsize=9,
+               bbox_to_anchor=(0.5, 1.03))
+
+    title = (
+        "LOSO held-out C by ROI across treatment sessions, per treatment order\n"
+        f"(post-TUS-1 \u2192 pre-TUS-2 gap: ~{INTER_SESSION_GAP_HOURS_MEAN:.1f}h, "
+        f"SD {INTER_SESSION_GAP_HOURS_SD:.1f})"
+    )
+    note = exclusion_note(excluded_subjects)
+    if note:
+        title += f"\n{note}"
+    fig.suptitle(title, fontsize=12, y=1.08 if note else 1.06)
+    fig.tight_layout()
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    print(f"Saved {out_path}")
+    plt.close(fig)
+
+
+   # ================================================================================
+# PLOT 5 — paired cumulative ΔC from baseline, one panel per ROI
+# ================================================================================
+
+C_DELTA_STAGES = ["baseline", "after_tx1", "after_wait", "after_tx2"]
+C_DELTA_STAGE_LABELS = ["Baseline\n(pre-TUS 1)", "After TUS 1", "After wait", "After TUS 2"]
+
+
+def build_roi_cumulative_delta(C_roi_all: dict) -> dict:
+    """
+    For each subject, compute cumulative ΔC relative to their own pre-tx1
+    baseline at 3 later checkpoints, plus an explicit 0 at baseline. Since
+    every stage is (stage_value - that subject's own pre_tx1), each
+    subject's individual baseline level cancels out -- same logic as
+    `delta` (post - pre) elsewhere in this script -- so the resulting SEM
+    reflects within-subject change, not between-subject baseline spread.
+
+    Returns:
+        {
+          subject_id: {
+            "order": "vim_first" | "zi_first",
+            "baseline":   (N_ROIS,) zeros,
+            "after_tx1":  (N_ROIS,),   # post_tx1 - pre_tx1
+            "after_wait": (N_ROIS,),   # pre_tx2  - pre_tx1
+            "after_tx2":  (N_ROIS,),   # post_tx2 - pre_tx1
+          },
+          ...
+        }
+    """
+    out = {}
+    for sid, d in C_roi_all.items():
+        baseline = d["pre_tx1"]
+        out[sid] = {
+            "order":      d["order"],
+            "baseline":   np.zeros_like(baseline),
+            "after_tx1":  d["post_tx1"] - baseline,
+            "after_wait": d["pre_tx2"]  - baseline,
+            "after_tx2":  d["post_tx2"] - baseline,
+        }
+    return out
+
+
+def plot_roi_cumulative_delta_grid(C_delta_all: dict, roi_names, out_path: Path, excluded_subjects):
+    """
+    24-panel grid, one panel per ROI: mean +/- SEM cumulative ΔC (relative
+    to each subject's own pre-tx1 baseline) at baseline/after-tx1/after-
+    wait/after-tx2, one line per treatment order. Paired at the subject
+    level, so SEM reflects within-subject variability only -- comparable in
+    scale to loso_pooled_significance_by_roi.png, unlike the raw-value
+    timeline. Y-axis: same span-matching approach as plot_roi_timeline_grid,
+    but symmetric around 0 since these are signed deltas from a 0 baseline.
+    """
+    rois = list(roi_names)
+    n_rois = len(rois)
+    ncols = 4
+    nrows = int(np.ceil(n_rois / ncols))
+
+    group_stage_vals = {order: {s: [] for s in C_DELTA_STAGES} for order in C_GROUP_COLORS}
+    group_n = {order: 0 for order in C_GROUP_COLORS}
+    for sid, d in C_delta_all.items():
+        order = d["order"]
+        if order not in group_stage_vals:
+            continue
+        for s in C_DELTA_STAGES:
+            group_stage_vals[order][s].append(d[s])
+        group_n[order] += 1
+
+    for order in group_stage_vals:
+        for s in C_DELTA_STAGES:
+            group_stage_vals[order][s] = (
+                np.stack(group_stage_vals[order][s]) if group_stage_vals[order][s] else None
+            )
+
+    per_roi_data = []
+    for idx in range(n_rois):
+        roi_data = {}
+        max_abs = 0.0
+        for order in C_GROUP_COLORS:
+            n = group_n[order]
+            if n == 0:
+                continue
+            means, sems = [], []
+            for s in C_DELTA_STAGES:
+                vals = group_stage_vals[order][s]
+                col = vals[:, idx]
+                m = col.mean()
+                e = col.std(ddof=1) / np.sqrt(n) if n > 1 else 0.0
+                means.append(m)
+                sems.append(e)
+                max_abs = max(max_abs, abs(m) + e)
+            roi_data[order] = (means, sems, n)
+        roi_data["_max_abs"] = max_abs
+        per_roi_data.append(roi_data)
+
+    spans = [d["_max_abs"] for d in per_roi_data if np.isfinite(d["_max_abs"]) and d["_max_abs"] > 0]
+    max_span = (max(spans) if spans else 1.0) * 2 * 1.15  # symmetric span, padded
+
+    fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 3 * nrows), squeeze=False)
+
+    for idx, roi in enumerate(rois):
+        ax = axes[idx // ncols][idx % ncols]
+        roi_data = per_roi_data[idx]
+
+        for order, color in C_GROUP_COLORS.items():
+            if order not in roi_data:
+                continue
+            means, sems, n = roi_data[order]
+            ax.errorbar(range(4), means, yerr=sems, color=color, marker="o",
+                        capsize=3, lw=1.5, markersize=4,
+                        label=f"{order.split('_')[0].upper()}-first (n={n})")
+
+        ax.set_ylim(-max_span / 2, max_span / 2)
+        ax.axhline(0, color="black", lw=0.5, zorder=0)
+        ax.set_xticks(range(4))
+        ax.set_xticklabels(C_DELTA_STAGE_LABELS, fontsize=6.5)
+        ax.set_title(roi, fontsize=9)
+        ax.tick_params(labelsize=7)
+        if idx % ncols == 0:
+            ax.set_ylabel("\u0394C from baseline (decoder-projected)", fontsize=8)
+
+    for idx in range(n_rois, nrows * ncols):
+        axes[idx // ncols][idx % ncols].axis("off")
+
+    handles, labels = axes[0][0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=2, fontsize=9,
+               bbox_to_anchor=(0.5, 1.03))
+
+    title = (
+        "LOSO held-out cumulative \u0394C from baseline, by ROI, per treatment order\n"
+        f"(post-TUS-1 \u2192 pre-TUS-2 gap: ~{INTER_SESSION_GAP_HOURS_MEAN:.1f}h, "
+        f"SD {INTER_SESSION_GAP_HOURS_SD:.1f})"
+    )
+    note = exclusion_note(excluded_subjects)
+    if note:
+        title += f"\n{note}"
+    fig.suptitle(title, fontsize=12, y=1.08 if note else 1.06)
+    fig.tight_layout()
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    print(f"Saved {out_path}")
+    plt.close(fig)
+
+
+# ================================================================================
 # LOSS TABLE — one row per patient (not split by target, unfiltered)
 # ================================================================================
 def build_loss_table(df_raw: pd.DataFrame) -> pd.DataFrame:
@@ -681,6 +1004,19 @@ def main(force: bool = False):
 
     pooled_ylim = compute_shared_ylim(stats_df["mean_delta"].values)
     plot_pooled_grid(stats_df, ylim=pooled_ylim, excluded_subjects=excluded_present)
+
+    # --- Plot 4: held-out C timeline grid (exclusion-filtered) ---
+    C_roi_all = build_roi_timeline(df)
+    print(f"\nBuilt timeline for {len(C_roi_all)} subjects (excluded: {excluded_present}).")
+    plot_roi_timeline_grid(C_roi_all, TARGET_ROIS,
+                           OUT_DIR / "loso_C_timeline_by_roi.png",
+                           excluded_subjects=excluded_present)
+
+    # --- Plot 5: paired cumulative delta from baseline ---
+    C_delta_all = build_roi_cumulative_delta(C_roi_all)
+    plot_roi_cumulative_delta_grid(C_delta_all, TARGET_ROIS,
+                                   OUT_DIR / "loso_C_cumulative_delta_by_roi.png",
+                                   excluded_subjects=excluded_present)
 
     # --- Loss table (unfiltered, on purpose) ---
     loss_table = build_loss_table(df_raw)
