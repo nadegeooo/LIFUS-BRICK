@@ -561,8 +561,7 @@ def plot_pooled_grid(stats_df: pd.DataFrame, ylim: tuple, excluded_subjects):
         plt.Rectangle((0, 0), 1, 1, color=COLOR_MAP["fdr_significant"],
                       label="FDR significant (within-group, \u03b1=0.05)"),
         plt.Rectangle((0, 0), 1, 1, color=COLOR_MAP["consistency_threshold"],
-                      label=f"Not FDR-sig., but \u2265{CONSISTENCY_FRACTION:.0%} consistent direction "
-                            f"(green takes priority if both apply)"),
+                      label=f"Not FDR-sig., but \u2265{CONSISTENCY_FRACTION:.0%} consistent direction "),
         plt.Rectangle((0, 0), 1, 1, color=COLOR_MAP["neither"], label="Neither"),
     ]
     fig.legend(handles=legend_handles, loc="upper center", ncol=1, fontsize=8.5,

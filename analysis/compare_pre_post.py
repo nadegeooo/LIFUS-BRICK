@@ -61,8 +61,8 @@ from analysis.analysis_helper_functions import (
 )
 
 FINAL_MODEL_PATH = ROOT_DIR / "results" / "final_model" / "best_model_cls.pt"
-RESULTS_DIR      = ROOT_DIR / "results" / "final_model"
-FIGURES_DIR      = ROOT_DIR / "results" / "final_model" / "figures_final_model"
+RESULTS_DIR      = ROOT_DIR / "results" / "final_model" / "figures_and_stats"
+FIGURES_DIR      = ROOT_DIR / "results" / "final_model" / "figures_and_stats"
 
 TR = 2.0                       # seconds per volume
 RESTING_BAND = (0.01, 0.10)    # Hz, conventional resting-state BOLD band
@@ -210,6 +210,14 @@ def plot_mode_maps(
 
     M_display = len(mode_order)
     loading_sorted = loading[mode_order, :]
+
+    loading_df = pd.DataFrame(
+        loading_sorted,  # (M_display, n_rois), rows already in persistence order
+        index=[f"M{mode_order[i]}" for i in range(M_display)],
+        columns=roi_names_list,
+    )
+    loading_df.to_csv(RESULTS_DIR / "koopman_mode_loadings.csv")
+
     loading_grouped = loading_sorted[:, roi_order]
 
     fig, ax = plt.subplots(figsize=(14, max(6, M_display * 0.22)))
@@ -312,7 +320,16 @@ def run_K_descriptives(model, top_k):
     plot_spectrum(Lambda, FIGURES_DIR / "koopman_spectrum.png")
     plot_mode_maps(W_bar_x, Lambda, TARGET_ROIS,
                    FIGURES_DIR / "koopman_mode_maps.png", top_k=top_k)
+
     B = compute_block_norms(K, N_ROIS, H)
+
+    B_df = pd.DataFrame(B, index=list(TARGET_ROIS), columns=list(TARGET_ROIS))
+    B_df.index.name = "target_ROI"       # rows = target (t+1)
+    B_df.columns.name = "source_ROI"     # cols = source (t)
+    B_path = RESULTS_DIR / "K_region_coupling.csv"
+    B_df.to_csv(B_path)
+    print(f"Saved {B_path}")
+
     plot_block_coupling(B, TARGET_ROIS, FIGURES_DIR / "K_region_coupling.png")
 
 
