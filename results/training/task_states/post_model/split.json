@@ -1,0 +1,28 @@
+{
+  "train": [
+    "fuspd01",
+    "fuspd03",
+    "fuspd04",
+    "fuspd06",
+    "fuspd07",
+    "fuspd09",
+    "fuspd11",
+    "fuspd13",
+    "fuspd15",
+    "fuspd16",
+    "fuspd18",
+    "fuspd19",
+    "fuspd20",
+    "fuspd22",
+    "fuspd23",
+    "fuspd24",
+    "fuspd26"
+  ],
+  "val": [
+    "fuspd12",
+    "fuspd08"
+  ],
+  "condition": "post",
+  "num_classes": 4,
+  "seed": 42
+}
